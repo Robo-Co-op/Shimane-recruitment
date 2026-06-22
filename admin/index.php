@@ -9,7 +9,7 @@ $db   = get_db();
 // Stats
 $total_subs    = $db->query("SELECT COUNT(*) FROM form_submissions")->fetchColumn();
 $total_drafts  = $db->query("SELECT COUNT(*) FROM form_drafts WHERE completed=0")->fetchColumn();
-$today_views   = $db->query("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND DATE(created_at)=DATE('now')")->fetchColumn();
+$today_views   = $db->query("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND created_at::date = CURRENT_DATE")->fetchColumn();
 $apply_clicks  = $db->query("SELECT COUNT(*) FROM analytics_events WHERE event_type='apply_click'")->fetchColumn();
 $complete_rate = $total_subs + $total_drafts > 0
     ? round($total_subs / ($total_subs + $total_drafts) * 100) : 0;
@@ -22,9 +22,10 @@ $pending = $db->query("SELECT id,name,email,lang,step_reached,created_at FROM fo
 
 // Weekly views data for spark chart
 $weekly = $db->query("
-    SELECT DATE(created_at) as d, COUNT(*) as n
-    FROM analytics_events WHERE event_type='pageview' AND created_at >= DATE('now','-6 days')
-    GROUP BY DATE(created_at) ORDER BY d
+    SELECT created_at::date AS d, COUNT(*) AS n
+    FROM analytics_events WHERE event_type='pageview'
+      AND created_at >= NOW() - INTERVAL '6 days'
+    GROUP BY created_at::date ORDER BY d
 ")->fetchAll(PDO::FETCH_KEY_PAIR);
 $days_data = [];
 for ($i = 6; $i >= 0; $i--) {

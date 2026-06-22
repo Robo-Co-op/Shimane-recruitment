@@ -9,33 +9,35 @@ $db = get_db();
 $range = (int)($_GET['days'] ?? 30);
 if (!in_array($range, [7,14,30,90])) $range = 30;
 
+// Pre-compute cutoff date in PHP (avoids SQLite/PostgreSQL date syntax differences)
+$cutoff = date('Y-m-d H:i:s', strtotime("-{$range} days"));
+
 // Summary stats
-$views   = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND created_at>=DATE('now',?)")->execute(["-{$range} days"]) ? 0 : 0;
-$st = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND created_at>=DATE('now',?)");
-$st->execute(["-{$range} days"]); $views = $st->fetchColumn();
+$st = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND created_at>=?");
+$st->execute([$cutoff]); $views = $st->fetchColumn();
 
-$st2 = $db->prepare("SELECT COUNT(DISTINCT session_id) FROM analytics_events WHERE event_type='pageview' AND created_at>=DATE('now',?)");
-$st2->execute(["-{$range} days"]); $unique = $st2->fetchColumn();
+$st2 = $db->prepare("SELECT COUNT(DISTINCT session_id) FROM analytics_events WHERE event_type='pageview' AND created_at>=?");
+$st2->execute([$cutoff]); $unique = $st2->fetchColumn();
 
-$st3 = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='apply_click' AND created_at>=DATE('now',?)");
-$st3->execute(["-{$range} days"]); $apply_clicks = $st3->fetchColumn();
+$st3 = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='apply_click' AND created_at>=?");
+$st3->execute([$cutoff]); $apply_clicks = $st3->fetchColumn();
 
-$st4 = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND lang='en' AND created_at>=DATE('now',?)");
-$st4->execute(["-{$range} days"]); $en_views = $st4->fetchColumn();
+$st4 = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND lang='en' AND created_at>=?");
+$st4->execute([$cutoff]); $en_views = $st4->fetchColumn();
 
-$st5 = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND lang='ja' AND created_at>=DATE('now',?)");
-$st5->execute(["-{$range} days"]); $ja_views = $st5->fetchColumn();
+$st5 = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='pageview' AND lang='ja' AND created_at>=?");
+$st5->execute([$cutoff]); $ja_views = $st5->fetchColumn();
 
-$st6 = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='click' AND created_at>=DATE('now',?)");
-$st6->execute(["-{$range} days"]); $btn_clicks = $st6->fetchColumn();
+$st6 = $db->prepare("SELECT COUNT(*) FROM analytics_events WHERE event_type='click' AND created_at>=?");
+$st6->execute([$cutoff]); $btn_clicks = $st6->fetchColumn();
 
 // Daily views chart data
 $daily_st = $db->prepare("
-    SELECT DATE(created_at) as d, COUNT(*) as n
-    FROM analytics_events WHERE event_type='pageview' AND created_at>=DATE('now',?)
-    GROUP BY DATE(created_at) ORDER BY d
+    SELECT created_at::date AS d, COUNT(*) AS n
+    FROM analytics_events WHERE event_type='pageview' AND created_at>=?
+    GROUP BY created_at::date ORDER BY d
 ");
-$daily_st->execute(["-{$range} days"]);
+$daily_st->execute([$cutoff]);
 $daily_raw = $daily_st->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $daily = [];
@@ -47,19 +49,19 @@ for ($i = $range-1; $i >= 0; $i--) {
 
 // Top pages
 $top_pages = $db->prepare("
-    SELECT page, COUNT(*) as n FROM analytics_events
-    WHERE event_type='pageview' AND created_at>=DATE('now',?)
+    SELECT page, COUNT(*) AS n FROM analytics_events
+    WHERE event_type='pageview' AND created_at>=?
     GROUP BY page ORDER BY n DESC LIMIT 10
 ");
-$top_pages->execute(["-{$range} days"]);
+$top_pages->execute([$cutoff]);
 $pages = $top_pages->fetchAll();
 
 // Event breakdown
 $events_st = $db->prepare("
-    SELECT event_type, COUNT(*) as n FROM analytics_events
-    WHERE created_at>=DATE('now',?) GROUP BY event_type ORDER BY n DESC
+    SELECT event_type, COUNT(*) AS n FROM analytics_events
+    WHERE created_at>=? GROUP BY event_type ORDER BY n DESC
 ");
-$events_st->execute(["-{$range} days"]);
+$events_st->execute([$cutoff]);
 $events = $events_st->fetchAll();
 
 admin_start('Analytics', 'analytics');

@@ -8,3 +8,7 @@ Thumbs.db
 
 # PHP
 *.log
+config.php
+
+# SQLite (local dev only — Supabase is the live DB)
+db/shimane.sqlite

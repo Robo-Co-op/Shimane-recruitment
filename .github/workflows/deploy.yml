@@ -1,0 +1,77 @@
+# Shimane IB Recruitment — Deploy workflow
+#
+# Required GitHub repository secrets (Settings → Secrets → Actions):
+#   DB_HOST      — Supabase host, e.g. db.XXXX.supabase.co
+#   DB_PORT      — 5432
+#   DB_NAME      — postgres
+#   DB_USER      — postgres
+#   DB_PASSWORD  — your Supabase database password
+#   DB_SCHEMA    — shimane
+#
+# Optional deploy secrets (add when you have a hosting target):
+#   DEPLOY_HOST  — SSH host of your web server
+#   DEPLOY_USER  — SSH username
+#   DEPLOY_KEY   — SSH private key (use ssh-keygen, add public key to server)
+#   DEPLOY_PATH  — remote path, e.g. /var/www/shimane-ib
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:   # allow manual trigger from GitHub UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DB_HOST:     ${{ secrets.DB_HOST }}
+      DB_PORT:     ${{ secrets.DB_PORT }}
+      DB_NAME:     ${{ secrets.DB_NAME }}
+      DB_USER:     ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_SCHEMA:   ${{ secrets.DB_SCHEMA }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, pgsql, mbstring
+
+      - name: Verify DB connection
+        run: |
+          php -r "
+            \$pdo = new PDO(
+              'pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_NAME'),
+              getenv('DB_USER'), getenv('DB_PASSWORD')
+            );
+            echo 'DB connection OK' . PHP_EOL;
+          "
+
+      # ── Add your deployment step below ───────────────────────────────────────
+      # Option A: rsync over SSH
+      # - name: Deploy via rsync
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+      #     chmod 600 ~/.ssh/id_rsa
+      #     rsync -az --delete \
+      #       --exclude='.git' --exclude='config.php' --exclude='db/' \
+      #       ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/
+      #
+      # Option B: FTP deploy (e.g. shared hosting)
+      # - name: Deploy via FTP
+      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      #   with:
+      #     server: ${{ secrets.FTP_HOST }}
+      #     username: ${{ secrets.FTP_USER }}
+      #     password: ${{ secrets.FTP_PASSWORD }}
+      #     exclude: |
+      #       **/.git/**
+      #       **/config.php
+      #       **/db/**

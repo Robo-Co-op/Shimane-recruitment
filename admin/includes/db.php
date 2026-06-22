@@ -2,13 +2,45 @@
 function get_db(): PDO {
     static $pdo = null;
     if ($pdo) return $pdo;
-    $dir = dirname(__DIR__, 2) . '/db';
-    if (!is_dir($dir)) mkdir($dir, 0755, true);
-    $pdo = new PDO('sqlite:' . $dir . '/shimane.sqlite', null, null, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-    $pdo->exec("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON");
+
+    // ── Credentials: env vars (production/CI) → config.php (local dev) ────────
+    $host   = getenv('DB_HOST')     ?: null;
+    $port   = getenv('DB_PORT')     ?: null;
+    $dbname = getenv('DB_NAME')     ?: null;
+    $user   = getenv('DB_USER')     ?: null;
+    $pass   = getenv('DB_PASSWORD') ?: null;
+    $schema = getenv('DB_SCHEMA')   ?: null;
+
+    if (!$host) {
+        $cfg = dirname(__DIR__, 2) . '/config.php';
+        if (file_exists($cfg)) require_once $cfg;
+        $host   = defined('DB_HOST')     ? DB_HOST     : null;
+        $port   = defined('DB_PORT')     ? DB_PORT     : '5432';
+        $dbname = defined('DB_NAME')     ? DB_NAME     : 'postgres';
+        $user   = defined('DB_USER')     ? DB_USER     : 'postgres';
+        $pass   = defined('DB_PASSWORD') ? DB_PASSWORD : '';
+        $schema = defined('DB_SCHEMA')   ? DB_SCHEMA   : 'shimane';
+    }
+
+    if (!$host) {
+        http_response_code(500);
+        die('<h2>Database not configured.</h2>Copy <code>config.php.example</code> to <code>config.php</code> and fill in your Supabase credentials.');
+    }
+
+    $port   = $port   ?: '5432';
+    $schema = $schema ?: 'shimane';
+
+    $pdo = new PDO(
+        "pgsql:host={$host};port={$port};dbname={$dbname}",
+        $user, $pass,
+        [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]
+    );
+
+    $pdo->exec("CREATE SCHEMA IF NOT EXISTS {$schema}");
+    $pdo->exec("SET search_path TO {$schema}");
     _init_schema($pdo);
     _ensure_forms_seeded($pdo);
     return $pdo;
@@ -16,89 +48,94 @@ function get_db(): PDO {
 
 function _init_schema(PDO $db): void {
     $db->exec("CREATE TABLE IF NOT EXISTS admin_users (
-        id           INTEGER PRIMARY KEY AUTOINCREMENT,
-        email        TEXT UNIQUE NOT NULL,
-        name         TEXT NOT NULL,
+        id            BIGSERIAL PRIMARY KEY,
+        email         TEXT UNIQUE NOT NULL,
+        name          TEXT NOT NULL,
         password_hash TEXT NOT NULL,
-        role         TEXT NOT NULL DEFAULT 'viewer',
-        created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
-        last_login   DATETIME
+        role          TEXT NOT NULL DEFAULT 'viewer',
+        created_at    TIMESTAMPTZ DEFAULT NOW(),
+        last_login    TIMESTAMPTZ
     )");
 
     $db->exec("CREATE TABLE IF NOT EXISTS form_drafts (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        token          TEXT UNIQUE NOT NULL,
-        email          TEXT,
-        name           TEXT,
-        lang           TEXT DEFAULT 'en',
-        step_reached   INTEGER DEFAULT 1,
-        form_data      TEXT DEFAULT '{}',
-        created_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
-        completed      INTEGER DEFAULT 0,
-        reminder_sent_at DATETIME,
-        reminder_count INTEGER DEFAULT 0,
-        ip_address     TEXT
+        id               BIGSERIAL PRIMARY KEY,
+        token            TEXT UNIQUE NOT NULL,
+        email            TEXT,
+        name             TEXT,
+        lang             TEXT DEFAULT 'en',
+        step_reached     INTEGER DEFAULT 1,
+        form_data        TEXT DEFAULT '{}',
+        created_at       TIMESTAMPTZ DEFAULT NOW(),
+        updated_at       TIMESTAMPTZ DEFAULT NOW(),
+        completed        INTEGER DEFAULT 0,
+        reminder_sent_at TIMESTAMPTZ,
+        reminder_count   INTEGER DEFAULT 0,
+        ip_address       TEXT
     )");
 
     $db->exec("CREATE TABLE IF NOT EXISTS form_submissions (
-        id               INTEGER PRIMARY KEY AUTOINCREMENT,
-        draft_id         INTEGER,
-        name             TEXT,
-        email            TEXT,
-        phone            TEXT,
-        how_heard        TEXT,
-        how_heard_other  TEXT,
-        resume_url       TEXT,
-        pc_skill         TEXT,
-        ai_experience    TEXT,
-        reason           TEXT,
-        interview_day    TEXT,
-        interview_day_other TEXT,
-        interview_time   TEXT,
+        id                   BIGSERIAL PRIMARY KEY,
+        draft_id             BIGINT,
+        name                 TEXT,
+        email                TEXT,
+        phone                TEXT,
+        how_heard            TEXT,
+        how_heard_other      TEXT,
+        resume_url           TEXT,
+        pc_skill             TEXT,
+        ai_experience        TEXT,
+        reason               TEXT,
+        interview_day        TEXT,
+        interview_day_other  TEXT,
+        interview_time       TEXT,
         interview_time_other TEXT,
-        support_program  TEXT,
-        lang             TEXT DEFAULT 'en',
-        submitted_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ip_address       TEXT,
-        notes            TEXT,
-        status           TEXT DEFAULT 'new'
+        support_program      TEXT,
+        lang                 TEXT DEFAULT 'en',
+        submitted_at         TIMESTAMPTZ DEFAULT NOW(),
+        ip_address           TEXT,
+        notes                TEXT,
+        status               TEXT DEFAULT 'new'
     )");
 
     $db->exec("CREATE TABLE IF NOT EXISTS analytics_events (
-        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        id         BIGSERIAL PRIMARY KEY,
         session_id TEXT,
         event_type TEXT,
         page       TEXT,
         lang       TEXT,
         referrer   TEXT,
         user_agent TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMPTZ DEFAULT NOW()
     )");
 
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_analytics_created_at
+        ON analytics_events (created_at DESC)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_analytics_event_type
+        ON analytics_events (event_type, created_at DESC)");
+
     $db->exec("CREATE TABLE IF NOT EXISTS site_content (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        id          BIGSERIAL PRIMARY KEY,
         content_key TEXT NOT NULL,
         lang        TEXT NOT NULL DEFAULT 'en',
         value       TEXT,
-        updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(content_key, lang)
+        updated_at  TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE (content_key, lang)
     )");
 
     $db->exec("CREATE TABLE IF NOT EXISTS forms (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        id          BIGSERIAL PRIMARY KEY,
         slug        TEXT UNIQUE NOT NULL,
         lang        TEXT NOT NULL DEFAULT 'en',
         title       TEXT NOT NULL,
         description TEXT DEFAULT '',
         status      TEXT DEFAULT 'active',
-        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at  TIMESTAMPTZ DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ DEFAULT NOW()
     )");
 
     $db->exec("CREATE TABLE IF NOT EXISTS form_questions (
-        id           INTEGER PRIMARY KEY AUTOINCREMENT,
-        form_id      INTEGER NOT NULL REFERENCES forms(id) ON DELETE CASCADE,
+        id           BIGSERIAL PRIMARY KEY,
+        form_id      BIGINT NOT NULL REFERENCES forms(id) ON DELETE CASCADE,
         sort_order   INTEGER DEFAULT 0,
         step         INTEGER DEFAULT 1,
         field_name   TEXT NOT NULL,
@@ -110,8 +147,11 @@ function _init_schema(PDO $db): void {
         options_json TEXT DEFAULT '[]',
         max_length   INTEGER,
         active       INTEGER DEFAULT 1,
-        created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at   TIMESTAMPTZ DEFAULT NOW()
     )");
+
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_form_questions_form_id
+        ON form_questions (form_id, sort_order)");
 }
 
 function _iq(PDO $db, int $fid, int $step, int $sort, string $name, string $type,
@@ -130,7 +170,7 @@ function _ensure_forms_seeded(PDO $db): void {
     // ── English form ─────────────────────────────────────────────────────────
     $db->exec("INSERT INTO forms (slug,lang,title,description) VALUES
         ('en-application','en','English Application Form','FY2026 Digital Talent Development Program — Shimane IB')");
-    $en = (int)$db->lastInsertId();
+    $en = (int)$db->lastInsertId('forms_id_seq');
 
     _iq($db,$en,1,10,'name','text','1. Name','','Enter your full name',1,[],null);
     _iq($db,$en,1,20,'email','email','2. Email address','','your@email.com',1,[],null);
@@ -182,7 +222,6 @@ function _ensure_forms_seeded(PDO $db): void {
         ['value'=>'15_18','label'=>'15:00 – 18:00','sub'=>''],
         ['value'=>'time_other','label'=>'Other','sub'=>''],
     ],null);
-
     _iq($db,$en,3,120,'support_program','radio',
         'Would you like to apply for this support program?','','',1,[
         ['value'=>'yes','label'=>'Yes, I would like to apply.','sub'=>''],
@@ -193,7 +232,7 @@ function _ensure_forms_seeded(PDO $db): void {
     // ── Japanese form ─────────────────────────────────────────────────────────
     $db->exec("INSERT INTO forms (slug,lang,title,description) VALUES
         ('ja-application','ja','日本語応募フォーム','令和8年度 デジタル人材育成研修 — 島根IB')");
-    $ja = (int)$db->lastInsertId();
+    $ja = (int)$db->lastInsertId('forms_id_seq');
 
     _iq($db,$ja,1,10,'name','text','1. 氏名','','例：山田 太郎',1,[],null);
     _iq($db,$ja,1,20,'email','email','2. メールアドレス','','your@email.com',1,[],null);
@@ -209,7 +248,6 @@ function _ensure_forms_seeded(PDO $db): void {
         ['value'=>'robocoop_web','label'=>'Robo Co-op のウェブサイト','sub'=>''],
         ['value'=>'other','label'=>'その他','sub'=>''],
     ],null);
-
     _iq($db,$ja,2,60,'resume_url','url','6. 履歴書・職務経歴書 URL',
         'Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。お持ちでない場合は空欄で構いません。',
         'https://drive.google.com/...',0,[],null);
@@ -245,7 +283,6 @@ function _ensure_forms_seeded(PDO $db): void {
         ['value'=>'15_18','label'=>'15:00 〜 18:00','sub'=>''],
         ['value'=>'time_other','label'=>'その他','sub'=>''],
     ],null);
-
     _iq($db,$ja,3,120,'support_program','radio',
         'このサポートプログラムへの応募を希望しますか？','','',1,[
         ['value'=>'yes','label'=>'はい、応募を希望します。','sub'=>''],
@@ -272,9 +309,8 @@ function get_form_questions(string $slug): array {
 
 function get_content(string $key, string $lang, string $default = ''): string {
     try {
-        $db  = get_db();
-        $row = $db->prepare("SELECT value FROM site_content WHERE content_key=? AND lang=?")->execute([$key, $lang]) ? null : null;
-        $st  = $db->prepare("SELECT value FROM site_content WHERE content_key=? AND lang=?");
+        $db = get_db();
+        $st = $db->prepare("SELECT value FROM site_content WHERE content_key=? AND lang=?");
         $st->execute([$key, $lang]);
         $row = $st->fetch();
         return $row ? $row['value'] : $default;

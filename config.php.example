@@ -1,0 +1,15 @@
+<?php
+/**
+ * Supabase / PostgreSQL connection config.
+ * Copy this file to config.php and fill in your values.
+ * config.php is gitignored — never commit it.
+ *
+ * Production: set these as environment variables on the server
+ * (or in GitHub Actions as repository secrets).
+ */
+define('DB_HOST',     'db.XXXXXXXXXXXXXXXX.supabase.co');  // Project Settings → Database → Host
+define('DB_PORT',     '5432');
+define('DB_NAME',     'postgres');
+define('DB_USER',     'postgres');
+define('DB_PASSWORD', 'your-database-password-here');
+define('DB_SCHEMA',   'shimane');   // PostgreSQL schema — keeps this site isolated from co-oplab

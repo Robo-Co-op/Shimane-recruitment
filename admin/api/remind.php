@@ -11,9 +11,9 @@ $st = $db->prepare("
     SELECT * FROM form_drafts
     WHERE completed=0
       AND email IS NOT NULL AND email != ''
-      AND created_at < DATETIME('now','-24 hours')
+      AND created_at < NOW() - INTERVAL '24 hours'
       AND (reminder_count < 3 OR reminder_count IS NULL)
-      AND (reminder_sent_at IS NULL OR reminder_sent_at < DATETIME('now','-72 hours'))
+      AND (reminder_sent_at IS NULL OR reminder_sent_at < NOW() - INTERVAL '72 hours')
     ORDER BY created_at DESC
     LIMIT 50
 ");
