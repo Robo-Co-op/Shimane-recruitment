@@ -2,16 +2,16 @@
 -- Shimane IB Recruitment — Supabase Schema
 -- Run this once in: Supabase Dashboard → SQL Editor
 --
--- Uses a dedicated 'shimane' schema so data is isolated from other sites
+-- Uses a dedicated 'shimaai' schema so data is isolated from other sites
 -- (co-oplab, RoboUni, etc.) sharing the same Supabase project.
 -- =============================================================================
 
 -- Create isolated schema
-CREATE SCHEMA IF NOT EXISTS shimane;
-SET search_path TO shimane;
+CREATE SCHEMA IF NOT EXISTS shimaai;
+SET search_path TO shimaai;
 
 -- ── Admin users ───────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS shimane.admin_users (
+CREATE TABLE IF NOT EXISTS shimaai.admin_users (
     id            BIGSERIAL PRIMARY KEY,
     email         TEXT UNIQUE NOT NULL,
     name          TEXT NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS shimane.admin_users (
 );
 
 -- ── Form drafts (save & resume) ───────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS shimane.form_drafts (
+CREATE TABLE IF NOT EXISTS shimaai.form_drafts (
     id               BIGSERIAL PRIMARY KEY,
     token            TEXT UNIQUE NOT NULL,
     email            TEXT,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS shimane.form_drafts (
 );
 
 -- ── Submitted applications ────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS shimane.form_submissions (
+CREATE TABLE IF NOT EXISTS shimaai.form_submissions (
     id                   BIGSERIAL PRIMARY KEY,
     draft_id             BIGINT,
     name                 TEXT,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS shimane.form_submissions (
 );
 
 -- ── Analytics events ──────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS shimane.analytics_events (
+CREATE TABLE IF NOT EXISTS shimaai.analytics_events (
     id         BIGSERIAL PRIMARY KEY,
     session_id TEXT,
     event_type TEXT,
@@ -77,12 +77,12 @@ CREATE TABLE IF NOT EXISTS shimane.analytics_events (
 
 -- Index for fast date-range queries
 CREATE INDEX IF NOT EXISTS idx_analytics_created_at
-    ON shimane.analytics_events (created_at DESC);
+    ON shimaai.analytics_events (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_analytics_event_type
-    ON shimane.analytics_events (event_type, created_at DESC);
+    ON shimaai.analytics_events (event_type, created_at DESC);
 
 -- ── Site content overrides ────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS shimane.site_content (
+CREATE TABLE IF NOT EXISTS shimaai.site_content (
     id          BIGSERIAL PRIMARY KEY,
     content_key TEXT NOT NULL,
     lang        TEXT NOT NULL DEFAULT 'en',
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS shimane.site_content (
 );
 
 -- ── Forms (multi-form support) ────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS shimane.forms (
+CREATE TABLE IF NOT EXISTS shimaai.forms (
     id          BIGSERIAL PRIMARY KEY,
     slug        TEXT UNIQUE NOT NULL,
     lang        TEXT NOT NULL DEFAULT 'en',
@@ -104,9 +104,9 @@ CREATE TABLE IF NOT EXISTS shimane.forms (
 );
 
 -- ── Form questions ────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS shimane.form_questions (
+CREATE TABLE IF NOT EXISTS shimaai.form_questions (
     id           BIGSERIAL PRIMARY KEY,
-    form_id      BIGINT NOT NULL REFERENCES shimane.forms(id) ON DELETE CASCADE,
+    form_id      BIGINT NOT NULL REFERENCES shimaai.forms(id) ON DELETE CASCADE,
     sort_order   INTEGER DEFAULT 0,
     step         INTEGER DEFAULT 1,
     field_name   TEXT NOT NULL,
@@ -122,4 +122,4 @@ CREATE TABLE IF NOT EXISTS shimane.form_questions (
 );
 
 CREATE INDEX IF NOT EXISTS idx_form_questions_form_id
-    ON shimane.form_questions (form_id, sort_order);
+    ON shimaai.form_questions (form_id, sort_order);
