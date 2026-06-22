@@ -20,6 +20,15 @@ if ($uri === '/en' || $uri === '/en/') {
     return true;
 }
 
+// Route /apply to the application form
+if ($uri === '/apply' || $uri === '/apply/') {
+    chdir(__DIR__);
+    $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/apply/index.php';
+    $_SERVER['PHP_SELF'] = '/apply/index.php';
+    require __DIR__ . '/apply/index.php';
+    return true;
+}
+
 // Default: serve the Japanese homepage
 chdir(__DIR__);
 $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/index.php';

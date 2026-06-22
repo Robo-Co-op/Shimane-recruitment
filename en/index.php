@@ -20,7 +20,7 @@
   </div>
   <div class="header-right">
     <a href="/" class="lang-switch">日本語</a>
-    <a href="https://forms.cloud.microsoft/r/nfJN94GbMw" target="_blank" class="header-cta">Apply Now →</a>
+    <a href="/apply" class="header-cta">Apply Now →</a>
   </div>
 </header>
 
@@ -319,7 +319,7 @@
         <p style="font-size: 14px; color: var(--warm-mid); margin-bottom: 28px; line-height: 1.8;">
           Fill in the required fields and submit. We'll be in touch with next steps shortly.
         </p>
-        <a href="https://forms.cloud.microsoft/r/nfJN94GbMw" target="_blank"
+        <a href="/apply"
            style="display: inline-block; background: linear-gradient(135deg, var(--peach), #E07840); color: white; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 900; transition: opacity .2s;"
            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
           Go to Application Form →
@@ -411,7 +411,7 @@
       Let's find a way of working that truly fits you.
     </p>
     <div class="cta-btns">
-      <a href="https://forms.cloud.microsoft/r/nfJN94GbMw" target="_blank" class="btn-main">📝 Go to Application Form</a>
+      <a href="/apply" class="btn-main">📝 Go to Application Form</a>
       <a href="#apply" class="btn-sub">🎥 Info Session Details</a>
     </div>
     <div class="cta-note">
