@@ -2,7 +2,45 @@
 $lang = 'ja';
 $submitted = false;
 $errors = [];
+$resume_draft = null;
 
+require_once __DIR__ . '/../../admin/includes/db.php';
+$db = get_db();
+
+// ── Load form questions from DB ───────────────────────────────────────────────
+$_raw_qs_ja = get_form_questions('ja-application');
+$_qmap_ja   = array_column($_raw_qs_ja, null, 'field_name');
+
+function qj_label(string $name, string $default): string {
+    global $_qmap_ja;
+    return $_qmap_ja[$name]['label'] ?? $default;
+}
+function qj_hint(string $name, string $default = ''): string {
+    global $_qmap_ja;
+    return $_qmap_ja[$name]['hint'] ?? $default;
+}
+function qj_placeholder(string $name, string $default = ''): string {
+    global $_qmap_ja;
+    return $_qmap_ja[$name]['placeholder'] ?? $default;
+}
+function qj_options(string $name, array $defaults): array {
+    global $_qmap_ja;
+    return !empty($_qmap_ja[$name]['options']) ? $_qmap_ja[$name]['options'] : $defaults;
+}
+
+// ── Resume from token (GET) ───────────────────────────────────────────────────
+$resume_token = trim($_GET['token'] ?? '');
+if ($resume_token) {
+    $st = $db->prepare("SELECT * FROM form_drafts WHERE token=? AND completed=0 LIMIT 1");
+    $st->execute([$resume_token]);
+    $resume_draft = $st->fetch();
+    if ($resume_draft) {
+        $_POST = array_merge($_POST, json_decode($resume_draft['form_data'] ?? '{}', true) ?: []);
+        $_POST['_draft_token'] = $resume_token;
+    }
+}
+
+// ── Handle final POST submission ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name               = trim($_POST['name'] ?? '');
     $email              = trim($_POST['email'] ?? '');
@@ -19,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $interview_time     = trim($_POST['interview_time'] ?? '');
     $interview_time_other = trim($_POST['interview_time_other'] ?? '');
     $support_program    = trim($_POST['support_program'] ?? '');
+    $draft_token        = trim($_POST['_draft_token'] ?? '');
 
     if (empty($name))   $errors[] = '氏名を入力してください。';
     if (empty($email))  $errors[] = 'メールアドレスを入力してください。';
@@ -29,10 +68,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($support_program)) $errors[] = 'サポートプログラムへの意向を選択してください。';
 
     if (empty($errors)) {
+        $draft_id = null;
+        if ($draft_token) {
+            $dst = $db->prepare("SELECT id FROM form_drafts WHERE token=?");
+            $dst->execute([$draft_token]);
+            $draft_id = $dst->fetchColumn() ?: null;
+        }
+
+        $db->prepare("INSERT INTO form_submissions
+            (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
+             interview_day,interview_day_other,interview_time,interview_time_other,support_program,lang,ip_address)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?)")
+           ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
+                      $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
+                      $interview_time_other,$support_program,$_SERVER['REMOTE_ADDR']??'']);
+
+        if ($draft_id) {
+            $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
+               ->execute([$draft_id]);
+        }
+
+        // CSV backup
         $dir = dirname(__DIR__, 2) . '/submissions';
         if (!is_dir($dir)) mkdir($dir, 0755, true);
         $file  = $dir . '/applications.csv';
-        $isNew = !file_exists($file);
+        $isNew = !file_exists($file) || filesize($file) === 0;
         $fp    = fopen($file, 'a');
         if ($isNew) {
             fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other',
@@ -537,6 +597,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="form-card">
       <form method="POST" action="/apply/ja" id="app-form" novalidate>
+        <input type="hidden" name="_draft_token" id="draft_token" value="<?= htmlspecialchars($_POST['_draft_token'] ?? '') ?>">
 
         <!-- ══════════════════════════════════════
              STEP 1 — 基本情報
@@ -556,63 +617,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- 氏名 -->
             <div class="field-group">
-              <label class="field-label" for="name">1. 氏名 <span class="req">*</span></label>
+              <label class="field-label" for="name"><?= htmlspecialchars(qj_label('name','1. 氏名')) ?> <span class="req">*</span></label>
               <input class="text-input" type="text" id="name" name="name"
-                     placeholder="例：山田 太郎"
+                     placeholder="<?= htmlspecialchars(qj_placeholder('name','例：山田 太郎')) ?>"
                      value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" autocomplete="name">
               <div class="field-error" id="err-name">氏名を入力してください。</div>
             </div>
 
             <!-- メールアドレス -->
             <div class="field-group">
-              <label class="field-label" for="email">2. メールアドレス <span class="req">*</span></label>
+              <label class="field-label" for="email"><?= htmlspecialchars(qj_label('email','2. メールアドレス')) ?> <span class="req">*</span></label>
               <input class="text-input" type="email" id="email" name="email"
-                     placeholder="your@email.com"
+                     placeholder="<?= htmlspecialchars(qj_placeholder('email','your@email.com')) ?>"
                      value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" autocomplete="email">
               <div class="field-error" id="err-email">有効なメールアドレスを入力してください。</div>
             </div>
 
             <!-- メールアドレス確認 -->
             <div class="field-group">
-              <label class="field-label" for="email_confirm">3. メールアドレス（確認） <span class="req">*</span></label>
-              <p class="field-hint">確認のため、もう一度メールアドレスを入力してください。</p>
+              <label class="field-label" for="email_confirm"><?= htmlspecialchars(qj_label('email_confirm','3. メールアドレス（確認）')) ?> <span class="req">*</span></label>
+              <?php $ec_h = qj_hint('email_confirm','確認のため、もう一度メールアドレスを入力してください。'); if($ec_h):?><p class="field-hint"><?= htmlspecialchars($ec_h) ?></p><?php endif;?>
               <input class="text-input" type="email" id="email_confirm" name="email_confirm"
-                     placeholder="your@email.com"
+                     placeholder="<?= htmlspecialchars(qj_placeholder('email_confirm','your@email.com')) ?>"
                      value="<?= htmlspecialchars($_POST['email_confirm'] ?? '') ?>">
               <div class="field-error" id="err-email-confirm">メールアドレスが一致しません。</div>
             </div>
 
             <!-- 電話番号 -->
             <div class="field-group">
-              <label class="field-label" for="phone">4. 電話番号 <span class="req">*</span></label>
-              <p class="field-hint">メールでご連絡できない場合に、電話でご連絡することがあります。</p>
+              <label class="field-label" for="phone"><?= htmlspecialchars(qj_label('phone','4. 電話番号')) ?> <span class="req">*</span></label>
+              <?php $ph_h = qj_hint('phone','メールでご連絡できない場合に、電話でご連絡することがあります。'); if($ph_h):?><p class="field-hint"><?= htmlspecialchars($ph_h) ?></p><?php endif;?>
               <input class="text-input" type="tel" id="phone" name="phone"
-                     placeholder="例：080-1234-5678"
+                     placeholder="<?= htmlspecialchars(qj_placeholder('phone','例：080-1234-5678')) ?>"
                      value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>" autocomplete="tel">
               <div class="field-error" id="err-phone">電話番号を入力してください。</div>
             </div>
 
             <!-- 研修を知ったきっかけ -->
             <div class="field-group">
-              <label class="field-label">5. この研修をどこで知りましたか？</label>
+              <label class="field-label"><?= htmlspecialchars(qj_label('how_heard','5. この研修をどこで知りましたか？')) ?></label>
               <div class="radio-group">
                 <?php
-                $howHeardOptions = [
-                  'municipality'   => '市区町村や支援機関からの情報',
-                  'social_media'   => 'SNS（Facebook、X/Twitter など）',
-                  'recommendation' => '家族・知人からの紹介',
-                  'robocoop_web'   => 'Robo Co-op のウェブサイト',
-                  'other'          => 'その他',
-                ];
+                $howHeardOpts = qj_options('how_heard', [
+                  ['value'=>'municipality',  'label'=>'市区町村や支援機関からの情報','sub'=>''],
+                  ['value'=>'social_media',  'label'=>'SNS（Facebook、X/Twitter など）','sub'=>''],
+                  ['value'=>'recommendation','label'=>'家族・知人からの紹介','sub'=>''],
+                  ['value'=>'robocoop_web',  'label'=>'Robo Co-op のウェブサイト','sub'=>''],
+                  ['value'=>'other',         'label'=>'その他','sub'=>''],
+                ]);
                 $selectedHow = $_POST['how_heard'] ?? '';
-                foreach ($howHeardOptions as $val => $label):
+                foreach ($howHeardOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="how_heard" value="<?= $val ?>"
-                         <?= $selectedHow === $val ? 'checked' : '' ?>
+                  <input type="radio" name="how_heard" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedHow === $opt['value'] ? 'checked' : '' ?>
                          onchange="toggleOther(this,'how-other')">
                   <div class="radio-dot"></div>
-                  <span class="radio-text"><?= htmlspecialchars($label) ?></span>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
                 <?php endforeach; ?>
               </div>
@@ -638,13 +699,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- 履歴書URL -->
             <div class="field-group">
-              <label class="field-label" for="resume_url">6. 履歴書・職務経歴書 URL</label>
-              <p class="field-hint">
-                Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。
-                お持ちでない場合は空欄で構いません。
-              </p>
+              <label class="field-label" for="resume_url"><?= htmlspecialchars(qj_label('resume_url','6. 履歴書・職務経歴書 URL')) ?></label>
+              <?php $ru_h = qj_hint('resume_url','Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。お持ちでない場合は空欄で構いません。'); if($ru_h):?><p class="field-hint"><?= htmlspecialchars($ru_h) ?></p><?php endif;?>
               <input class="text-input" type="url" id="resume_url" name="resume_url"
-                     placeholder="https://drive.google.com/..."
+                     placeholder="<?= htmlspecialchars(qj_placeholder('resume_url','https://drive.google.com/...')) ?>"
                      value="<?= htmlspecialchars($_POST['resume_url'] ?? '') ?>">
             </div>
 
@@ -652,27 +710,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- PCスキル -->
             <div class="field-group">
-              <label class="field-label">7. PC スキル</label>
-              <p class="field-hint">ご自身のパソコンスキルに最も近いものを選択してください。</p>
+              <label class="field-label"><?= htmlspecialchars(qj_label('pc_skill','7. PC スキル')) ?></label>
+              <?php $pc_h = qj_hint('pc_skill','ご自身のパソコンスキルに最も近いものを選択してください。'); if($pc_h):?><p class="field-hint"><?= htmlspecialchars($pc_h) ?></p><?php endif;?>
               <div class="radio-group">
                 <?php
-                $pcOptions = [
-                  'pc_1' => ['パソコンをほとんど使ったことがない。', ''],
-                  'pc_2' => ['基本的な操作ができる。', '文字入力、インターネット閲覧、メールの送受信など。'],
-                  'pc_3' => ['Word・Excel が使える。', '簡単な文書作成、表の作成、データ入力ができる。'],
-                  'pc_4' => ['仕事でパソコンを日常的に使っている。', 'Excel 関数を使ったデータ整理などができる。'],
-                  'pc_5' => ['専門的な作業ができる。', 'プログラミング、Web 開発、データ分析など。'],
-                ];
+                $pcOpts = qj_options('pc_skill', [
+                  ['value'=>'pc_1','label'=>'パソコンをほとんど使ったことがない。','sub'=>''],
+                  ['value'=>'pc_2','label'=>'基本的な操作ができる。','sub'=>'文字入力、インターネット閲覧、メールの送受信など。'],
+                  ['value'=>'pc_3','label'=>'Word・Excel が使える。','sub'=>'簡単な文書作成、表の作成、データ入力ができる。'],
+                  ['value'=>'pc_4','label'=>'仕事でパソコンを日常的に使っている。','sub'=>'Excel 関数を使ったデータ整理などができる。'],
+                  ['value'=>'pc_5','label'=>'専門的な作業ができる。','sub'=>'プログラミング、Web 開発、データ分析など。'],
+                ]);
                 $selectedPC = $_POST['pc_skill'] ?? '';
-                foreach ($pcOptions as $val => [$main, $sub]):
+                foreach ($pcOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="pc_skill" value="<?= $val ?>"
-                         <?= $selectedPC === $val ? 'checked' : '' ?>>
+                  <input type="radio" name="pc_skill" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedPC === $opt['value'] ? 'checked' : '' ?>>
                   <div class="radio-dot"></div>
                   <span class="radio-text">
-                    <?= htmlspecialchars($main) ?>
-                    <?php if ($sub): ?><span class="sub"><?= htmlspecialchars($sub) ?></span><?php endif; ?>
+                    <?= htmlspecialchars($opt['label']) ?>
+                    <?php if(!empty($opt['sub'])):?><span class="sub"><?= htmlspecialchars($opt['sub']) ?></span><?php endif;?>
                   </span>
                 </label>
                 <?php endforeach; ?>
@@ -683,27 +741,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- AI経験 -->
             <div class="field-group">
-              <label class="field-label">8. AI ツールの利用経験</label>
-              <p class="field-hint">ChatGPT などの AI ツールの利用経験として、最も近いものを選択してください。</p>
+              <label class="field-label"><?= htmlspecialchars(qj_label('ai_experience','8. AI ツールの利用経験')) ?></label>
+              <?php $ai_h = qj_hint('ai_experience','ChatGPT などの AI ツールの利用経験として、最も近いものを選択してください。'); if($ai_h):?><p class="field-hint"><?= htmlspecialchars($ai_h) ?></p><?php endif;?>
               <div class="radio-group">
                 <?php
-                $aiOptions = [
-                  'ai_1' => ['AI ツールを使ったことがない。', ''],
-                  'ai_2' => ['試したことはあるが、使いこなせていない。', ''],
-                  'ai_3' => ['簡単な作業に AI ツールを使ったことがある。', '文章作成、調べもの、要約など。'],
-                  'ai_4' => ['仕事や学習に AI ツールを活用している。', '目的に合わせた指示を工夫して使っている。'],
-                  'ai_5' => ['AI ツールを活用して資料作成や業務改善ができる。', 'AI の出力を確認・修正し、他の作業にも役立てられる。'],
-                ];
+                $aiOpts = qj_options('ai_experience', [
+                  ['value'=>'ai_1','label'=>'AI ツールを使ったことがない。','sub'=>''],
+                  ['value'=>'ai_2','label'=>'試したことはあるが、使いこなせていない。','sub'=>''],
+                  ['value'=>'ai_3','label'=>'簡単な作業に AI ツールを使ったことがある。','sub'=>'文章作成、調べもの、要約など。'],
+                  ['value'=>'ai_4','label'=>'仕事や学習に AI ツールを活用している。','sub'=>'目的に合わせた指示を工夫して使っている。'],
+                  ['value'=>'ai_5','label'=>'AI ツールを活用して資料作成や業務改善ができる。','sub'=>'AI の出力を確認・修正し、他の作業にも役立てられる。'],
+                ]);
                 $selectedAI = $_POST['ai_experience'] ?? '';
-                foreach ($aiOptions as $val => [$main, $sub]):
+                foreach ($aiOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="ai_experience" value="<?= $val ?>"
-                         <?= $selectedAI === $val ? 'checked' : '' ?>>
+                  <input type="radio" name="ai_experience" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedAI === $opt['value'] ? 'checked' : '' ?>>
                   <div class="radio-dot"></div>
                   <span class="radio-text">
-                    <?= htmlspecialchars($main) ?>
-                    <?php if ($sub): ?><span class="sub"><?= htmlspecialchars($sub) ?></span><?php endif; ?>
+                    <?= htmlspecialchars($opt['label']) ?>
+                    <?php if(!empty($opt['sub'])):?><span class="sub"><?= htmlspecialchars($opt['sub']) ?></span><?php endif;?>
                   </span>
                 </label>
                 <?php endforeach; ?>
@@ -714,11 +772,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- 応募動機 -->
             <div class="field-group">
-              <label class="field-label" for="reason">9. 応募動機 <span class="req">*</span></label>
-              <p class="field-hint">応募の理由・動機をご記入ください（500 文字程度）。</p>
+              <label class="field-label" for="reason"><?= htmlspecialchars(qj_label('reason','9. 応募動機')) ?> <span class="req">*</span></label>
+              <?php $re_h = qj_hint('reason','応募の理由・動機をご記入ください（500 文字程度）。'); if($re_h):?><p class="field-hint"><?= htmlspecialchars($re_h) ?></p><?php endif;?>
               <textarea class="text-input" id="reason" name="reason"
                         rows="5" maxlength="600"
-                        placeholder="応募の動機や理由をご記入ください..."
+                        placeholder="<?= htmlspecialchars(qj_placeholder('reason','応募の動機や理由をご記入ください...')) ?>"
                         oninput="updateCharCount(this,'reason-count',500)"><?= htmlspecialchars($_POST['reason'] ?? '') ?></textarea>
               <div class="char-counter" id="reason-count">0 / 500</div>
               <div class="field-error" id="err-reason">応募動機を入力してください。</div>
@@ -728,24 +786,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- 面接希望日 -->
             <div class="field-group">
-              <label class="field-label">10. 面接希望日</label>
-              <p class="field-hint">特定の日程をご希望の場合は「その他」を選択してご記入ください。</p>
+              <label class="field-label"><?= htmlspecialchars(qj_label('interview_day','10. 面接希望日')) ?></label>
+              <?php $id_h = qj_hint('interview_day','特定の日程をご希望の場合は「その他」を選択してご記入ください。'); if($id_h):?><p class="field-hint"><?= htmlspecialchars($id_h) ?></p><?php endif;?>
               <div class="radio-group">
                 <?php
-                $dayOptions = [
-                  'weekdays'   => '平日',
-                  'weekends'   => '土日・祝日',
-                  'day_other'  => 'その他',
-                ];
+                $dayOpts = qj_options('interview_day', [
+                  ['value'=>'weekdays', 'label'=>'平日',    'sub'=>''],
+                  ['value'=>'weekends', 'label'=>'土日・祝日','sub'=>''],
+                  ['value'=>'day_other','label'=>'その他',  'sub'=>''],
+                ]);
                 $selectedDay = $_POST['interview_day'] ?? '';
-                foreach ($dayOptions as $val => $label):
+                foreach ($dayOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="interview_day" value="<?= $val ?>"
-                         <?= $selectedDay === $val ? 'checked' : '' ?>
+                  <input type="radio" name="interview_day" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedDay === $opt['value'] ? 'checked' : '' ?>
                          onchange="toggleOther(this,'day-other')">
                   <div class="radio-dot"></div>
-                  <span class="radio-text"><?= htmlspecialchars($label) ?></span>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
                 <?php endforeach; ?>
               </div>
@@ -758,25 +816,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- 面接希望時間帯 -->
             <div class="field-group">
-              <label class="field-label">11. 面接希望時間帯</label>
-              <p class="field-hint">特定の時間帯をご希望の場合は「その他」を選択してご記入ください。</p>
+              <label class="field-label"><?= htmlspecialchars(qj_label('interview_time','11. 面接希望時間帯')) ?></label>
+              <?php $it_h = qj_hint('interview_time','特定の時間帯をご希望の場合は「その他」を選択してご記入ください。'); if($it_h):?><p class="field-hint"><?= htmlspecialchars($it_h) ?></p><?php endif;?>
               <div class="radio-group">
                 <?php
-                $timeOptions = [
-                  '9_12'      => '9:00 〜 12:00',
-                  '12_15'     => '12:00 〜 15:00',
-                  '15_18'     => '15:00 〜 18:00',
-                  'time_other'=> 'その他',
-                ];
+                $timeOpts = qj_options('interview_time', [
+                  ['value'=>'9_12',      'label'=>'9:00 〜 12:00','sub'=>''],
+                  ['value'=>'12_15',     'label'=>'12:00 〜 15:00','sub'=>''],
+                  ['value'=>'15_18',     'label'=>'15:00 〜 18:00','sub'=>''],
+                  ['value'=>'time_other','label'=>'その他',        'sub'=>''],
+                ]);
                 $selectedTime = $_POST['interview_time'] ?? '';
-                foreach ($timeOptions as $val => $label):
+                foreach ($timeOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="interview_time" value="<?= $val ?>"
-                         <?= $selectedTime === $val ? 'checked' : '' ?>
+                  <input type="radio" name="interview_time" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedTime === $opt['value'] ? 'checked' : '' ?>
                          onchange="toggleOther(this,'time-other')">
                   <div class="radio-dot"></div>
-                  <span class="radio-text"><?= htmlspecialchars($label) ?></span>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
                 <?php endforeach; ?>
               </div>
@@ -821,22 +879,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="field-group">
-              <label class="field-label">このサポートプログラムへの応募を希望しますか？ <span class="req">*</span></label>
+              <label class="field-label"><?= htmlspecialchars(qj_label('support_program','このサポートプログラムへの応募を希望しますか？')) ?> <span class="req">*</span></label>
               <div class="radio-group">
                 <?php
-                $supportOptions = [
-                  'yes'       => ['はい、応募を希望します。', ''],
-                  'undecided' => ['まだ決めていません。詳しく話を聞きたいです。', ''],
-                  'no'        => ['いいえ、応募しません。', ''],
-                ];
+                $supportOpts = qj_options('support_program', [
+                  ['value'=>'yes',      'label'=>'はい、応募を希望します。','sub'=>''],
+                  ['value'=>'undecided','label'=>'まだ決めていません。詳しく話を聞きたいです。','sub'=>''],
+                  ['value'=>'no',       'label'=>'いいえ、応募しません。','sub'=>''],
+                ]);
                 $selectedSupport = $_POST['support_program'] ?? '';
-                foreach ($supportOptions as $val => [$main, $sub]):
+                foreach ($supportOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="support_program" value="<?= $val ?>"
-                         <?= $selectedSupport === $val ? 'checked' : '' ?>>
+                  <input type="radio" name="support_program" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedSupport === $opt['value'] ? 'checked' : '' ?>>
                   <div class="radio-dot"></div>
-                  <span class="radio-text"><?= htmlspecialchars($main) ?></span>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
                 <?php endforeach; ?>
               </div>
@@ -875,6 +933,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </footer>
 
 <script>
+  // ── Draft auto-save ────────────────────────────────────────────────────────
+  let draftToken = document.getElementById('draft_token').value || null;
+
+  function collectFormData() {
+    const fields = ['name','email','phone','how_heard','how_heard_other','resume_url',
+                    'pc_skill','ai_experience','reason','interview_day','interview_day_other',
+                    'interview_time','interview_time_other','support_program'];
+    const data = {};
+    fields.forEach(f => {
+      const el = document.querySelector(`[name="${f}"]:checked`) || document.querySelector(`[name="${f}"]`);
+      if (el) data[f] = el.value;
+    });
+    return data;
+  }
+
+  async function saveDraft(nextStep) {
+    const email = document.getElementById('email')?.value?.trim();
+    if (!email) return;
+    try {
+      const payload = Object.assign(collectFormData(), { token: draftToken, step: nextStep, lang: 'ja' });
+      const res  = await fetch('/admin/api/save-draft', { method:'POST', body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (json.token) {
+        draftToken = json.token;
+        document.getElementById('draft_token').value = json.token;
+        if (history.replaceState) history.replaceState(null, '', '/apply/ja?token=' + json.token);
+      }
+    } catch(e) {}
+  }
+
   let currentStep = <?= !empty($errors) ? 3 : 1 ?>;
   const totalSteps = 3;
 
@@ -949,7 +1037,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   function changeStep(dir) {
     if (dir === 1 && !validateStep(currentStep)) return;
-    currentStep = Math.max(1, Math.min(totalSteps, currentStep + dir));
+    const nextStep = Math.max(1, Math.min(totalSteps, currentStep + dir));
+    if (dir === 1) saveDraft(nextStep);
+    currentStep = nextStep;
     updateUI();
   }
 

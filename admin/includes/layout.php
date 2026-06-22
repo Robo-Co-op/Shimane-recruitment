@@ -6,6 +6,7 @@ function admin_start(string $title, string $active = '', string $actions = ''): 
         ['href'=>'/admin',             'icon'=>'📊', 'label'=>'Dashboard',   'key'=>'dashboard'],
         ['href'=>'/admin/analytics',   'icon'=>'📈', 'label'=>'Analytics',   'key'=>'analytics'],
         ['href'=>'/admin/submissions', 'icon'=>'📋', 'label'=>'Submissions', 'key'=>'submissions'],
+        ['href'=>'/admin/forms',       'icon'=>'📝', 'label'=>'Forms',       'key'=>'forms'],
         ['href'=>'/admin/content',     'icon'=>'✏️',  'label'=>'Content',     'key'=>'content'],
         ['href'=>'/admin/team',        'icon'=>'👥', 'label'=>'Team',        'key'=>'team'],
     ];
@@ -142,6 +143,7 @@ canvas{display:block;width:100%!important}
           <div class="sb-ur"><?= htmlspecialchars($user['role'] ?? '') ?></div>
         </div>
       </div>
+      <a href="/admin/settings" class="sb-lo" style="color:rgba(255,255,255,.45)">⚙ Settings</a>
       <a href="/admin/logout" class="sb-lo">Sign out →</a>
     </div>
   </nav>

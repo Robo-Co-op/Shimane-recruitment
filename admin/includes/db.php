@@ -10,6 +10,7 @@ function get_db(): PDO {
     ]);
     $pdo->exec("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON");
     _init_schema($pdo);
+    _ensure_forms_seeded($pdo);
     return $pdo;
 }
 
@@ -83,6 +84,190 @@ function _init_schema(PDO $db): void {
         updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(content_key, lang)
     )");
+
+    $db->exec("CREATE TABLE IF NOT EXISTS forms (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug        TEXT UNIQUE NOT NULL,
+        lang        TEXT NOT NULL DEFAULT 'en',
+        title       TEXT NOT NULL,
+        description TEXT DEFAULT '',
+        status      TEXT DEFAULT 'active',
+        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $db->exec("CREATE TABLE IF NOT EXISTS form_questions (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        form_id      INTEGER NOT NULL REFERENCES forms(id) ON DELETE CASCADE,
+        sort_order   INTEGER DEFAULT 0,
+        step         INTEGER DEFAULT 1,
+        field_name   TEXT NOT NULL,
+        field_type   TEXT NOT NULL DEFAULT 'text',
+        label        TEXT NOT NULL DEFAULT '',
+        hint         TEXT DEFAULT '',
+        placeholder  TEXT DEFAULT '',
+        required     INTEGER DEFAULT 0,
+        options_json TEXT DEFAULT '[]',
+        max_length   INTEGER,
+        active       INTEGER DEFAULT 1,
+        created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+}
+
+function _iq(PDO $db, int $fid, int $step, int $sort, string $name, string $type,
+             string $label, string $hint, string $ph, int $req, array $opts, ?int $mx): void {
+    $db->prepare("INSERT INTO form_questions
+        (form_id,step,sort_order,field_name,field_type,label,hint,placeholder,required,options_json,max_length)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+       ->execute([$fid,$step,$sort,$name,$type,$label,$hint,$ph,$req,
+                  json_encode($opts, JSON_UNESCAPED_UNICODE),$mx]);
+}
+
+function _ensure_forms_seeded(PDO $db): void {
+    $count = (int)$db->query("SELECT COUNT(*) FROM forms")->fetchColumn();
+    if ($count > 0) return;
+
+    // ── English form ─────────────────────────────────────────────────────────
+    $db->exec("INSERT INTO forms (slug,lang,title,description) VALUES
+        ('en-application','en','English Application Form','FY2026 Digital Talent Development Program — Shimane IB')");
+    $en = (int)$db->lastInsertId();
+
+    _iq($db,$en,1,10,'name','text','1. Name','','Enter your full name',1,[],null);
+    _iq($db,$en,1,20,'email','email','2. Email address','','your@email.com',1,[],null);
+    _iq($db,$en,1,30,'email_confirm','email','3. Confirmation email address',
+        'Re-enter your email address to confirm it.','your@email.com',1,[],null);
+    _iq($db,$en,1,40,'phone','tel','4. Phone number',
+        'If we are unable to contact you via email, we may reach out by phone.',
+        'e.g. 080-1234-5678',1,[],null);
+    _iq($db,$en,1,50,'how_heard','radio','5. How did you hear about this training?','','',0,[
+        ['value'=>'municipality','label'=>'Information from a local municipality or support organization','sub'=>''],
+        ['value'=>'social_media','label'=>'Social media (Facebook, X/Twitter, etc.)','sub'=>''],
+        ['value'=>'recommendation','label'=>'Recommendation from family or friends','sub'=>''],
+        ['value'=>'robocoop_web','label'=>"Robo Co-op's website",'sub'=>''],
+        ['value'=>'other','label'=>'Other','sub'=>''],
+    ],null);
+
+    _iq($db,$en,2,60,'resume_url','url','6. Resume / CV — URL',
+        'Share the URL of the file where you uploaded your resume (Google Drive, Dropbox, etc.). Leave blank if you do not have one ready.',
+        'https://drive.google.com/...',0,[],null);
+    _iq($db,$en,2,70,'pc_skill','radio','7. PC skill',
+        'Select the option that best describes your computer skills.','',0,[
+        ['value'=>'pc_1','label'=>'I have little to no experience using a computer.','sub'=>''],
+        ['value'=>'pc_2','label'=>'I can perform basic computer tasks.','sub'=>'Typing, browsing the internet, sending/receiving emails.'],
+        ['value'=>'pc_3','label'=>'I can use Word and Excel.','sub'=>'Create simple documents, tables, and data entries.'],
+        ['value'=>'pc_4','label'=>'I use a computer regularly at work.','sub'=>'Can use Excel functions and organize data.'],
+        ['value'=>'pc_5','label'=>'I can perform specialized tasks.','sub'=>'Programming, web development, and data analysis.'],
+    ],null);
+    _iq($db,$en,2,80,'ai_experience','radio','8. AI Tool Usage and Experience',
+        'Please select the option that best describes your experience using AI tools such as ChatGPT.','',0,[
+        ['value'=>'ai_1','label'=>'I have never used AI tools.','sub'=>''],
+        ['value'=>'ai_2','label'=>'I have tried AI tools, but I am still not familiar with how to use them effectively.','sub'=>''],
+        ['value'=>'ai_3','label'=>'I have used AI tools for simple tasks.','sub'=>'Writing, research, and summarization.'],
+        ['value'=>'ai_4','label'=>'I use AI tools for work or learning.','sub'=>'Providing instructions tailored to my needs.'],
+        ['value'=>'ai_5','label'=>'I can effectively use AI tools to create documents and improve workflows.','sub'=>'Reviewing and refining AI outputs to support other tasks.'],
+    ],null);
+    _iq($db,$en,2,90,'reason','textarea','9. Reason for applying',
+        'Please describe your motivation for applying (around 500 characters).',
+        'Describe your motivation for applying...',1,[],600);
+    _iq($db,$en,2,100,'interview_day','radio','10. Preferred interview day',
+        'If you prefer a specific day, please select "Other" and specify.','',0,[
+        ['value'=>'weekdays','label'=>'Weekdays','sub'=>''],
+        ['value'=>'weekends','label'=>'Weekends / Holidays','sub'=>''],
+        ['value'=>'day_other','label'=>'Other','sub'=>''],
+    ],null);
+    _iq($db,$en,2,110,'interview_time','radio','11. Preferred interview time slot',
+        'If you prefer a specific time, please select "Other" and specify.','',0,[
+        ['value'=>'9_12','label'=>'9:00 – 12:00','sub'=>''],
+        ['value'=>'12_15','label'=>'12:00 – 15:00','sub'=>''],
+        ['value'=>'15_18','label'=>'15:00 – 18:00','sub'=>''],
+        ['value'=>'time_other','label'=>'Other','sub'=>''],
+    ],null);
+
+    _iq($db,$en,3,120,'support_program','radio',
+        'Would you like to apply for this support program?','','',1,[
+        ['value'=>'yes','label'=>'Yes, I would like to apply.','sub'=>''],
+        ['value'=>'undecided','label'=>'I am undecided and would like to discuss it further.','sub'=>''],
+        ['value'=>'no','label'=>'No, I do not wish to apply.','sub'=>''],
+    ],null);
+
+    // ── Japanese form ─────────────────────────────────────────────────────────
+    $db->exec("INSERT INTO forms (slug,lang,title,description) VALUES
+        ('ja-application','ja','日本語応募フォーム','令和8年度 デジタル人材育成研修 — 島根IB')");
+    $ja = (int)$db->lastInsertId();
+
+    _iq($db,$ja,1,10,'name','text','1. 氏名','','例：山田 太郎',1,[],null);
+    _iq($db,$ja,1,20,'email','email','2. メールアドレス','','your@email.com',1,[],null);
+    _iq($db,$ja,1,30,'email_confirm','email','3. メールアドレス（確認）',
+        '確認のため、もう一度メールアドレスを入力してください。','your@email.com',1,[],null);
+    _iq($db,$ja,1,40,'phone','tel','4. 電話番号',
+        'メールでご連絡できない場合に、電話でご連絡することがあります。',
+        '例：080-1234-5678',1,[],null);
+    _iq($db,$ja,1,50,'how_heard','radio','5. この研修をどこで知りましたか？','','',0,[
+        ['value'=>'municipality','label'=>'市区町村や支援機関からの情報','sub'=>''],
+        ['value'=>'social_media','label'=>'SNS（Facebook、X/Twitter など）','sub'=>''],
+        ['value'=>'recommendation','label'=>'家族・知人からの紹介','sub'=>''],
+        ['value'=>'robocoop_web','label'=>'Robo Co-op のウェブサイト','sub'=>''],
+        ['value'=>'other','label'=>'その他','sub'=>''],
+    ],null);
+
+    _iq($db,$ja,2,60,'resume_url','url','6. 履歴書・職務経歴書 URL',
+        'Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。お持ちでない場合は空欄で構いません。',
+        'https://drive.google.com/...',0,[],null);
+    _iq($db,$ja,2,70,'pc_skill','radio','7. PC スキル',
+        'ご自身のパソコンスキルに最も近いものを選択してください。','',0,[
+        ['value'=>'pc_1','label'=>'パソコンをほとんど使ったことがない。','sub'=>''],
+        ['value'=>'pc_2','label'=>'基本的な操作ができる。','sub'=>'文字入力、インターネット閲覧、メールの送受信など。'],
+        ['value'=>'pc_3','label'=>'Word・Excel が使える。','sub'=>'簡単な文書作成、表の作成、データ入力ができる。'],
+        ['value'=>'pc_4','label'=>'仕事でパソコンを日常的に使っている。','sub'=>'Excel 関数を使ったデータ整理などができる。'],
+        ['value'=>'pc_5','label'=>'専門的な作業ができる。','sub'=>'プログラミング、Web 開発、データ分析など。'],
+    ],null);
+    _iq($db,$ja,2,80,'ai_experience','radio','8. AI ツールの利用経験',
+        'ChatGPT などの AI ツールの利用経験として、最も近いものを選択してください。','',0,[
+        ['value'=>'ai_1','label'=>'AI ツールを使ったことがない。','sub'=>''],
+        ['value'=>'ai_2','label'=>'試したことはあるが、使いこなせていない。','sub'=>''],
+        ['value'=>'ai_3','label'=>'簡単な作業に AI ツールを使ったことがある。','sub'=>'文章作成、調べもの、要約など。'],
+        ['value'=>'ai_4','label'=>'仕事や学習に AI ツールを活用している。','sub'=>'目的に合わせた指示を工夫して使っている。'],
+        ['value'=>'ai_5','label'=>'AI ツールを活用して資料作成や業務改善ができる。','sub'=>'AI の出力を確認・修正し、他の作業にも役立てられる。'],
+    ],null);
+    _iq($db,$ja,2,90,'reason','textarea','9. 応募動機',
+        '応募の理由・動機をご記入ください（500 文字程度）。',
+        '応募の動機や理由をご記入ください...',1,[],600);
+    _iq($db,$ja,2,100,'interview_day','radio','10. 面接希望日',
+        '特定の日程をご希望の場合は「その他」を選択してご記入ください。','',0,[
+        ['value'=>'weekdays','label'=>'平日','sub'=>''],
+        ['value'=>'weekends','label'=>'土日・祝日','sub'=>''],
+        ['value'=>'day_other','label'=>'その他','sub'=>''],
+    ],null);
+    _iq($db,$ja,2,110,'interview_time','radio','11. 面接希望時間帯',
+        '特定の時間帯をご希望の場合は「その他」を選択してご記入ください。','',0,[
+        ['value'=>'9_12','label'=>'9:00 〜 12:00','sub'=>''],
+        ['value'=>'12_15','label'=>'12:00 〜 15:00','sub'=>''],
+        ['value'=>'15_18','label'=>'15:00 〜 18:00','sub'=>''],
+        ['value'=>'time_other','label'=>'その他','sub'=>''],
+    ],null);
+
+    _iq($db,$ja,3,120,'support_program','radio',
+        'このサポートプログラムへの応募を希望しますか？','','',1,[
+        ['value'=>'yes','label'=>'はい、応募を希望します。','sub'=>''],
+        ['value'=>'undecided','label'=>'まだ決めていません。詳しく話を聞きたいです。','sub'=>''],
+        ['value'=>'no','label'=>'いいえ、応募しません。','sub'=>''],
+    ],null);
+}
+
+function get_form_questions(string $slug): array {
+    $db = get_db();
+    $st = $db->prepare("
+        SELECT q.* FROM form_questions q
+        JOIN forms f ON f.id = q.form_id
+        WHERE f.slug = ? AND q.active = 1
+        ORDER BY q.sort_order ASC
+    ");
+    $st->execute([$slug]);
+    $rows = $st->fetchAll();
+    foreach ($rows as &$row) {
+        $row['options'] = json_decode($row['options_json'] ?? '[]', true) ?: [];
+    }
+    return $rows;
 }
 
 function get_content(string $key, string $lang, string $default = ''): string {

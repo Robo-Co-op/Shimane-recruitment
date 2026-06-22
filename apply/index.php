@@ -7,6 +7,27 @@ $resume_draft = null;
 require_once __DIR__ . '/../admin/includes/db.php';
 $db = get_db();
 
+// ── Load form questions from DB (data-driven labels/hints/options) ────────────
+$_raw_qs = get_form_questions('en-application');
+$_qmap   = array_column($_raw_qs, null, 'field_name');
+
+function q_label(string $name, string $default): string {
+    global $_qmap;
+    return $_qmap[$name]['label'] ?? $default;
+}
+function q_hint(string $name, string $default = ''): string {
+    global $_qmap;
+    return $_qmap[$name]['hint'] ?? $default;
+}
+function q_placeholder(string $name, string $default = ''): string {
+    global $_qmap;
+    return $_qmap[$name]['placeholder'] ?? $default;
+}
+function q_options(string $name, array $defaults): array {
+    global $_qmap;
+    return !empty($_qmap[$name]['options']) ? $_qmap[$name]['options'] : $defaults;
+}
+
 // ── Resume from token (GET) ──────────────────────────────────────────────────
 $resume_token = trim($_GET['token'] ?? '');
 if ($resume_token) {
@@ -596,63 +617,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Name -->
             <div class="field-group">
-              <label class="field-label" for="name">1. Name <span class="req">*</span></label>
+              <label class="field-label" for="name"><?= htmlspecialchars(q_label('name','1. Name')) ?> <span class="req">*</span></label>
               <input class="text-input" type="text" id="name" name="name"
-                     placeholder="Enter your full name"
+                     placeholder="<?= htmlspecialchars(q_placeholder('name','Enter your full name')) ?>"
                      value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" autocomplete="name">
               <div class="field-error" id="err-name">Please enter your full name.</div>
             </div>
 
             <!-- Email -->
             <div class="field-group">
-              <label class="field-label" for="email">2. Email address <span class="req">*</span></label>
+              <label class="field-label" for="email"><?= htmlspecialchars(q_label('email','2. Email address')) ?> <span class="req">*</span></label>
               <input class="text-input" type="email" id="email" name="email"
-                     placeholder="your@email.com"
+                     placeholder="<?= htmlspecialchars(q_placeholder('email','your@email.com')) ?>"
                      value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" autocomplete="email">
               <div class="field-error" id="err-email">Please enter a valid email address.</div>
             </div>
 
             <!-- Email confirm -->
             <div class="field-group">
-              <label class="field-label" for="email_confirm">3. Confirmation email address <span class="req">*</span></label>
-              <p class="field-hint">Re-enter your email address to confirm it.</p>
+              <label class="field-label" for="email_confirm"><?= htmlspecialchars(q_label('email_confirm','3. Confirmation email address')) ?> <span class="req">*</span></label>
+              <?php $ec_hint = q_hint('email_confirm','Re-enter your email address to confirm it.'); if ($ec_hint): ?><p class="field-hint"><?= htmlspecialchars($ec_hint) ?></p><?php endif; ?>
               <input class="text-input" type="email" id="email_confirm" name="email_confirm"
-                     placeholder="your@email.com"
+                     placeholder="<?= htmlspecialchars(q_placeholder('email_confirm','your@email.com')) ?>"
                      value="<?= htmlspecialchars($_POST['email_confirm'] ?? '') ?>">
               <div class="field-error" id="err-email-confirm">Email addresses do not match.</div>
             </div>
 
             <!-- Phone -->
             <div class="field-group">
-              <label class="field-label" for="phone">4. Phone number <span class="req">*</span></label>
-              <p class="field-hint">If we are unable to contact you via email, we may reach out by phone.</p>
+              <label class="field-label" for="phone"><?= htmlspecialchars(q_label('phone','4. Phone number')) ?> <span class="req">*</span></label>
+              <?php $ph_hint = q_hint('phone','If we are unable to contact you via email, we may reach out by phone.'); if ($ph_hint): ?><p class="field-hint"><?= htmlspecialchars($ph_hint) ?></p><?php endif; ?>
               <input class="text-input" type="tel" id="phone" name="phone"
-                     placeholder="e.g. 080-1234-5678"
+                     placeholder="<?= htmlspecialchars(q_placeholder('phone','e.g. 080-1234-5678')) ?>"
                      value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>" autocomplete="tel">
               <div class="field-error" id="err-phone">Please enter your phone number.</div>
             </div>
 
             <!-- How did you hear -->
             <div class="field-group">
-              <label class="field-label">5. How did you hear about this training?</label>
+              <label class="field-label"><?= htmlspecialchars(q_label('how_heard','5. How did you hear about this training?')) ?></label>
               <div class="radio-group">
                 <?php
-                $howHeardOptions = [
-                  'municipality'   => 'Information from a local municipality or support organization',
-                  'social_media'   => 'Social media (Facebook, X/Twitter, etc.)',
-                  'recommendation' => 'Recommendation from family or friends',
-                  'robocoop_web'   => 'Robo Co-op\'s website',
-                  'other'          => 'Other',
-                ];
+                $howHeardOpts = q_options('how_heard', [
+                  ['value'=>'municipality',  'label'=>'Information from a local municipality or support organization','sub'=>''],
+                  ['value'=>'social_media',  'label'=>'Social media (Facebook, X/Twitter, etc.)','sub'=>''],
+                  ['value'=>'recommendation','label'=>'Recommendation from family or friends','sub'=>''],
+                  ['value'=>'robocoop_web',  'label'=>"Robo Co-op's website",'sub'=>''],
+                  ['value'=>'other',         'label'=>'Other','sub'=>''],
+                ]);
                 $selectedHow = $_POST['how_heard'] ?? '';
-                foreach ($howHeardOptions as $val => $label):
+                foreach ($howHeardOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="how_heard" value="<?= $val ?>"
-                         <?= $selectedHow === $val ? 'checked' : '' ?>
+                  <input type="radio" name="how_heard" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedHow === $opt['value'] ? 'checked' : '' ?>
                          onchange="toggleOther(this,'how-other')">
                   <div class="radio-dot"></div>
-                  <span class="radio-text"><?= htmlspecialchars($label) ?></span>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
                 <?php endforeach; ?>
               </div>
@@ -678,13 +699,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Resume URL -->
             <div class="field-group">
-              <label class="field-label" for="resume_url">6. Resume / CV — URL</label>
-              <p class="field-hint">
-                Share the URL of the file where you uploaded your resume (Google Drive, Dropbox, etc.).
-                Leave blank if you do not have one ready.
-              </p>
+              <label class="field-label" for="resume_url"><?= htmlspecialchars(q_label('resume_url','6. Resume / CV — URL')) ?></label>
+              <?php $ru_hint = q_hint('resume_url','Share the URL of the file where you uploaded your resume (Google Drive, Dropbox, etc.). Leave blank if you do not have one ready.'); if ($ru_hint): ?><p class="field-hint"><?= htmlspecialchars($ru_hint) ?></p><?php endif; ?>
               <input class="text-input" type="url" id="resume_url" name="resume_url"
-                     placeholder="https://drive.google.com/..."
+                     placeholder="<?= htmlspecialchars(q_placeholder('resume_url','https://drive.google.com/...')) ?>"
                      value="<?= htmlspecialchars($_POST['resume_url'] ?? '') ?>">
             </div>
 
@@ -692,27 +710,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- PC skill -->
             <div class="field-group">
-              <label class="field-label">7. PC skill</label>
-              <p class="field-hint">Select the option that best describes your computer skills.</p>
+              <label class="field-label"><?= htmlspecialchars(q_label('pc_skill','7. PC skill')) ?></label>
+              <?php $pc_hint = q_hint('pc_skill','Select the option that best describes your computer skills.'); if ($pc_hint): ?><p class="field-hint"><?= htmlspecialchars($pc_hint) ?></p><?php endif; ?>
               <div class="radio-group">
                 <?php
-                $pcOptions = [
-                  'pc_1' => ['I have little to no experience using a computer.', ''],
-                  'pc_2' => ['I can perform basic computer tasks.', 'Typing, browsing the internet, sending/receiving emails.'],
-                  'pc_3' => ['I can use Word and Excel.', 'Create simple documents, tables, and data entries.'],
-                  'pc_4' => ['I use a computer regularly at work.', 'Can use Excel functions and organize data.'],
-                  'pc_5' => ['I can perform specialized tasks.', 'Programming, web development, and data analysis.'],
-                ];
+                $pcOpts = q_options('pc_skill', [
+                  ['value'=>'pc_1','label'=>'I have little to no experience using a computer.','sub'=>''],
+                  ['value'=>'pc_2','label'=>'I can perform basic computer tasks.','sub'=>'Typing, browsing the internet, sending/receiving emails.'],
+                  ['value'=>'pc_3','label'=>'I can use Word and Excel.','sub'=>'Create simple documents, tables, and data entries.'],
+                  ['value'=>'pc_4','label'=>'I use a computer regularly at work.','sub'=>'Can use Excel functions and organize data.'],
+                  ['value'=>'pc_5','label'=>'I can perform specialized tasks.','sub'=>'Programming, web development, and data analysis.'],
+                ]);
                 $selectedPC = $_POST['pc_skill'] ?? '';
-                foreach ($pcOptions as $val => [$main, $sub]):
+                foreach ($pcOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="pc_skill" value="<?= $val ?>"
-                         <?= $selectedPC === $val ? 'checked' : '' ?>>
+                  <input type="radio" name="pc_skill" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedPC === $opt['value'] ? 'checked' : '' ?>>
                   <div class="radio-dot"></div>
                   <span class="radio-text">
-                    <?= htmlspecialchars($main) ?>
-                    <?php if ($sub): ?><span class="sub"><?= htmlspecialchars($sub) ?></span><?php endif; ?>
+                    <?= htmlspecialchars($opt['label']) ?>
+                    <?php if (!empty($opt['sub'])): ?><span class="sub"><?= htmlspecialchars($opt['sub']) ?></span><?php endif; ?>
                   </span>
                 </label>
                 <?php endforeach; ?>
@@ -723,27 +741,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- AI experience -->
             <div class="field-group">
-              <label class="field-label">8. AI Tool Usage and Experience</label>
-              <p class="field-hint">Please select the option that best describes your experience using AI tools such as ChatGPT.</p>
+              <label class="field-label"><?= htmlspecialchars(q_label('ai_experience','8. AI Tool Usage and Experience')) ?></label>
+              <?php $ai_hint = q_hint('ai_experience','Please select the option that best describes your experience using AI tools such as ChatGPT.'); if ($ai_hint): ?><p class="field-hint"><?= htmlspecialchars($ai_hint) ?></p><?php endif; ?>
               <div class="radio-group">
                 <?php
-                $aiOptions = [
-                  'ai_1' => ['I have never used AI tools.', ''],
-                  'ai_2' => ['I have tried AI tools, but I am still not familiar with how to use them effectively.', ''],
-                  'ai_3' => ['I have used AI tools for simple tasks.', 'Writing, research, and summarization.'],
-                  'ai_4' => ['I use AI tools for work or learning.', 'Providing instructions tailored to my needs.'],
-                  'ai_5' => ['I can effectively use AI tools to create documents and improve workflows.', 'Reviewing and refining AI outputs to support other tasks.'],
-                ];
+                $aiOpts = q_options('ai_experience', [
+                  ['value'=>'ai_1','label'=>'I have never used AI tools.','sub'=>''],
+                  ['value'=>'ai_2','label'=>'I have tried AI tools, but I am still not familiar with how to use them effectively.','sub'=>''],
+                  ['value'=>'ai_3','label'=>'I have used AI tools for simple tasks.','sub'=>'Writing, research, and summarization.'],
+                  ['value'=>'ai_4','label'=>'I use AI tools for work or learning.','sub'=>'Providing instructions tailored to my needs.'],
+                  ['value'=>'ai_5','label'=>'I can effectively use AI tools to create documents and improve workflows.','sub'=>'Reviewing and refining AI outputs to support other tasks.'],
+                ]);
                 $selectedAI = $_POST['ai_experience'] ?? '';
-                foreach ($aiOptions as $val => [$main, $sub]):
+                foreach ($aiOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="ai_experience" value="<?= $val ?>"
-                         <?= $selectedAI === $val ? 'checked' : '' ?>>
+                  <input type="radio" name="ai_experience" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedAI === $opt['value'] ? 'checked' : '' ?>>
                   <div class="radio-dot"></div>
                   <span class="radio-text">
-                    <?= htmlspecialchars($main) ?>
-                    <?php if ($sub): ?><span class="sub"><?= htmlspecialchars($sub) ?></span><?php endif; ?>
+                    <?= htmlspecialchars($opt['label']) ?>
+                    <?php if (!empty($opt['sub'])): ?><span class="sub"><?= htmlspecialchars($opt['sub']) ?></span><?php endif; ?>
                   </span>
                 </label>
                 <?php endforeach; ?>
@@ -754,11 +772,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Reason for applying -->
             <div class="field-group">
-              <label class="field-label" for="reason">9. Reason for applying <span class="req">*</span></label>
-              <p class="field-hint">Please describe your motivation for applying (around 500 characters).</p>
+              <label class="field-label" for="reason"><?= htmlspecialchars(q_label('reason','9. Reason for applying')) ?> <span class="req">*</span></label>
+              <?php $re_hint = q_hint('reason','Please describe your motivation for applying (around 500 characters).'); if ($re_hint): ?><p class="field-hint"><?= htmlspecialchars($re_hint) ?></p><?php endif; ?>
               <textarea class="text-input" id="reason" name="reason"
                         rows="5" maxlength="600"
-                        placeholder="Describe your motivation for applying..."
+                        placeholder="<?= htmlspecialchars(q_placeholder('reason','Describe your motivation for applying...')) ?>"
                         oninput="updateCharCount(this,'reason-count',500)"><?= htmlspecialchars($_POST['reason'] ?? '') ?></textarea>
               <div class="char-counter" id="reason-count">0 / 500</div>
               <div class="field-error" id="err-reason">Please describe your reason for applying.</div>
@@ -768,24 +786,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Interview day -->
             <div class="field-group">
-              <label class="field-label">10. Preferred interview day</label>
-              <p class="field-hint">If you prefer a specific day, please select "Other" and specify.</p>
+              <label class="field-label"><?= htmlspecialchars(q_label('interview_day','10. Preferred interview day')) ?></label>
+              <?php $id_hint = q_hint('interview_day','If you prefer a specific day, please select "Other" and specify.'); if ($id_hint): ?><p class="field-hint"><?= htmlspecialchars($id_hint) ?></p><?php endif; ?>
               <div class="radio-group">
                 <?php
-                $dayOptions = [
-                  'weekdays'   => 'Weekdays',
-                  'weekends'   => 'Weekends / Holidays',
-                  'day_other'  => 'Other',
-                ];
+                $dayOpts = q_options('interview_day', [
+                  ['value'=>'weekdays', 'label'=>'Weekdays',          'sub'=>''],
+                  ['value'=>'weekends', 'label'=>'Weekends / Holidays','sub'=>''],
+                  ['value'=>'day_other','label'=>'Other',             'sub'=>''],
+                ]);
                 $selectedDay = $_POST['interview_day'] ?? '';
-                foreach ($dayOptions as $val => $label):
+                foreach ($dayOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="interview_day" value="<?= $val ?>"
-                         <?= $selectedDay === $val ? 'checked' : '' ?>
+                  <input type="radio" name="interview_day" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedDay === $opt['value'] ? 'checked' : '' ?>
                          onchange="toggleOther(this,'day-other')">
                   <div class="radio-dot"></div>
-                  <span class="radio-text"><?= htmlspecialchars($label) ?></span>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
                 <?php endforeach; ?>
               </div>
@@ -798,25 +816,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Interview time -->
             <div class="field-group">
-              <label class="field-label">11. Preferred interview time slot</label>
-              <p class="field-hint">If you prefer a specific time, please select "Other" and specify.</p>
+              <label class="field-label"><?= htmlspecialchars(q_label('interview_time','11. Preferred interview time slot')) ?></label>
+              <?php $it_hint = q_hint('interview_time','If you prefer a specific time, please select "Other" and specify.'); if ($it_hint): ?><p class="field-hint"><?= htmlspecialchars($it_hint) ?></p><?php endif; ?>
               <div class="radio-group">
                 <?php
-                $timeOptions = [
-                  '9_12'      => '9:00 – 12:00',
-                  '12_15'     => '12:00 – 15:00',
-                  '15_18'     => '15:00 – 18:00',
-                  'time_other'=> 'Other',
-                ];
+                $timeOpts = q_options('interview_time', [
+                  ['value'=>'9_12',      'label'=>'9:00 – 12:00','sub'=>''],
+                  ['value'=>'12_15',     'label'=>'12:00 – 15:00','sub'=>''],
+                  ['value'=>'15_18',     'label'=>'15:00 – 18:00','sub'=>''],
+                  ['value'=>'time_other','label'=>'Other',        'sub'=>''],
+                ]);
                 $selectedTime = $_POST['interview_time'] ?? '';
-                foreach ($timeOptions as $val => $label):
+                foreach ($timeOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="interview_time" value="<?= $val ?>"
-                         <?= $selectedTime === $val ? 'checked' : '' ?>
+                  <input type="radio" name="interview_time" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedTime === $opt['value'] ? 'checked' : '' ?>
                          onchange="toggleOther(this,'time-other')">
                   <div class="radio-dot"></div>
-                  <span class="radio-text"><?= htmlspecialchars($label) ?></span>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
                 <?php endforeach; ?>
               </div>
@@ -862,22 +880,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="field-group">
-              <label class="field-label">Would you like to apply for this support program? <span class="req">*</span></label>
+              <label class="field-label"><?= htmlspecialchars(q_label('support_program','Would you like to apply for this support program?')) ?> <span class="req">*</span></label>
               <div class="radio-group">
                 <?php
-                $supportOptions = [
-                  'yes'       => ['Yes, I would like to apply.', ''],
-                  'undecided' => ['I am undecided and would like to discuss it further.', ''],
-                  'no'        => ['No, I do not wish to apply.', ''],
-                ];
+                $supportOpts = q_options('support_program', [
+                  ['value'=>'yes',      'label'=>'Yes, I would like to apply.','sub'=>''],
+                  ['value'=>'undecided','label'=>'I am undecided and would like to discuss it further.','sub'=>''],
+                  ['value'=>'no',       'label'=>'No, I do not wish to apply.','sub'=>''],
+                ]);
                 $selectedSupport = $_POST['support_program'] ?? '';
-                foreach ($supportOptions as $val => [$main, $sub]):
+                foreach ($supportOpts as $opt):
                 ?>
                 <label class="radio-option">
-                  <input type="radio" name="support_program" value="<?= $val ?>"
-                         <?= $selectedSupport === $val ? 'checked' : '' ?>>
+                  <input type="radio" name="support_program" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedSupport === $opt['value'] ? 'checked' : '' ?>>
                   <div class="radio-dot"></div>
-                  <span class="radio-text"><?= htmlspecialchars($main) ?></span>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
                 <?php endforeach; ?>
               </div>

@@ -6,7 +6,7 @@ require_once __DIR__ . '/includes/layout.php';
 require_auth('editor');
 $db  = get_db();
 $msg = '';
-$tab = $_GET['tab'] ?? 'form';
+$tab = $_GET['tab'] ?? 'en';
 
 // Editable content blocks
 $content_blocks = [
@@ -61,37 +61,18 @@ admin_start('Content Editor', 'content',
 
 <?php if ($msg): ?><div class="alert al-ok"><?= htmlspecialchars($msg) ?></div><?php endif; ?>
 
+<div class="alert al-info mb12">
+  To edit form questions, labels, and options go to <a href="/admin/forms" style="font-weight:700;color:var(--mint-d)">Forms →</a>
+</div>
+
 <div class="tabs">
-  <a href="?tab=form" class="tab <?= $tab==='form'?'active':'' ?>">📝 Form Questions</a>
   <a href="?tab=en" class="tab <?= $tab==='en'?'active':'' ?>">🌐 English Page</a>
   <a href="?tab=ja" class="tab <?= $tab==='ja'?'active':'' ?>">🗾 Japanese Page</a>
 </div>
 
 <form method="POST">
 
-<?php if ($tab === 'form'): ?>
-<div class="card">
-  <div class="ch"><span class="ct">📝 Form Question Labels &amp; Hints</span>
-    <span class="tm fs12">Changes apply to the live application form immediately.</span>
-  </div>
-  <div class="cb">
-    <?php foreach ($form_questions as $q):
-      $saved = get_saved($db, $q['key'], $q['lang']);
-      $val   = $saved ?? $q['default'];
-    ?>
-    <div class="fg">
-      <label class="fl"><?= htmlspecialchars($q['label']) ?> <span class="badge b-b" style="margin-left:4px"><?= strtoupper($q['lang']) ?></span></label>
-      <input class="fc" name="content[<?= $q['key'] ?>][<?= $q['lang'] ?>]"
-             value="<?= htmlspecialchars($val) ?>">
-      <?php if ($saved !== null && $saved !== $q['default']): ?>
-        <div class="fs12 tm" style="margin-top:3px">Default: <?= htmlspecialchars($q['default']) ?></div>
-      <?php endif; ?>
-    </div>
-    <?php endforeach; ?>
-  </div>
-</div>
-
-<?php elseif (isset($content_blocks[$tab])): ?>
+<?php if (isset($content_blocks[$tab])): ?>
 <div class="card">
   <div class="ch">
     <span class="ct"><?= $tab==='en' ? '🌐 English Landing Page Content' : '🗾 Japanese Landing Page Content' ?></span>
