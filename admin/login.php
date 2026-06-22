@@ -36,11 +36,16 @@ if (!$setup && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) 
     $st->execute([$email]);
     $user = $st->fetch();
     if ($user && password_verify($pass, $user['password_hash'])) {
-        $_SESSION['admin'] = ['id'=>$user['id'],'name'=>$user['name'],'email'=>$user['email'],'role'=>$user['role']];
-        $db->prepare("UPDATE admin_users SET last_login=CURRENT_TIMESTAMP WHERE id=?")->execute([$user['id']]);
-        header('Location: ' . $next); exit;
+        if (($user['status'] ?? 'active') === 'pending') {
+            $error = 'Your account is pending. Please check your email for the invitation link.';
+        } else {
+            $_SESSION['admin'] = ['id'=>$user['id'],'name'=>$user['name'],'email'=>$user['email'],'role'=>$user['role']];
+            $db->prepare("UPDATE admin_users SET last_login=CURRENT_TIMESTAMP WHERE id=?")->execute([$user['id']]);
+            header('Location: ' . $next); exit;
+        }
+    } else {
+        $error = 'Invalid email or password.';
     }
-    $error = 'Invalid email or password.';
 }
 ?>
 <!DOCTYPE html>
@@ -95,7 +100,7 @@ p.sub{font-size:13px;color:#5A706B;margin-bottom:24px}
     <div class="fg"><label class="fl">Password</label><input class="fc" name="password" type="password" required></div>
     <button class="btn" type="submit" name="login">Sign In →</button>
   </form>
-  <p class="note">Forgot password? Contact your administrator.</p>
+  <p class="note"><a href="/admin/forgot-password" style="color:#3DBFAF">Forgot password?</a></p>
   <?php endif; ?>
 </div>
 </body>

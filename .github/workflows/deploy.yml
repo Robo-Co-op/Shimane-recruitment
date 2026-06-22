@@ -6,59 +6,50 @@
 #   DB_NAME      — postgres
 #   DB_USER      — postgres
 #   DB_PASSWORD  — your Supabase database password
-#   DB_SCHEMA    — shimane
-#
-# Optional deploy secrets (add when you have a hosting target):
-#   DEPLOY_HOST  — SSH host of your web server
-#   DEPLOY_USER  — SSH username
-#   DEPLOY_KEY   — SSH private key (use ssh-keygen, add public key to server)
-#   DEPLOY_PATH  — remote path, e.g. /var/www/shimane-ib
+#   DB_SCHEMA    — shimaai
+#   FTP_HOST     — 156.67.70.45
+#   FTP_USER     — u896954886.robouni.ac
+#   FTP_PORT     — 21
+#   FTP_PASSWORD — your FTP password
+#   FTP_PATH     — /home/u896954886/domains/robouni.ac/public_html/shimaai/
 
 name: Deploy
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:   # allow manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      DB_HOST:     ${{ secrets.DB_HOST }}
-      DB_PORT:     ${{ secrets.DB_PORT }}
-      DB_NAME:     ${{ secrets.DB_NAME }}
-      DB_USER:     ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_SCHEMA:   ${{ secrets.DB_SCHEMA }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # DB connection check removed — Supabase direct connections use IPv6
-      # and GitHub Actions runners are IPv4-only. Connection is verified locally.
+      - name: Generate config.php from secrets
+        run: |
+          cat > config.php << 'PHPEOF'
+          <?php
+          define('DB_HOST',     '${{ secrets.DB_HOST }}');
+          define('DB_PORT',     '${{ secrets.DB_PORT }}');
+          define('DB_NAME',     '${{ secrets.DB_NAME }}');
+          define('DB_USER',     '${{ secrets.DB_USER }}');
+          define('DB_PASSWORD', '${{ secrets.DB_PASSWORD }}');
+          define('DB_SCHEMA',   '${{ secrets.DB_SCHEMA }}');
+          PHPEOF
 
-      # ── Add your deployment step below ───────────────────────────────────────
-      # Option A: rsync over SSH
-      # - name: Deploy via rsync
-      #   run: |
-      #     mkdir -p ~/.ssh
-      #     echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
-      #     chmod 600 ~/.ssh/id_rsa
-      #     rsync -az --delete \
-      #       --exclude='.git' --exclude='config.php' --exclude='db/' \
-      #       ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/
-      #
-      # Option B: FTP deploy (e.g. shared hosting)
-      # - name: Deploy via FTP
-      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      #   with:
-      #     server: ${{ secrets.FTP_HOST }}
-      #     username: ${{ secrets.FTP_USER }}
-      #     password: ${{ secrets.FTP_PASSWORD }}
-      #     exclude: |
-      #       **/.git/**
-      #       **/config.php
-      #       **/db/**
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          server-dir: ${{ secrets.FTP_PATH }}
+          exclude: |
+            **/.git/**
+            **/.github/**
+            **/db/**
+            **/node_modules/**

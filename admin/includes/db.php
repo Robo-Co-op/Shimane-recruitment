@@ -42,20 +42,34 @@ function get_db(): PDO {
     $pdo->exec("CREATE SCHEMA IF NOT EXISTS {$schema}");
     $pdo->exec("SET search_path TO {$schema}");
     _init_schema($pdo);
+    _ensure_admin_seeded($pdo);
     _ensure_forms_seeded($pdo);
     return $pdo;
 }
 
 function _init_schema(PDO $db): void {
     $db->exec("CREATE TABLE IF NOT EXISTS admin_users (
-        id            BIGSERIAL PRIMARY KEY,
-        email         TEXT UNIQUE NOT NULL,
-        name          TEXT NOT NULL,
-        password_hash TEXT NOT NULL,
-        role          TEXT NOT NULL DEFAULT 'viewer',
-        created_at    TIMESTAMPTZ DEFAULT NOW(),
-        last_login    TIMESTAMPTZ
+        id                BIGSERIAL PRIMARY KEY,
+        email             TEXT UNIQUE NOT NULL,
+        name              TEXT NOT NULL,
+        password_hash     TEXT NOT NULL DEFAULT '',
+        role              TEXT NOT NULL DEFAULT 'viewer',
+        status            TEXT NOT NULL DEFAULT 'active',
+        invite_token      TEXT,
+        invite_expires_at TIMESTAMPTZ,
+        reset_token       TEXT,
+        reset_expires_at  TIMESTAMPTZ,
+        created_at        TIMESTAMPTZ DEFAULT NOW(),
+        last_login        TIMESTAMPTZ
     )");
+    // Safe migrations for existing tables
+    foreach ([
+        "ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS status            TEXT NOT NULL DEFAULT 'active'",
+        "ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS invite_token      TEXT",
+        "ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS invite_expires_at TIMESTAMPTZ",
+        "ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS reset_token       TEXT",
+        "ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS reset_expires_at  TIMESTAMPTZ",
+    ] as $sql) { $db->exec($sql); }
 
     $db->exec("CREATE TABLE IF NOT EXISTS form_drafts (
         id               BIGSERIAL PRIMARY KEY,
@@ -161,6 +175,13 @@ function _iq(PDO $db, int $fid, int $step, int $sort, string $name, string $type
         VALUES (?,?,?,?,?,?,?,?,?,?,?)")
        ->execute([$fid,$step,$sort,$name,$type,$label,$hint,$ph,$req,
                   json_encode($opts, JSON_UNESCAPED_UNICODE),$mx]);
+}
+
+function _ensure_admin_seeded(PDO $db): void {
+    $count = (int)$db->query("SELECT COUNT(*) FROM admin_users")->fetchColumn();
+    if ($count > 0) return;
+    $db->prepare("INSERT INTO admin_users (email,name,password_hash,role,status) VALUES (?,?,?,?,?)")
+       ->execute(['admin@roboco-op.org', 'Admin', password_hash('Admin1234!', PASSWORD_DEFAULT), 'admin', 'active']);
 }
 
 function _ensure_forms_seeded(PDO $db): void {

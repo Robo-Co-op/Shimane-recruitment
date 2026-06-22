@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && can('editor')) {
 }
 
 // Load submissions
-$where = $search ? "WHERE (name LIKE ? OR email LIKE ?)" : "WHERE 1";
+$where = $search ? "WHERE (name LIKE ? OR email LIKE ?)" : "";
 $params = $search ? ["%$search%", "%$search%"] : [];
 $subs_st = $db->prepare("SELECT * FROM form_submissions $where ORDER BY submitted_at DESC");
 $subs_st->execute($params);
