@@ -1,10 +1,10 @@
 Options -Indexes
 RewriteEngine On
 
-# Route /en and /en/ to the English page
-RewriteRule ^en/?$ en/index.php [L]
+# Serve real files and directories directly (CSS, JS, images, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# Route everything else to the Japanese homepage
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^$ index.php [L]
+# Route everything else through router.php
+RewriteRule ^ router.php [QSA,L]
