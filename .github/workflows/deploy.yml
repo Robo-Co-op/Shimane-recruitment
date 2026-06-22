@@ -37,21 +37,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: pdo_pgsql, pgsql, mbstring
-
-      - name: Verify DB connection
-        run: |
-          php -r "
-            \$pdo = new PDO(
-              'pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_NAME'),
-              getenv('DB_USER'), getenv('DB_PASSWORD')
-            );
-            echo 'DB connection OK' . PHP_EOL;
-          "
+      # DB connection check removed — Supabase direct connections use IPv6
+      # and GitHub Actions runners are IPv4-only. Connection is verified locally.
 
       # ── Add your deployment step below ───────────────────────────────────────
       # Option A: rsync over SSH
