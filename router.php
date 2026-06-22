@@ -20,6 +20,15 @@ if ($uri === '/en' || $uri === '/en/') {
     return true;
 }
 
+// Route /apply/ja to the Japanese application form
+if ($uri === '/apply/ja' || $uri === '/apply/ja/') {
+    chdir(__DIR__);
+    $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/apply/ja/index.php';
+    $_SERVER['PHP_SELF'] = '/apply/ja/index.php';
+    require __DIR__ . '/apply/ja/index.php';
+    return true;
+}
+
 // Route /apply to the application form
 if ($uri === '/apply' || $uri === '/apply/') {
     chdir(__DIR__);
