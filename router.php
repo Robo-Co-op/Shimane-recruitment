@@ -5,22 +5,42 @@
  */
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Serve static files (if they exist on disk) directly
+// Serve static files directly
 $file = __DIR__ . $uri;
 if ($uri !== '/' && file_exists($file) && !is_dir($file)) {
     return false;
 }
 
-// Route /en and /en/ to the English page
-if ($uri === '/en' || $uri === '/en/') {
-    chdir(__DIR__);
-    $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/en/index.php';
-    $_SERVER['PHP_SELF'] = '/en/index.php';
-    require __DIR__ . '/en/index.php';
+// ── /admin/* routes ──────────────────────────────────────────────────────────
+if (preg_match('#^/admin(/.*)?$#', $uri, $m)) {
+    $sub = rtrim($m[1] ?? '', '/') ?: '';
+    $map = [
+        ''                  => 'admin/index.php',
+        '/login'            => 'admin/login.php',
+        '/logout'           => 'admin/logout.php',
+        '/analytics'        => 'admin/analytics.php',
+        '/submissions'      => 'admin/submissions.php',
+        '/submission-edit'  => 'admin/submission-edit.php',
+        '/team'             => 'admin/team.php',
+        '/content'          => 'admin/content.php',
+        '/export'           => 'admin/export.php',
+        '/api/track'        => 'admin/api/track.php',
+        '/api/save-draft'   => 'admin/api/save-draft.php',
+        '/api/remind'       => 'admin/api/remind.php',
+    ];
+    $target = $map[$sub] ?? null;
+    if ($target && file_exists(__DIR__ . '/' . $target)) {
+        chdir(__DIR__);
+        $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/' . $target;
+        require __DIR__ . '/' . $target;
+        return true;
+    }
+    http_response_code(404);
+    echo '<h2>404 — Admin page not found</h2>';
     return true;
 }
 
-// Route /apply/ja to the Japanese application form
+// ── /apply/ja ────────────────────────────────────────────────────────────────
 if ($uri === '/apply/ja' || $uri === '/apply/ja/') {
     chdir(__DIR__);
     $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/apply/ja/index.php';
@@ -29,7 +49,7 @@ if ($uri === '/apply/ja' || $uri === '/apply/ja/') {
     return true;
 }
 
-// Route /apply to the application form
+// ── /apply ───────────────────────────────────────────────────────────────────
 if ($uri === '/apply' || $uri === '/apply/') {
     chdir(__DIR__);
     $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/apply/index.php';
@@ -38,7 +58,16 @@ if ($uri === '/apply' || $uri === '/apply/') {
     return true;
 }
 
-// Default: serve the Japanese homepage
+// ── /en ──────────────────────────────────────────────────────────────────────
+if ($uri === '/en' || $uri === '/en/') {
+    chdir(__DIR__);
+    $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/en/index.php';
+    $_SERVER['PHP_SELF'] = '/en/index.php';
+    require __DIR__ . '/en/index.php';
+    return true;
+}
+
+// ── Default: Japanese homepage ───────────────────────────────────────────────
 chdir(__DIR__);
 $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/index.php';
 $_SERVER['PHP_SELF'] = '/index.php';

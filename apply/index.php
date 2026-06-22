@@ -2,7 +2,24 @@
 $lang = 'en';
 $submitted = false;
 $errors = [];
+$resume_draft = null;
 
+require_once __DIR__ . '/../admin/includes/db.php';
+$db = get_db();
+
+// ── Resume from token (GET) ──────────────────────────────────────────────────
+$resume_token = trim($_GET['token'] ?? '');
+if ($resume_token) {
+    $st = $db->prepare("SELECT * FROM form_drafts WHERE token=? AND completed=0 LIMIT 1");
+    $st->execute([$resume_token]);
+    $resume_draft = $st->fetch();
+    if ($resume_draft) {
+        $_POST = array_merge($_POST, json_decode($resume_draft['form_data'] ?? '{}', true) ?: []);
+        $_POST['_draft_token'] = $resume_token;
+    }
+}
+
+// ── Handle final POST submission ─────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name               = trim($_POST['name'] ?? '');
     $email              = trim($_POST['email'] ?? '');
@@ -19,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $interview_time     = trim($_POST['interview_time'] ?? '');
     $interview_time_other = trim($_POST['interview_time_other'] ?? '');
     $support_program    = trim($_POST['support_program'] ?? '');
+    $draft_token        = trim($_POST['_draft_token'] ?? '');
 
     if (empty($name))   $errors[] = 'Name is required.';
     if (empty($email))  $errors[] = 'Email address is required.';
@@ -29,21 +47,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($support_program)) $errors[] = 'Please indicate your interest in the support program.';
 
     if (empty($errors)) {
+        // Find draft_id if we have a token
+        $draft_id = null;
+        if ($draft_token) {
+            $dst = $db->prepare("SELECT id FROM form_drafts WHERE token=?");
+            $dst->execute([$draft_token]);
+            $draft_id = $dst->fetchColumn() ?: null;
+        }
+
+        // Save to SQLite
+        $db->prepare("INSERT INTO form_submissions
+            (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
+             interview_day,interview_day_other,interview_time,interview_time_other,support_program,lang,ip_address)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'en',?)")
+           ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
+                      $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
+                      $interview_time_other,$support_program,$_SERVER['REMOTE_ADDR']??'']);
+
+        // Mark draft completed
+        if ($draft_id) {
+            $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
+               ->execute([$draft_id]);
+        }
+
+        // Also keep CSV for backward compat
         $dir = dirname(__DIR__) . '/submissions';
         if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $file  = $dir . '/applications.csv';
-        $isNew = !file_exists($file);
-        $fp    = fopen($file, 'a');
-        if ($isNew) {
-            fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other',
-                          'resume_url','pc_skill','ai_experience','reason',
-                          'interview_day','interview_day_other','interview_time','interview_time_other',
-                          'support_program']);
+        $file = $dir . '/applications.csv';
+        $fp   = fopen($file, 'a');
+        if (!file_exists($file) || filesize($file) === 0) {
+            fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other','resume_url',
+                          'pc_skill','ai_experience','reason','interview_day','interview_day_other',
+                          'interview_time','interview_time_other','support_program']);
         }
-        fputcsv($fp, [date('Y-m-d H:i:s'), $name, $email, $phone, $how_heard, $how_heard_other,
-                      $resume_url, $pc_skill, $ai_experience, $reason,
-                      $interview_day, $interview_day_other, $interview_time, $interview_time_other,
-                      $support_program]);
+        fputcsv($fp, [date('Y-m-d H:i:s'),$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,
+                      $pc_skill,$ai_experience,$reason,$interview_day,$interview_day_other,
+                      $interview_time,$interview_time_other,$support_program]);
         fclose($fp);
         $submitted = true;
     }
@@ -537,6 +576,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="form-card">
       <form method="POST" action="/apply" id="app-form" novalidate>
+        <input type="hidden" name="_draft_token" id="draft_token" value="<?= htmlspecialchars($_POST['_draft_token'] ?? '') ?>">
 
         <!-- ══════════════════════════════════════
              STEP 1 — Basic Information
@@ -952,9 +992,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     return ok;
   }
 
+  // ── Draft auto-save ──────────────────────────────────────────────────────
+  let draftToken = document.getElementById('draft_token').value || null;
+
+  function collectFormData() {
+    const fields = ['name','email','phone','how_heard','how_heard_other','resume_url',
+                    'pc_skill','ai_experience','reason','interview_day','interview_day_other',
+                    'interview_time','interview_time_other','support_program'];
+    const data = {};
+    fields.forEach(f => {
+      const el = document.querySelector(`[name="${f}"]:checked`) || document.querySelector(`[name="${f}"]`);
+      if (el) data[f] = el.value;
+    });
+    return data;
+  }
+
+  async function saveDraft(nextStep) {
+    const email = document.getElementById('email')?.value?.trim();
+    if (!email) return;
+    try {
+      const payload = Object.assign(collectFormData(), {
+        token: draftToken, step: nextStep, lang: 'en'
+      });
+      const res  = await fetch('/admin/api/save-draft', { method:'POST', body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (json.token) {
+        draftToken = json.token;
+        document.getElementById('draft_token').value = json.token;
+        // Update URL without reload so resume link works
+        if (history.replaceState) {
+          history.replaceState(null, '', '/apply?token=' + json.token);
+        }
+      }
+    } catch(e) {}
+  }
+
   function changeStep(dir) {
     if (dir === 1 && !validateStep(currentStep)) return;
-    currentStep = Math.max(1, Math.min(totalSteps, currentStep + dir));
+    const nextStep = Math.max(1, Math.min(totalSteps, currentStep + dir));
+    if (dir === 1) saveDraft(nextStep);
+    currentStep = nextStep;
     updateUI();
   }
 

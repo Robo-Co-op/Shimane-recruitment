@@ -416,3 +416,24 @@
     footer .ft-name { color: white; font-weight: 700; font-size: 16px; margin-bottom: 8px; }
     footer a { color: rgba(255,255,255,.55); }
   </style>
+  <script>
+  (function(){
+    var sid=sessionStorage.getItem('_rc_sid');
+    if(!sid){sid=Math.random().toString(36).substr(2,9)+Date.now().toString(36);sessionStorage.setItem('_rc_sid',sid);}
+    function track(type,extra){
+      var p=Object.assign({type:type,sid:sid,page:location.pathname,lang:document.documentElement.lang||'en',ref:document.referrer},extra||{});
+      if(navigator.sendBeacon){navigator.sendBeacon('/admin/api/track',JSON.stringify(p));}
+      else{fetch('/admin/api/track',{method:'POST',body:JSON.stringify(p),keepalive:true}).catch(function(){});}
+    }
+    track('pageview');
+    document.addEventListener('click',function(e){
+      var a=e.target.closest('a[href*="/apply"]');
+      if(a){track('apply_click',{href:a.getAttribute('href')});}
+      var ls=e.target.closest('.lang-switch');
+      if(ls){track('click',{label:'lang_switch',href:ls.getAttribute('href')});}
+      var btn=e.target.closest('.hero-btn,.btn-main,.header-cta');
+      if(btn&&!a){track('click',{label:btn.textContent.trim().substr(0,40)});}
+    });
+    window._shimane_track=track;
+  })();
+  </script>
