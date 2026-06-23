@@ -26,7 +26,7 @@ function admin_start(string $title, string $active = '', string $actions = ''): 
 .al{display:flex;min-height:100vh}
 /* Sidebar */
 .sb{width:var(--sb-w);background:var(--sb);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow:hidden}
-.sb-brand{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brand{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:block}
 .sb-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--mint),var(--mint-d));border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:12px;margin-bottom:7px}
 .sb-title{font-size:13px;font-weight:700;color:#fff;line-height:1.2}
 .sb-sub{font-size:11px;color:var(--sb-t)}
@@ -127,11 +127,11 @@ canvas{display:block;width:100%!important}
 <body>
 <div class="al">
   <nav class="sb">
-    <div class="sb-brand">
+    <a href="/admin" class="sb-brand">
       <div class="sb-mark">RC</div>
       <div class="sb-title">Robo Co-op</div>
       <div class="sb-sub">Shimane Admin</div>
-    </div>
+    </a>
     <div class="sb-nav">
       <div class="nav-sec"><?= t('nav_section') ?></div>
       <?php foreach ($nav as $n): ?>
