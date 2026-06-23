@@ -10,7 +10,7 @@ if (!empty($_SESSION['admin'])) {
 $db     = get_db();
 $error  = '';
 $setup  = ($db->query("SELECT COUNT(*) FROM admin_users")->fetchColumn() == 0);
-$next   = $_GET['next'] ?? '/admin';
+$next   = '/admin';
 
 // ── First-time setup: create initial admin ──────────────────────────────────
 if ($setup && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['setup'])) {

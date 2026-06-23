@@ -2,7 +2,7 @@
 function require_auth(string $min_role = 'viewer'): array {
     if (session_status() === PHP_SESSION_NONE) session_start();
     if (empty($_SESSION['admin'])) {
-        header('Location: /admin/login?next=' . urlencode($_SERVER['REQUEST_URI']));
+        header('Location: /admin/login');
         exit;
     }
     $levels = ['viewer' => 1, 'editor' => 2, 'admin' => 3];
