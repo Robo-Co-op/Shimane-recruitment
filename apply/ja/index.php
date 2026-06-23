@@ -3,6 +3,19 @@ $lang = 'ja';
 $submitted = false;
 $errors = [];
 $resume_draft = null;
+$done_email = '';
+$done_name  = '';
+
+// Show success card after PRG redirect
+if (isset($_GET['done'])) {
+    session_start();
+    if (!empty($_SESSION['apply_done_ja'])) {
+        $done_email = $_SESSION['apply_done_ja']['email'] ?? '';
+        $done_name  = $_SESSION['apply_done_ja']['name']  ?? '';
+        unset($_SESSION['apply_done_ja']);
+        $submitted = true;
+    }
+}
 
 require_once __DIR__ . '/../../admin/includes/db.php';
 
@@ -74,46 +87,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($confirm_submit !== 'yes') $errors[] = '送信前に「はい」を選択して確認してください。';
 
     if (empty($errors)) {
-        $draft_id = null;
-        if ($draft_token) {
-            $dst = $db->prepare("SELECT id FROM form_drafts WHERE token=?");
-            $dst->execute([$draft_token]);
-            $draft_id = $dst->fetchColumn() ?: null;
-        }
+        try {
+            $draft_id = null;
+            if ($draft_token) {
+                $dst = $db->prepare("SELECT id FROM form_drafts WHERE token=?");
+                $dst->execute([$draft_token]);
+                $draft_id = $dst->fetchColumn() ?: null;
+            }
 
-        $db->prepare("INSERT INTO form_submissions
-            (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
-             interview_day,interview_day_other,interview_time,interview_time_other,support_program,
-             support_situation,other_questions,confirm_submit,lang,ip_address)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?)")
-           ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
-                      $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
-                      $interview_time_other,$support_program,$support_situation,$other_questions,
-                      $confirm_submit,$_SERVER['REMOTE_ADDR']??'']);
+            $db->prepare("INSERT INTO form_submissions
+                (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
+                 interview_day,interview_day_other,interview_time,interview_time_other,support_program,
+                 support_situation,other_questions,confirm_submit,lang,ip_address)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?)")
+               ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
+                          $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
+                          $interview_time_other,$support_program,$support_situation,$other_questions,
+                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'']);
 
-        if ($draft_id) {
-            $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
-               ->execute([$draft_id]);
-        }
+            if ($draft_id) {
+                $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
+                   ->execute([$draft_id]);
+            }
 
-        // CSV backup
-        $dir = dirname(__DIR__, 2) . '/submissions';
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $file  = $dir . '/applications.csv';
-        $isNew = !file_exists($file) || filesize($file) === 0;
-        $fp    = fopen($file, 'a');
-        if ($isNew) {
-            fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other',
-                          'resume_url','pc_skill','ai_experience','reason',
-                          'interview_day','interview_day_other','interview_time','interview_time_other',
-                          'support_program','support_situation','other_questions','confirm_submit','lang']);
+            // CSV backup
+            $dir = dirname(__DIR__, 2) . '/submissions';
+            if (!is_dir($dir)) mkdir($dir, 0755, true);
+            $file  = $dir . '/applications.csv';
+            $isNew = !file_exists($file) || filesize($file) === 0;
+            $fp    = fopen($file, 'a');
+            if ($isNew) {
+                fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other',
+                              'resume_url','pc_skill','ai_experience','reason',
+                              'interview_day','interview_day_other','interview_time','interview_time_other',
+                              'support_program','support_situation','other_questions','confirm_submit','lang']);
+            }
+            fputcsv($fp, [date('Y-m-d H:i:s'), $name, $email, $phone, $how_heard, $how_heard_other,
+                          $resume_url, $pc_skill, $ai_experience, $reason,
+                          $interview_day, $interview_day_other, $interview_time, $interview_time_other,
+                          $support_program, $support_situation, $other_questions, $confirm_submit, 'ja']);
+            fclose($fp);
+
+            // PRG: redirect to success page to prevent re-submission on refresh
+            session_start();
+            $_SESSION['apply_done_ja'] = ['email' => $email, 'name' => $name];
+            header('Location: /apply/ja?done=1');
+            exit;
+        } catch (\Throwable $e) {
+            $errors[] = 'システムエラーが発生しました。時間をおいて再度お試しください。（' . htmlspecialchars($e->getMessage()) . '）';
+            error_log('apply/ja submit error: ' . $e->getMessage());
         }
-        fputcsv($fp, [date('Y-m-d H:i:s'), $name, $email, $phone, $how_heard, $how_heard_other,
-                      $resume_url, $pc_skill, $ai_experience, $reason,
-                      $interview_day, $interview_day_other, $interview_time, $interview_time_other,
-                      $support_program, $support_situation, $other_questions, $confirm_submit, 'ja']);
-        fclose($fp);
-        $submitted = true;
     }
 }
 ?>
@@ -640,7 +663,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="email-confirm">
           <div class="ec-label">確認メール送信先</div>
-          <div class="ec-val"><?= htmlspecialchars($email) ?></div>
+          <div class="ec-val"><?= htmlspecialchars($done_email) ?></div>
         </div>
 
         <div class="next-steps">
