@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($phone))  $errors[] = 'Phone number is required.';
     if (empty($reason)) $errors[] = 'Reason for applying is required.';
     if (empty($support_program)) $errors[] = 'Please indicate your interest in the support program.';
-    if (empty($support_situation)) $errors[] = 'Please describe your current situation and reason for requesting support.';
+    if (in_array($support_program, ['yes','undecided']) && empty($support_situation)) $errors[] = 'Please describe your current situation and reason for requesting support.';
     if ($confirm_submit !== 'yes') $errors[] = 'Please confirm your submission by selecting "Yes".';
 
     if (empty($errors)) {
@@ -902,7 +902,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ?>
                 <label class="radio-option">
                   <input type="radio" name="support_program" value="<?= htmlspecialchars($opt['value']) ?>"
-                         <?= $selectedSupport === $opt['value'] ? 'checked' : '' ?>>
+                         <?= $selectedSupport === $opt['value'] ? 'checked' : '' ?>
+                         onchange="toggleSituation(this)">
                   <div class="radio-dot"></div>
                   <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
@@ -911,6 +912,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="field-error" id="err-support">Please select an option.</div>
             </div>
 
+            <?php $showSit = in_array($selectedSupport, ['yes','undecided']); ?>
+            <div id="situation-group" style="<?= $showSit ? '' : 'display:none' ?>">
             <div class="field-divider"></div>
 
             <!-- Q13: Current situation -->
@@ -924,6 +927,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="char-counter" id="sit-count">0 / 800</div>
               <div class="field-error" id="err-situation">Please describe your current situation and reason for requesting support.</div>
             </div>
+            </div><!-- /situation-group -->
 
             <div class="field-divider"></div>
 
@@ -1065,11 +1069,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       document.getElementById('err-support').classList.toggle('visible', !supportOk);
       if (!supportOk) ok = false;
 
-      const situation = document.getElementById('support_situation');
-      const situationOk = situation.value.trim().length > 0;
-      document.getElementById('err-situation').classList.toggle('visible', !situationOk);
-      situation.classList.toggle('error', !situationOk);
-      if (!situationOk) ok = false;
+      if (document.getElementById('situation-group').style.display !== 'none') {
+        const situation = document.getElementById('support_situation');
+        const situationOk = situation.value.trim().length > 0;
+        document.getElementById('err-situation').classList.toggle('visible', !situationOk);
+        situation.classList.toggle('error', !situationOk);
+        if (!situationOk) ok = false;
+      }
 
       const confirm = document.querySelector('input[name="confirm_submit"]:checked');
       const confirmOk = !!confirm;
@@ -1121,6 +1127,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (dir === 1) saveDraft(nextStep);
     currentStep = nextStep;
     updateUI();
+  }
+
+  function toggleSituation(radio) {
+    const show = radio.value === 'yes' || radio.value === 'undecided';
+    const group = document.getElementById('situation-group');
+    group.style.display = show ? '' : 'none';
+    if (!show) {
+      document.getElementById('support_situation').value = '';
+      document.getElementById('err-situation').classList.remove('visible');
+      document.getElementById('support_situation').classList.remove('error');
+    }
   }
 
   function toggleOther(radio, targetId) {

@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($phone))  $errors[] = '電話番号を入力してください。';
     if (empty($reason)) $errors[] = '応募動機を入力してください。';
     if (empty($support_program)) $errors[] = 'サポートプログラムへの意向を選択してください。';
-    if (empty($support_situation)) $errors[] = '現在のご状況とサポート枠を希望する理由をご記入ください。';
+    if (in_array($support_program, ['yes','undecided']) && empty($support_situation)) $errors[] = '現在のご状況とサポート枠を希望する理由をご記入ください。';
     if ($confirm_submit !== 'yes') $errors[] = '送信前に「はい」を選択して確認してください。';
 
     if (empty($errors)) {
@@ -899,7 +899,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ?>
                 <label class="radio-option">
                   <input type="radio" name="support_program" value="<?= htmlspecialchars($opt['value']) ?>"
-                         <?= $selectedSupport === $opt['value'] ? 'checked' : '' ?>>
+                         <?= $selectedSupport === $opt['value'] ? 'checked' : '' ?>
+                         onchange="toggleSituation(this)">
                   <div class="radio-dot"></div>
                   <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
                 </label>
@@ -908,6 +909,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="field-error" id="err-support">いずれかを選択してください。</div>
             </div>
 
+            <?php $showSit = in_array($selectedSupport, ['yes','undecided']); ?>
+            <div id="situation-group" style="<?= $showSit ? '' : 'display:none' ?>">
             <div class="field-divider"></div>
 
             <!-- Q13: 現在のご状況 -->
@@ -921,6 +924,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="char-counter" id="sit-count">0 / 800</div>
               <div class="field-error" id="err-situation">現在のご状況とサポート枠を希望する理由をご記入ください。</div>
             </div>
+            </div><!-- /situation-group -->
 
             <div class="field-divider"></div>
 
@@ -1089,11 +1093,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       document.getElementById('err-support').classList.toggle('visible', !supportOk);
       if (!supportOk) ok = false;
 
-      const situation = document.getElementById('support_situation');
-      const situationOk = situation.value.trim().length > 0;
-      document.getElementById('err-situation').classList.toggle('visible', !situationOk);
-      situation.classList.toggle('error', !situationOk);
-      if (!situationOk) ok = false;
+      if (document.getElementById('situation-group').style.display !== 'none') {
+        const situation = document.getElementById('support_situation');
+        const situationOk = situation.value.trim().length > 0;
+        document.getElementById('err-situation').classList.toggle('visible', !situationOk);
+        situation.classList.toggle('error', !situationOk);
+        if (!situationOk) ok = false;
+      }
 
       const confirm = document.querySelector('input[name="confirm_submit"]:checked');
       const confirmOk = !!confirm;
@@ -1109,6 +1115,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (dir === 1) saveDraft(nextStep);
     currentStep = nextStep;
     updateUI();
+  }
+
+  function toggleSituation(radio) {
+    const show = radio.value === 'yes' || radio.value === 'undecided';
+    const group = document.getElementById('situation-group');
+    group.style.display = show ? '' : 'none';
+    if (!show) {
+      document.getElementById('support_situation').value = '';
+      document.getElementById('err-situation').classList.remove('visible');
+      document.getElementById('support_situation').classList.remove('error');
+    }
   }
 
   function toggleOther(radio, targetId) {
