@@ -813,18 +813,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Resume URL -->
             <div class="field-group">
-              <label class="field-label" for="resume_url"><?= htmlspecialchars(q_label('resume_url','6. Resume / CV — URL')) ?></label>
-              <?php $ru_hint = q_hint('resume_url','Share the URL of the file where you uploaded your resume (Google Drive, Dropbox, etc.). Leave blank if you do not have one ready.'); if ($ru_hint): ?><p class="field-hint"><?= htmlspecialchars($ru_hint) ?></p><?php endif; ?>
+              <label class="field-label" for="resume_url"><?= htmlspecialchars(q_label('resume_url','6. Resume / CV — URL')) ?> <span class="req">*</span></label>
+              <?php $ru_hint = q_hint('resume_url','Share the URL of the file where you uploaded your resume (Google Drive, Dropbox, etc.).'); if ($ru_hint): ?><p class="field-hint"><?= htmlspecialchars($ru_hint) ?></p><?php endif; ?>
               <input class="text-input" type="url" id="resume_url" name="resume_url"
                      placeholder="<?= htmlspecialchars(q_placeholder('resume_url','https://drive.google.com/...')) ?>"
                      value="<?= htmlspecialchars($_POST['resume_url'] ?? '') ?>">
+              <div class="field-error" id="err-resume">Please enter the URL of your resume / CV.</div>
             </div>
 
             <div class="field-divider"></div>
 
             <!-- PC skill -->
             <div class="field-group">
-              <label class="field-label"><?= htmlspecialchars(q_label('pc_skill','7. PC skill')) ?></label>
+              <label class="field-label"><?= htmlspecialchars(q_label('pc_skill','7. PC skill')) ?> <span class="req">*</span></label>
               <?php $pc_hint = q_hint('pc_skill','Select the option that best describes your computer skills.'); if ($pc_hint): ?><p class="field-hint"><?= htmlspecialchars($pc_hint) ?></p><?php endif; ?>
               <div class="radio-group">
                 <?php
@@ -849,13 +850,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
                 <?php endforeach; ?>
               </div>
+              <div class="field-error" id="err-pc">Please select your PC skill level.</div>
             </div>
 
             <div class="field-divider"></div>
 
             <!-- AI experience -->
             <div class="field-group">
-              <label class="field-label"><?= htmlspecialchars(q_label('ai_experience','8. AI Tool Usage and Experience')) ?></label>
+              <label class="field-label"><?= htmlspecialchars(q_label('ai_experience','8. AI Tool Usage and Experience')) ?> <span class="req">*</span></label>
               <?php $ai_hint = q_hint('ai_experience','Please select the option that best describes your experience using AI tools such as ChatGPT.'); if ($ai_hint): ?><p class="field-hint"><?= htmlspecialchars($ai_hint) ?></p><?php endif; ?>
               <div class="radio-group">
                 <?php
@@ -880,6 +882,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
                 <?php endforeach; ?>
               </div>
+              <div class="field-error" id="err-ai">Please select your AI tool experience level.</div>
             </div>
 
             <div class="field-divider"></div>
@@ -900,7 +903,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Interview day -->
             <div class="field-group">
-              <label class="field-label"><?= htmlspecialchars(q_label('interview_day','10. Preferred interview day')) ?></label>
+              <label class="field-label"><?= htmlspecialchars(q_label('interview_day','10. Preferred interview day')) ?> <span class="req">*</span></label>
               <?php $id_hint = q_hint('interview_day','If you prefer a specific day, please select "Other" and specify.'); if ($id_hint): ?><p class="field-hint"><?= htmlspecialchars($id_hint) ?></p><?php endif; ?>
               <div class="radio-group">
                 <?php
@@ -926,11 +929,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        placeholder="Please specify your preferred day..."
                        value="<?= htmlspecialchars($_POST['interview_day_other'] ?? '') ?>">
               </div>
+              <div class="field-error" id="err-interview-day">Please select your preferred interview day.</div>
             </div>
 
             <!-- Interview time -->
             <div class="field-group">
-              <label class="field-label"><?= htmlspecialchars(q_label('interview_time','11. Preferred interview time slot')) ?></label>
+              <label class="field-label"><?= htmlspecialchars(q_label('interview_time','11. Preferred interview time slot')) ?> <span class="req">*</span></label>
               <?php $it_hint = q_hint('interview_time','If you prefer a specific time, please select "Other" and specify.'); if ($it_hint): ?><p class="field-hint"><?= htmlspecialchars($it_hint) ?></p><?php endif; ?>
               <div class="radio-group">
                 <?php
@@ -957,6 +961,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        placeholder="Please specify your preferred time slot..."
                        value="<?= htmlspecialchars($_POST['interview_time_other'] ?? '') ?>">
               </div>
+              <div class="field-error" id="err-interview-time">Please select your preferred interview time slot.</div>
             </div>
 
           </div><!-- /card-body -->
@@ -1162,11 +1167,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (!phoneOk) ok = false;
     }
     if (step === 2) {
+      const resume = document.getElementById('resume_url');
+      const resumeOk = resume.value.trim().length > 0;
+      document.getElementById('err-resume').classList.toggle('visible', !resumeOk);
+      resume.classList.toggle('error', !resumeOk);
+      if (!resumeOk) ok = false;
+
+      const pcOk = !!document.querySelector('input[name="pc_skill"]:checked');
+      document.getElementById('err-pc').classList.toggle('visible', !pcOk);
+      if (!pcOk) ok = false;
+
+      const aiOk = !!document.querySelector('input[name="ai_experience"]:checked');
+      document.getElementById('err-ai').classList.toggle('visible', !aiOk);
+      if (!aiOk) ok = false;
+
       const reason = document.getElementById('reason');
       const reasonOk = reason.value.trim().length > 0;
       document.getElementById('err-reason').classList.toggle('visible', !reasonOk);
       reason.classList.toggle('error', !reasonOk);
       if (!reasonOk) ok = false;
+
+      const dayOk = !!document.querySelector('input[name="interview_day"]:checked');
+      document.getElementById('err-interview-day').classList.toggle('visible', !dayOk);
+      if (!dayOk) ok = false;
+
+      const timeOk = !!document.querySelector('input[name="interview_time"]:checked');
+      document.getElementById('err-interview-time').classList.toggle('visible', !timeOk);
+      if (!timeOk) ok = false;
     }
     if (step === 3) {
       const support = document.querySelector('input[name="support_program"]:checked');

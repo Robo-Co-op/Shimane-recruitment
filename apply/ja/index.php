@@ -810,18 +810,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- 履歴書URL -->
             <div class="field-group">
-              <label class="field-label" for="resume_url"><?= htmlspecialchars(qj_label('resume_url','6. 履歴書・職務経歴書 URL')) ?></label>
-              <?php $ru_h = qj_hint('resume_url','Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。お持ちでない場合は空欄で構いません。'); if($ru_h):?><p class="field-hint"><?= htmlspecialchars($ru_h) ?></p><?php endif;?>
+              <label class="field-label" for="resume_url"><?= htmlspecialchars(qj_label('resume_url','6. 履歴書・職務経歴書 URL')) ?> <span class="req">*</span></label>
+              <?php $ru_h = qj_hint('resume_url','Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。'); if($ru_h):?><p class="field-hint"><?= htmlspecialchars($ru_h) ?></p><?php endif;?>
               <input class="text-input" type="url" id="resume_url" name="resume_url"
                      placeholder="<?= htmlspecialchars(qj_placeholder('resume_url','https://drive.google.com/...')) ?>"
                      value="<?= htmlspecialchars($_POST['resume_url'] ?? '') ?>">
+              <div class="field-error" id="err-resume">履歴書・職務経歴書の URL を入力してください。</div>
             </div>
 
             <div class="field-divider"></div>
 
             <!-- PCスキル -->
             <div class="field-group">
-              <label class="field-label"><?= htmlspecialchars(qj_label('pc_skill','7. PC スキル')) ?></label>
+              <label class="field-label"><?= htmlspecialchars(qj_label('pc_skill','7. PC スキル')) ?> <span class="req">*</span></label>
               <?php $pc_h = qj_hint('pc_skill','ご自身のパソコンスキルに最も近いものを選択してください。'); if($pc_h):?><p class="field-hint"><?= htmlspecialchars($pc_h) ?></p><?php endif;?>
               <div class="radio-group">
                 <?php
@@ -846,13 +847,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
                 <?php endforeach; ?>
               </div>
+              <div class="field-error" id="err-pc">PC スキルを選択してください。</div>
             </div>
 
             <div class="field-divider"></div>
 
             <!-- AI経験 -->
             <div class="field-group">
-              <label class="field-label"><?= htmlspecialchars(qj_label('ai_experience','8. AI ツールの利用経験')) ?></label>
+              <label class="field-label"><?= htmlspecialchars(qj_label('ai_experience','8. AI ツールの利用経験')) ?> <span class="req">*</span></label>
               <?php $ai_h = qj_hint('ai_experience','ChatGPT などの AI ツールの利用経験として、最も近いものを選択してください。'); if($ai_h):?><p class="field-hint"><?= htmlspecialchars($ai_h) ?></p><?php endif;?>
               <div class="radio-group">
                 <?php
@@ -877,6 +879,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </label>
                 <?php endforeach; ?>
               </div>
+              <div class="field-error" id="err-ai">AI ツールの利用経験を選択してください。</div>
             </div>
 
             <div class="field-divider"></div>
@@ -897,7 +900,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- 面接希望日 -->
             <div class="field-group">
-              <label class="field-label"><?= htmlspecialchars(qj_label('interview_day','10. 面接希望日')) ?></label>
+              <label class="field-label"><?= htmlspecialchars(qj_label('interview_day','10. 面接希望日')) ?> <span class="req">*</span></label>
               <?php $id_h = qj_hint('interview_day','特定の日程をご希望の場合は「その他」を選択してご記入ください。'); if($id_h):?><p class="field-hint"><?= htmlspecialchars($id_h) ?></p><?php endif;?>
               <div class="radio-group">
                 <?php
@@ -923,11 +926,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        placeholder="ご希望の日程をご記入ください..."
                        value="<?= htmlspecialchars($_POST['interview_day_other'] ?? '') ?>">
               </div>
+              <div class="field-error" id="err-interview-day">面接希望日を選択してください。</div>
             </div>
 
             <!-- 面接希望時間帯 -->
             <div class="field-group">
-              <label class="field-label"><?= htmlspecialchars(qj_label('interview_time','11. 面接希望時間帯')) ?></label>
+              <label class="field-label"><?= htmlspecialchars(qj_label('interview_time','11. 面接希望時間帯')) ?> <span class="req">*</span></label>
               <?php $it_h = qj_hint('interview_time','特定の時間帯をご希望の場合は「その他」を選択してご記入ください。'); if($it_h):?><p class="field-hint"><?= htmlspecialchars($it_h) ?></p><?php endif;?>
               <div class="radio-group">
                 <?php
@@ -954,6 +958,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        placeholder="ご希望の時間帯をご記入ください..."
                        value="<?= htmlspecialchars($_POST['interview_time_other'] ?? '') ?>">
               </div>
+              <div class="field-error" id="err-interview-time">面接希望時間帯を選択してください。</div>
             </div>
 
           </div><!-- /card-body -->
@@ -1185,11 +1190,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (!phoneOk) ok = false;
     }
     if (step === 2) {
+      const resume = document.getElementById('resume_url');
+      const resumeOk = resume.value.trim().length > 0;
+      document.getElementById('err-resume').classList.toggle('visible', !resumeOk);
+      resume.classList.toggle('error', !resumeOk);
+      if (!resumeOk) ok = false;
+
+      const pcOk = !!document.querySelector('input[name="pc_skill"]:checked');
+      document.getElementById('err-pc').classList.toggle('visible', !pcOk);
+      if (!pcOk) ok = false;
+
+      const aiOk = !!document.querySelector('input[name="ai_experience"]:checked');
+      document.getElementById('err-ai').classList.toggle('visible', !aiOk);
+      if (!aiOk) ok = false;
+
       const reason = document.getElementById('reason');
       const reasonOk = reason.value.trim().length > 0;
       document.getElementById('err-reason').classList.toggle('visible', !reasonOk);
       reason.classList.toggle('error', !reasonOk);
       if (!reasonOk) ok = false;
+
+      const dayOk = !!document.querySelector('input[name="interview_day"]:checked');
+      document.getElementById('err-interview-day').classList.toggle('visible', !dayOk);
+      if (!dayOk) ok = false;
+
+      const timeOk = !!document.querySelector('input[name="interview_time"]:checked');
+      document.getElementById('err-interview-time').classList.toggle('visible', !timeOk);
+      if (!timeOk) ok = false;
     }
     if (step === 3) {
       const support = document.querySelector('input[name="support_program"]:checked');
