@@ -598,11 +598,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- ========== HEADER ========== -->
 <header>
   <a class="logo" href="/">
-    <div class="logo-mark">RC</div>
-    <div>
-      <div class="logo-text">Robo Co-op</div>
-      <div class="logo-sub">一般社団法人</div>
-    </div>
+    <img src="/logo.png" alt="Robo Co-op" class="logo-img">
   </a>
   <div class="header-right">
     <a href="/" class="lang-switch">← サイトに戻る</a>
