@@ -518,6 +518,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       font-weight: 900; color: #fff; font-size: 13px;
     }
     .s-brand-name { color: rgba(255,255,255,.9); font-weight: 700; font-size: 15px; }
+    .s-logo { height: 48px; width: auto; filter: brightness(0) invert(1); }
     .check-wrap {
       position: absolute; bottom: -40px;
       left: 50%; transform: translateX(-50%);
@@ -631,8 +632,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <!-- Gradient brand header -->
       <div class="success-header">
         <div class="success-brand">
-          <div class="s-mark">RC</div>
-          <span class="s-brand-name">Robo Co-op</span>
+          <img src="/logo.png" alt="Robo Co-op" class="s-logo">
         </div>
         <div class="check-wrap">
           <div class="check-circle-bg">
