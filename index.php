@@ -12,7 +12,7 @@
 <!-- ========== HEADER ========== -->
 <header>
   <div class="logo">
-    <img src="/images/logo.png" alt="Robo Co-op" style="height: 40px;">
+    <img src="/includes/images/logo.png" alt="Robo Co-op" style="height: 40px;">
   </div>
   <div class="header-right">
     <a href="/en" class="lang-switch">EN</a>
