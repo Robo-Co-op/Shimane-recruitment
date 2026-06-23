@@ -57,6 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $interview_time     = trim($_POST['interview_time'] ?? '');
     $interview_time_other = trim($_POST['interview_time_other'] ?? '');
     $support_program    = trim($_POST['support_program'] ?? '');
+    $support_situation  = trim($_POST['support_situation'] ?? '');
+    $other_questions    = trim($_POST['other_questions'] ?? '');
+    $confirm_submit     = trim($_POST['confirm_submit'] ?? '');
     $draft_token        = trim($_POST['_draft_token'] ?? '');
 
     if (empty($name))   $errors[] = 'Name is required.';
@@ -66,6 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($phone))  $errors[] = 'Phone number is required.';
     if (empty($reason)) $errors[] = 'Reason for applying is required.';
     if (empty($support_program)) $errors[] = 'Please indicate your interest in the support program.';
+    if (empty($support_situation)) $errors[] = 'Please describe your current situation and reason for requesting support.';
+    if ($confirm_submit !== 'yes') $errors[] = 'Please confirm your submission by selecting "Yes".';
 
     if (empty($errors)) {
         // Find draft_id if we have a token
@@ -79,11 +84,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Save to SQLite
         $db->prepare("INSERT INTO form_submissions
             (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
-             interview_day,interview_day_other,interview_time,interview_time_other,support_program,lang,ip_address)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'en',?)")
+             interview_day,interview_day_other,interview_time,interview_time_other,support_program,
+             support_situation,other_questions,confirm_submit,lang,ip_address)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'en',?)")
            ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
                       $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
-                      $interview_time_other,$support_program,$_SERVER['REMOTE_ADDR']??'']);
+                      $interview_time_other,$support_program,$support_situation,$other_questions,
+                      $confirm_submit,$_SERVER['REMOTE_ADDR']??'']);
 
         // Mark draft completed
         if ($draft_id) {
@@ -99,11 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!file_exists($file) || filesize($file) === 0) {
             fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other','resume_url',
                           'pc_skill','ai_experience','reason','interview_day','interview_day_other',
-                          'interview_time','interview_time_other','support_program']);
+                          'interview_time','interview_time_other','support_program',
+                          'support_situation','other_questions','confirm_submit']);
         }
         fputcsv($fp, [date('Y-m-d H:i:s'),$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,
                       $pc_skill,$ai_experience,$reason,$interview_day,$interview_day_other,
-                      $interview_time,$interview_time_other,$support_program]);
+                      $interview_time,$interview_time_other,$support_program,
+                      $support_situation,$other_questions,$confirm_submit]);
         fclose($fp);
         $submitted = true;
     }
@@ -902,6 +911,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="field-error" id="err-support">Please select an option.</div>
             </div>
 
+            <div class="field-divider"></div>
+
+            <!-- Q13: Current situation -->
+            <div class="field-group">
+              <label class="field-label" for="support_situation"><?= htmlspecialchars(q_label('support_situation','13. Current Situation and Reason for Requesting the Support Program')) ?> <span class="req">*</span></label>
+              <?php $sit_h = q_hint('support_situation','Please describe your current living, employment, and family situation in as much detail as you feel comfortable sharing. In particular, please help us understand why you are requesting support by explaining your current employment status, financial concerns, family responsibilities such as childcare or caregiving, and any challenges you are facing in pursuing your studies or finding employment.'); if($sit_h):?><p class="field-hint"><?= htmlspecialchars($sit_h) ?></p><?php endif;?>
+              <textarea class="text-input" id="support_situation" name="support_situation"
+                        rows="6" maxlength="1000"
+                        placeholder="<?= htmlspecialchars(q_placeholder('support_situation','Please describe your current situation...')) ?>"
+                        oninput="updateCharCount(this,'sit-count',800)"><?= htmlspecialchars($_POST['support_situation'] ?? '') ?></textarea>
+              <div class="char-counter" id="sit-count">0 / 800</div>
+              <div class="field-error" id="err-situation">Please describe your current situation and reason for requesting support.</div>
+            </div>
+
+            <div class="field-divider"></div>
+
+            <!-- Q14: Other questions -->
+            <div class="field-group">
+              <label class="field-label" for="other_questions"><?= htmlspecialchars(q_label('other_questions','14. If you have any questions, concerns, or topics you would like to discuss in advance, please feel free to enter them below.')) ?></label>
+              <textarea class="text-input" id="other_questions" name="other_questions"
+                        rows="3"
+                        placeholder="<?= htmlspecialchars(q_placeholder('other_questions','Enter any questions or comments (optional)...')) ?>"><?= htmlspecialchars($_POST['other_questions'] ?? '') ?></textarea>
+            </div>
+
+            <div class="field-divider"></div>
+
+            <!-- Q15: Confirm submission -->
+            <div class="field-group">
+              <label class="field-label"><?= htmlspecialchars(q_label('confirm_submit','15. Would you like to submit your application with the information provided above?')) ?> <span class="req">*</span></label>
+              <?php $cs_h = q_hint('confirm_submit','Please review your information carefully before submitting, as changes cannot be made after submission.'); if($cs_h):?><p class="field-hint"><?= htmlspecialchars($cs_h) ?></p><?php endif;?>
+              <div class="radio-group">
+                <?php
+                $confirmOpts = q_options('confirm_submit', [
+                  ['value'=>'yes','label'=>'Yes','sub'=>''],
+                ]);
+                $selectedConfirm = $_POST['confirm_submit'] ?? '';
+                foreach ($confirmOpts as $opt):
+                ?>
+                <label class="radio-option">
+                  <input type="radio" name="confirm_submit" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedConfirm === $opt['value'] ? 'checked' : '' ?>>
+                  <div class="radio-dot"></div>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
+                </label>
+                <?php endforeach; ?>
+              </div>
+              <div class="field-error" id="err-confirm">Please confirm your submission.</div>
+            </div>
+
           </div><!-- /card-body -->
         </div><!-- /step-3 -->
 
@@ -1006,6 +1064,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const supportOk = !!support;
       document.getElementById('err-support').classList.toggle('visible', !supportOk);
       if (!supportOk) ok = false;
+
+      const situation = document.getElementById('support_situation');
+      const situationOk = situation.value.trim().length > 0;
+      document.getElementById('err-situation').classList.toggle('visible', !situationOk);
+      situation.classList.toggle('error', !situationOk);
+      if (!situationOk) ok = false;
+
+      const confirm = document.querySelector('input[name="confirm_submit"]:checked');
+      const confirmOk = !!confirm;
+      document.getElementById('err-confirm').classList.toggle('visible', !confirmOk);
+      if (!confirmOk) ok = false;
     }
     return ok;
   }
@@ -1016,7 +1085,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   function collectFormData() {
     const fields = ['name','email','phone','how_heard','how_heard_other','resume_url',
                     'pc_skill','ai_experience','reason','interview_day','interview_day_other',
-                    'interview_time','interview_time_other','support_program'];
+                    'interview_time','interview_time_other','support_program',
+                    'support_situation','other_questions','confirm_submit'];
     const data = {};
     fields.forEach(f => {
       const el = document.querySelector(`[name="${f}"]:checked`) || document.querySelector(`[name="${f}"]`);
@@ -1067,9 +1137,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     counter.classList.toggle('warn', len > max * 0.9);
   }
 
-  // Init char counter
+  // Init char counters
   const reasonEl = document.getElementById('reason');
   if (reasonEl) updateCharCount(reasonEl, 'reason-count', 500);
+  const sitEl = document.getElementById('support_situation');
+  if (sitEl) updateCharCount(sitEl, 'sit-count', 800);
 
   // Inline form submit validation
   document.getElementById('app-form').addEventListener('submit', function(e) {

@@ -57,6 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $interview_time     = trim($_POST['interview_time'] ?? '');
     $interview_time_other = trim($_POST['interview_time_other'] ?? '');
     $support_program    = trim($_POST['support_program'] ?? '');
+    $support_situation  = trim($_POST['support_situation'] ?? '');
+    $other_questions    = trim($_POST['other_questions'] ?? '');
+    $confirm_submit     = trim($_POST['confirm_submit'] ?? '');
     $draft_token        = trim($_POST['_draft_token'] ?? '');
 
     if (empty($name))   $errors[] = '氏名を入力してください。';
@@ -66,6 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($phone))  $errors[] = '電話番号を入力してください。';
     if (empty($reason)) $errors[] = '応募動機を入力してください。';
     if (empty($support_program)) $errors[] = 'サポートプログラムへの意向を選択してください。';
+    if (empty($support_situation)) $errors[] = '現在のご状況とサポート枠を希望する理由をご記入ください。';
+    if ($confirm_submit !== 'yes') $errors[] = '送信前に「はい」を選択して確認してください。';
 
     if (empty($errors)) {
         $draft_id = null;
@@ -77,11 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $db->prepare("INSERT INTO form_submissions
             (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
-             interview_day,interview_day_other,interview_time,interview_time_other,support_program,lang,ip_address)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?)")
+             interview_day,interview_day_other,interview_time,interview_time_other,support_program,
+             support_situation,other_questions,confirm_submit,lang,ip_address)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?)")
            ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
                       $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
-                      $interview_time_other,$support_program,$_SERVER['REMOTE_ADDR']??'']);
+                      $interview_time_other,$support_program,$support_situation,$other_questions,
+                      $confirm_submit,$_SERVER['REMOTE_ADDR']??'']);
 
         if ($draft_id) {
             $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
@@ -98,12 +105,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other',
                           'resume_url','pc_skill','ai_experience','reason',
                           'interview_day','interview_day_other','interview_time','interview_time_other',
-                          'support_program','lang']);
+                          'support_program','support_situation','other_questions','confirm_submit','lang']);
         }
         fputcsv($fp, [date('Y-m-d H:i:s'), $name, $email, $phone, $how_heard, $how_heard_other,
                       $resume_url, $pc_skill, $ai_experience, $reason,
                       $interview_day, $interview_day_other, $interview_time, $interview_time_other,
-                      $support_program, 'ja']);
+                      $support_program, $support_situation, $other_questions, $confirm_submit, 'ja']);
         fclose($fp);
         $submitted = true;
     }
@@ -901,6 +908,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="field-error" id="err-support">いずれかを選択してください。</div>
             </div>
 
+            <div class="field-divider"></div>
+
+            <!-- Q13: 現在のご状況 -->
+            <div class="field-group">
+              <label class="field-label" for="support_situation"><?= htmlspecialchars(qj_label('support_situation','13. 現在のご状況とサポート枠を希望する理由')) ?> <span class="req">*</span></label>
+              <?php $sit_h = qj_hint('support_situation','現在の生活・就業・家庭のご状況について、差し支えない範囲で具体的に記入してください。特に、サポート枠を希望される理由が分かるように、現在の就業状況、収入面での不安、子育て・介護などご家庭の事情、学習や就労にあたって課題になっていることなどを聞かせてください。'); if($sit_h):?><p class="field-hint"><?= htmlspecialchars($sit_h) ?></p><?php endif;?>
+              <textarea class="text-input" id="support_situation" name="support_situation"
+                        rows="6" maxlength="1000"
+                        placeholder="<?= htmlspecialchars(qj_placeholder('support_situation','現在のご状況をご記入ください...')) ?>"
+                        oninput="updateCharCount(this,'sit-count',800)"><?= htmlspecialchars($_POST['support_situation'] ?? '') ?></textarea>
+              <div class="char-counter" id="sit-count">0 / 800</div>
+              <div class="field-error" id="err-situation">現在のご状況とサポート枠を希望する理由をご記入ください。</div>
+            </div>
+
+            <div class="field-divider"></div>
+
+            <!-- Q14: その他 -->
+            <div class="field-group">
+              <label class="field-label" for="other_questions"><?= htmlspecialchars(qj_label('other_questions','14. その他に、気になることや事前に相談しておきたいことがあれば、自由に記入してください')) ?></label>
+              <textarea class="text-input" id="other_questions" name="other_questions"
+                        rows="3"
+                        placeholder="<?= htmlspecialchars(qj_placeholder('other_questions','回答を入力してください')) ?>"><?= htmlspecialchars($_POST['other_questions'] ?? '') ?></textarea>
+            </div>
+
+            <div class="field-divider"></div>
+
+            <!-- Q15: 送信確認 -->
+            <div class="field-group">
+              <label class="field-label"><?= htmlspecialchars(qj_label('confirm_submit','15. この内容で申し込みを送信してよろしいですか？')) ?> <span class="req">*</span></label>
+              <?php $cs_h = qj_hint('confirm_submit','送信後の修正はできませんので、内容を確認のうえ送信してください。'); if($cs_h):?><p class="field-hint"><?= htmlspecialchars($cs_h) ?></p><?php endif;?>
+              <div class="radio-group">
+                <?php
+                $confirmOpts = qj_options('confirm_submit', [
+                  ['value'=>'yes','label'=>'はい','sub'=>''],
+                ]);
+                $selectedConfirm = $_POST['confirm_submit'] ?? '';
+                foreach ($confirmOpts as $opt):
+                ?>
+                <label class="radio-option">
+                  <input type="radio" name="confirm_submit" value="<?= htmlspecialchars($opt['value']) ?>"
+                         <?= $selectedConfirm === $opt['value'] ? 'checked' : '' ?>>
+                  <div class="radio-dot"></div>
+                  <span class="radio-text"><?= htmlspecialchars($opt['label']) ?></span>
+                </label>
+                <?php endforeach; ?>
+              </div>
+              <div class="field-error" id="err-confirm">「はい」を選択してください。</div>
+            </div>
+
           </div><!-- /card-body -->
         </div><!-- /step-3 -->
 
@@ -939,7 +995,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   function collectFormData() {
     const fields = ['name','email','phone','how_heard','how_heard_other','resume_url',
                     'pc_skill','ai_experience','reason','interview_day','interview_day_other',
-                    'interview_time','interview_time_other','support_program'];
+                    'interview_time','interview_time_other','support_program',
+                    'support_situation','other_questions','confirm_submit'];
     const data = {};
     fields.forEach(f => {
       const el = document.querySelector(`[name="${f}"]:checked`) || document.querySelector(`[name="${f}"]`);
@@ -1031,6 +1088,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const supportOk = !!support;
       document.getElementById('err-support').classList.toggle('visible', !supportOk);
       if (!supportOk) ok = false;
+
+      const situation = document.getElementById('support_situation');
+      const situationOk = situation.value.trim().length > 0;
+      document.getElementById('err-situation').classList.toggle('visible', !situationOk);
+      situation.classList.toggle('error', !situationOk);
+      if (!situationOk) ok = false;
+
+      const confirm = document.querySelector('input[name="confirm_submit"]:checked');
+      const confirmOk = !!confirm;
+      document.getElementById('err-confirm').classList.toggle('visible', !confirmOk);
+      if (!confirmOk) ok = false;
     }
     return ok;
   }
@@ -1058,6 +1126,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   const reasonEl = document.getElementById('reason');
   if (reasonEl) updateCharCount(reasonEl, 'reason-count', 500);
+  const sitEl = document.getElementById('support_situation');
+  if (sitEl) updateCharCount(sitEl, 'sit-count', 800);
 
   document.getElementById('app-form').addEventListener('submit', function(e) {
     if (!validateStep(3)) e.preventDefault();

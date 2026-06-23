@@ -44,6 +44,7 @@ function get_db(): PDO {
     _init_schema($pdo);
     _ensure_admin_seeded($pdo);
     _ensure_forms_seeded($pdo);
+    _migrate_form_questions($pdo);
     return $pdo;
 }
 
@@ -104,12 +105,20 @@ function _init_schema(PDO $db): void {
         interview_time       TEXT,
         interview_time_other TEXT,
         support_program      TEXT,
+        support_situation    TEXT,
+        other_questions      TEXT,
+        confirm_submit       TEXT,
         lang                 TEXT DEFAULT 'en',
         submitted_at         TIMESTAMPTZ DEFAULT NOW(),
         ip_address           TEXT,
         notes                TEXT,
         status               TEXT DEFAULT 'new'
     )");
+    foreach ([
+        "ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS support_situation TEXT",
+        "ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS other_questions    TEXT",
+        "ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS confirm_submit     TEXT",
+    ] as $sql) { $db->exec($sql); }
 
     $db->exec("CREATE TABLE IF NOT EXISTS analytics_events (
         id         BIGSERIAL PRIMARY KEY,
@@ -249,6 +258,17 @@ function _ensure_forms_seeded(PDO $db): void {
         ['value'=>'undecided','label'=>'I am undecided and would like to discuss it further.','sub'=>''],
         ['value'=>'no','label'=>'No, I do not wish to apply.','sub'=>''],
     ],null);
+    _iq($db,$en,3,130,'support_situation','textarea',
+        '13. Current Situation and Reason for Requesting the Support Program',
+        'Please describe your current living, employment, and family situation in as much detail as you feel comfortable sharing. In particular, please help us understand why you are requesting support by explaining your current employment status, financial concerns, family responsibilities such as childcare or caregiving, and any challenges you are facing in pursuing your studies or finding employment.',
+        'Please describe your current situation...',1,[],1000);
+    _iq($db,$en,3,140,'other_questions','textarea',
+        '14. If you have any questions, concerns, or topics you would like to discuss in advance, please feel free to enter them below.',
+        '','Enter any questions or comments (optional)...',0,[],null);
+    _iq($db,$en,3,150,'confirm_submit','radio',
+        '15. Would you like to submit your application with the information provided above?',
+        'Please review your information carefully before submitting, as changes cannot be made after submission.',
+        '',1,[['value'=>'yes','label'=>'Yes','sub'=>'']],null);
 
     // ── Japanese form ─────────────────────────────────────────────────────────
     $db->exec("INSERT INTO forms (slug,lang,title,description) VALUES
@@ -310,6 +330,55 @@ function _ensure_forms_seeded(PDO $db): void {
         ['value'=>'undecided','label'=>'まだ決めていません。詳しく話を聞きたいです。','sub'=>''],
         ['value'=>'no','label'=>'いいえ、応募しません。','sub'=>''],
     ],null);
+    _iq($db,$ja,3,130,'support_situation','textarea',
+        '13. 現在のご状況とサポート枠を希望する理由',
+        '現在の生活・就業・家庭のご状況について、差し支えない範囲で具体的に記入してください。特に、サポート枠を希望される理由が分かるように、現在の就業状況、収入面での不安、子育て・介護などご家庭の事情、学習や就労にあたって課題になっていることなどを聞かせてください。',
+        '現在のご状況をご記入ください...',1,[],1000);
+    _iq($db,$ja,3,140,'other_questions','textarea',
+        '14. その他に、気になることや事前に相談しておきたいことがあれば、自由に記入してください',
+        '','回答を入力してください',0,[],null);
+    _iq($db,$ja,3,150,'confirm_submit','radio',
+        '15. この内容で申し込みを送信してよろしいですか？',
+        '送信後の修正はできませんので、内容を確認のうえ送信してください。',
+        '',1,[['value'=>'yes','label'=>'はい','sub'=>'']],null);
+}
+
+function _migrate_form_questions(PDO $db): void {
+    foreach (['en-application','ja-application'] as $slug) {
+        $st = $db->prepare("SELECT id FROM forms WHERE slug=?");
+        $st->execute([$slug]);
+        $fid = $st->fetchColumn();
+        if (!$fid) continue;
+        $exists = $db->prepare("SELECT COUNT(*) FROM form_questions WHERE form_id=? AND field_name='support_situation'");
+        $exists->execute([$fid]);
+        if ((int)$exists->fetchColumn() > 0) continue;
+
+        if ($slug === 'en-application') {
+            _iq($db,(int)$fid,3,130,'support_situation','textarea',
+                '13. Current Situation and Reason for Requesting the Support Program',
+                'Please describe your current living, employment, and family situation in as much detail as you feel comfortable sharing. In particular, please help us understand why you are requesting support by explaining your current employment status, financial concerns, family responsibilities such as childcare or caregiving, and any challenges you are facing in pursuing your studies or finding employment.',
+                'Please describe your current situation...',1,[],1000);
+            _iq($db,(int)$fid,3,140,'other_questions','textarea',
+                '14. If you have any questions, concerns, or topics you would like to discuss in advance, please feel free to enter them below.',
+                '','Enter any questions or comments (optional)...',0,[],null);
+            _iq($db,(int)$fid,3,150,'confirm_submit','radio',
+                '15. Would you like to submit your application with the information provided above?',
+                'Please review your information carefully before submitting, as changes cannot be made after submission.',
+                '',1,[['value'=>'yes','label'=>'Yes','sub'=>'']],null);
+        } else {
+            _iq($db,(int)$fid,3,130,'support_situation','textarea',
+                '13. 現在のご状況とサポート枠を希望する理由',
+                '現在の生活・就業・家庭のご状況について、差し支えない範囲で具体的に記入してください。特に、サポート枠を希望される理由が分かるように、現在の就業状況、収入面での不安、子育て・介護などご家庭の事情、学習や就労にあたって課題になっていることなどを聞かせてください。',
+                '現在のご状況をご記入ください...',1,[],1000);
+            _iq($db,(int)$fid,3,140,'other_questions','textarea',
+                '14. その他に、気になることや事前に相談しておきたいことがあれば、自由に記入してください',
+                '','回答を入力してください',0,[],null);
+            _iq($db,(int)$fid,3,150,'confirm_submit','radio',
+                '15. この内容で申し込みを送信してよろしいですか？',
+                '送信後の修正はできませんので、内容を確認のうえ送信してください。',
+                '',1,[['value'=>'yes','label'=>'はい','sub'=>'']],null);
+        }
+    }
 }
 
 function get_form_questions(string $slug): array {
