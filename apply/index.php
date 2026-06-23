@@ -44,6 +44,7 @@ if ($resume_token) {
 
 // ── Handle final POST submission ─────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
     $db = get_db();
     $name               = trim($_POST['name'] ?? '');
     $email              = trim($_POST['email'] ?? '');
@@ -122,6 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'A system error occurred. Please try again later. (' . htmlspecialchars($e->getMessage()) . ')';
             error_log('apply/en submit error: ' . $e->getMessage());
         }
+    }
+    } catch (\Throwable $e) {
+        $errors[] = 'DB connection error: ' . htmlspecialchars($e->getMessage());
+        error_log('apply/en db error: ' . $e->getMessage());
     }
 }
 ?>
