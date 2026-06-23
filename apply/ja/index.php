@@ -44,6 +44,7 @@ if ($resume_token) {
 
 // ── Handle final POST submission ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
     $db = get_db();
     $name               = trim($_POST['name'] ?? '');
     $email              = trim($_POST['email'] ?? '');
@@ -124,6 +125,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'システムエラーが発生しました。時間をおいて再度お試しください。（' . htmlspecialchars($e->getMessage()) . '）';
             error_log('apply/ja submit error: ' . $e->getMessage());
         }
+    }
+    } catch (\Throwable $e) {
+        $errors[] = 'DB接続エラー：' . htmlspecialchars($e->getMessage());
+        error_log('apply/ja db error: ' . $e->getMessage());
     }
 }
 ?>
