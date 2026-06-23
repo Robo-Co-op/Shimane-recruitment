@@ -391,6 +391,11 @@ function _migrate_form_questions(PDO $db): void {
 }
 
 function get_form_questions(string $slug): array {
+    // File cache — avoids a Supabase round-trip on every apply-page view
+    $cache = dirname(__DIR__, 2) . '/db/.fq_' . preg_replace('/[^a-z0-9_-]/', '', $slug) . '.json';
+    if (file_exists($cache) && (time() - filemtime($cache)) < 3600) {
+        return json_decode(file_get_contents($cache), true) ?: [];
+    }
     $db = get_db();
     $st = $db->prepare("
         SELECT q.* FROM form_questions q
@@ -403,7 +408,13 @@ function get_form_questions(string $slug): array {
     foreach ($rows as &$row) {
         $row['options'] = json_decode($row['options_json'] ?? '[]', true) ?: [];
     }
+    @file_put_contents($cache, json_encode($rows, JSON_UNESCAPED_UNICODE));
     return $rows;
+}
+
+function bust_form_questions_cache(string $slug): void {
+    $cache = dirname(__DIR__, 2) . '/db/.fq_' . preg_replace('/[^a-z0-9_-]/', '', $slug) . '.json';
+    @unlink($cache);
 }
 
 function get_content(string $key, string $lang, string $default = ''): string {

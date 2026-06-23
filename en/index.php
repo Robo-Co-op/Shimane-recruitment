@@ -11,13 +11,13 @@
 
 <!-- ========== HEADER ========== -->
 <header>
-  <div class="logo">
+  <a class="logo" href="/en">
     <div class="logo-mark">RC</div>
     <div>
       <div class="logo-text">Robo Co-op</div>
       <div class="logo-sub">General Incorporated Association</div>
     </div>
-  </div>
+  </a>
   <div class="header-right">
     <a href="/" class="lang-switch">日本語</a>
     <a href="/apply" class="header-cta">Apply Now →</a>

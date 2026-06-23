@@ -11,13 +11,13 @@
 
 <!-- ========== HEADER ========== -->
 <header>
-  <div class="logo">
+  <a class="logo" href="/">
     <div class="logo-mark">RC</div>
     <div>
       <div class="logo-text">Robo Co-op</div>
       <div class="logo-sub">一般社団法人</div>
     </div>
-  </div>
+  </a>
   <div class="header-right">
     <a href="/en" class="lang-switch">EN</a>
     <a href="/apply/ja" class="header-cta">応募フォームへ →</a>

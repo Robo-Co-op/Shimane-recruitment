@@ -5,9 +5,8 @@ $errors = [];
 $resume_draft = null;
 
 require_once __DIR__ . '/../admin/includes/db.php';
-$db = get_db();
 
-// ── Load form questions from DB (data-driven labels/hints/options) ────────────
+// Load questions from file cache — no DB connection needed for a plain GET visit
 $_raw_qs = get_form_questions('en-application');
 $_qmap   = array_column($_raw_qs, null, 'field_name');
 
@@ -31,6 +30,7 @@ function q_options(string $name, array $defaults): array {
 // ── Resume from token (GET) ──────────────────────────────────────────────────
 $resume_token = trim($_GET['token'] ?? '');
 if ($resume_token) {
+    $db = get_db();
     $st = $db->prepare("SELECT * FROM form_drafts WHERE token=? AND completed=0 LIMIT 1");
     $st->execute([$resume_token]);
     $resume_draft = $st->fetch();
@@ -42,6 +42,7 @@ if ($resume_token) {
 
 // ── Handle final POST submission ─────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $db = get_db();
     $name               = trim($_POST['name'] ?? '');
     $email              = trim($_POST['email'] ?? '');
     $email_confirm      = trim($_POST['email_confirm'] ?? '');
@@ -598,13 +599,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- ========== HEADER ========== -->
 <header>
-  <div class="logo">
+  <a class="logo" href="/en">
     <div class="logo-mark">RC</div>
     <div>
       <div class="logo-text">Robo Co-op</div>
       <div class="logo-sub">General Incorporated Association</div>
     </div>
-  </div>
+  </a>
   <div class="header-right">
     <a href="/en" class="lang-switch">← Back to site</a>
   </div>
