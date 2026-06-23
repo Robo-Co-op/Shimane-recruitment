@@ -482,39 +482,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       background: white;
       border-radius: 24px;
       box-shadow: 0 6px 32px rgba(61,191,175,.12);
-      padding: 52px 36px;
+      overflow: hidden;
       text-align: center;
     }
-    .success-icon {
-      font-size: 56px;
-      margin-bottom: 20px;
+    .success-header {
+      background: linear-gradient(135deg, #3DBFAF, #2A9485);
+      padding: 28px 36px 72px;
+      position: relative;
     }
-    .success-card h2 {
-      font-size: 24px; font-weight: 900;
-      color: var(--warm-dark); margin-bottom: 12px;
+    .success-brand {
+      display: flex; align-items: center;
+      gap: 10px; justify-content: center;
     }
-    .success-card p {
-      font-size: 15px; color: var(--warm-mid);
-      line-height: 1.8; margin-bottom: 8px;
-      max-width: 460px; margin-left: auto; margin-right: auto;
+    .s-mark {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.22);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; color: #fff; font-size: 13px;
     }
-    .success-card .ref {
-      margin-top: 28px;
+    .s-brand-name { color: rgba(255,255,255,.9); font-weight: 700; font-size: 15px; }
+    .check-wrap {
+      position: absolute; bottom: -40px;
+      left: 50%; transform: translateX(-50%);
+    }
+    .check-circle-bg {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 6px 28px rgba(0,0,0,.13);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .checkmark { width: 44px; height: 44px; }
+    .checkmark-circle {
+      stroke: #3DBFAF; stroke-width: 2.5; fill: none;
+      stroke-dasharray: 145; stroke-dashoffset: 145;
+      animation: draw-circle .55s ease-out .1s forwards;
+    }
+    .checkmark-check {
+      stroke: #3DBFAF; stroke-width: 3.2; fill: none;
+      stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 48; stroke-dashoffset: 48;
+      animation: draw-check .35s ease-out .6s forwards;
+    }
+    @keyframes draw-circle { to { stroke-dashoffset: 0; } }
+    @keyframes draw-check  { to { stroke-dashoffset: 0; } }
+    .success-body { padding: 58px 36px 44px; }
+    .success-body h2 {
+      font-size: 22px; font-weight: 900;
+      color: var(--warm-dark); margin-bottom: 10px;
+    }
+    .s-intro {
+      font-size: 14px; color: var(--warm-mid);
+      line-height: 1.85; margin-bottom: 24px;
+    }
+    .email-confirm {
+      display: inline-block;
       background: var(--mint-pale);
       border-radius: 12px;
-      padding: 14px 20px;
-      font-size: 13px; color: var(--mint-dark);
-      font-weight: 700;
+      padding: 12px 24px;
+      margin-bottom: 28px;
     }
-    .success-back {
+    .ec-label {
+      font-size: 11px; font-weight: 700; color: var(--mint-dark);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px;
+    }
+    .ec-val { font-size: 14px; font-weight: 700; color: var(--warm-dark); }
+    .next-steps {
+      background: #F8FBFA; border-radius: 14px;
+      padding: 20px 24px; margin-bottom: 22px; text-align: left;
+    }
+    .next-steps h3 {
+      font-size: 11px; font-weight: 700; color: var(--mint-dark);
+      text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px;
+    }
+    .ns-step { display: flex; gap: 13px; margin-bottom: 14px; }
+    .ns-step:last-child { margin-bottom: 0; }
+    .ns-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--mint); color: #fff;
+      font-size: 11px; font-weight: 900; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .ns-text { font-size: 13px; color: var(--warm-mid); line-height: 1.65; }
+    .ns-text strong { color: var(--warm-dark); display: block; margin-bottom: 1px; }
+    .response-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #FEF4E5; border-radius: 8px;
+      padding: 8px 18px; font-size: 13px;
+      color: #7A4A00; font-weight: 600; margin-bottom: 28px;
+    }
+    .success-back-btn {
       display: inline-block;
-      margin-top: 28px;
-      color: var(--mint-dark);
-      font-size: 14px;
-      font-weight: 700;
+      background: linear-gradient(135deg, #3DBFAF, #2A9485);
+      color: #fff; font-weight: 700; font-size: 14px;
+      padding: 13px 36px; border-radius: 40px;
       text-decoration: none;
+      box-shadow: 0 4px 18px rgba(61,191,175,.3);
+      transition: opacity .2s, transform .2s;
     }
-    .success-back:hover { text-decoration: underline; }
+    .success-back-btn:hover { opacity: .9; transform: translateY(-1px); }
 
     /* ── Responsive ── */
     @media (max-width: 560px) {
@@ -548,21 +615,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($submitted): ?>
     <!-- ── SUCCESS ── -->
     <div class="success-card">
-      <div class="success-icon">🎉</div>
-      <h2>応募が完了しました！</h2>
-      <p>
-        島根県 × Robo Co-op<br>
-        令和8年度 デジタル人材育成研修へのご応募ありがとうございます。
-      </p>
-      <p>
-        応募内容を受け付けました。担当者が内容を確認のうえ、<br>
-        <strong><?= htmlspecialchars($email) ?></strong> 宛てに次のステップをご連絡いたします。
-      </p>
-      <div class="ref">
-        返信の目安：5〜7営業日以内
+
+      <!-- Gradient brand header -->
+      <div class="success-header">
+        <div class="success-brand">
+          <div class="s-mark">RC</div>
+          <span class="s-brand-name">Robo Co-op</span>
+        </div>
+        <div class="check-wrap">
+          <div class="check-circle-bg">
+            <svg class="checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+              <circle class="checkmark-circle" cx="26" cy="26" r="23" fill="none"/>
+              <path class="checkmark-check" fill="none" d="M14 27l8 8 16-17"/>
+            </svg>
+          </div>
+        </div>
       </div>
-      <br>
-      <a href="/" class="success-back">← 研修情報に戻る</a>
+
+      <!-- Body -->
+      <div class="success-body">
+        <h2>応募が完了しました</h2>
+        <p class="s-intro">
+          島根県 × Robo Co-op<br>
+          令和8年度 デジタル人材育成研修へのご応募ありがとうございます。<br>
+          担当者が内容を確認のうえ、ご連絡いたします。
+        </p>
+
+        <div class="email-confirm">
+          <div class="ec-label">確認メール送信先</div>
+          <div class="ec-val"><?= htmlspecialchars($email) ?></div>
+        </div>
+
+        <div class="next-steps">
+          <h3>次のステップ</h3>
+          <div class="ns-step">
+            <div class="ns-num">1</div>
+            <div class="ns-text"><strong>応募内容の確認</strong>担当者が応募内容を丁寧に確認します。</div>
+          </div>
+          <div class="ns-step">
+            <div class="ns-num">2</div>
+            <div class="ns-text"><strong>面談日程のご連絡</strong>5〜7営業日以内にメールにてご連絡いたします。</div>
+          </div>
+          <div class="ns-step">
+            <div class="ns-num">3</div>
+            <div class="ns-text"><strong>オンライン面談</strong>詳細はご連絡メールにてお知らせします。</div>
+          </div>
+        </div>
+
+        <div class="response-badge">
+          ⏱&nbsp; 返信の目安：5〜7営業日以内
+        </div>
+
+        <br>
+        <a href="/" class="success-back-btn">← 研修情報に戻る</a>
+      </div>
+
     </div>
 
     <?php else: ?>

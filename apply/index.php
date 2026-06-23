@@ -484,39 +484,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       background: white;
       border-radius: 24px;
       box-shadow: 0 6px 32px rgba(61,191,175,.12);
-      padding: 52px 36px;
+      overflow: hidden;
       text-align: center;
     }
-    .success-icon {
-      font-size: 56px;
-      margin-bottom: 20px;
+    .success-header {
+      background: linear-gradient(135deg, #3DBFAF, #2A9485);
+      padding: 28px 36px 72px;
+      position: relative;
     }
-    .success-card h2 {
-      font-size: 24px; font-weight: 900;
-      color: var(--warm-dark); margin-bottom: 12px;
+    .success-brand {
+      display: flex; align-items: center;
+      gap: 10px; justify-content: center;
     }
-    .success-card p {
-      font-size: 15px; color: var(--warm-mid);
-      line-height: 1.8; margin-bottom: 8px;
-      max-width: 460px; margin-left: auto; margin-right: auto;
+    .s-mark {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.22);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; color: #fff; font-size: 13px;
     }
-    .success-card .ref {
-      margin-top: 28px;
+    .s-brand-name { color: rgba(255,255,255,.9); font-weight: 700; font-size: 15px; }
+    .check-wrap {
+      position: absolute; bottom: -40px;
+      left: 50%; transform: translateX(-50%);
+    }
+    .check-circle-bg {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 6px 28px rgba(0,0,0,.13);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .checkmark { width: 44px; height: 44px; }
+    .checkmark-circle {
+      stroke: #3DBFAF; stroke-width: 2.5; fill: none;
+      stroke-dasharray: 145; stroke-dashoffset: 145;
+      animation: draw-circle .55s ease-out .1s forwards;
+    }
+    .checkmark-check {
+      stroke: #3DBFAF; stroke-width: 3.2; fill: none;
+      stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 48; stroke-dashoffset: 48;
+      animation: draw-check .35s ease-out .6s forwards;
+    }
+    @keyframes draw-circle { to { stroke-dashoffset: 0; } }
+    @keyframes draw-check  { to { stroke-dashoffset: 0; } }
+    .success-body { padding: 58px 36px 44px; }
+    .success-body h2 {
+      font-size: 22px; font-weight: 900;
+      color: var(--warm-dark); margin-bottom: 10px;
+    }
+    .s-intro {
+      font-size: 14px; color: var(--warm-mid);
+      line-height: 1.85; margin-bottom: 24px;
+    }
+    .email-confirm {
+      display: inline-block;
       background: var(--mint-pale);
       border-radius: 12px;
-      padding: 14px 20px;
-      font-size: 13px; color: var(--mint-dark);
-      font-weight: 700;
+      padding: 12px 24px;
+      margin-bottom: 28px;
     }
-    .success-back {
+    .ec-label {
+      font-size: 11px; font-weight: 700; color: var(--mint-dark);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px;
+    }
+    .ec-val { font-size: 14px; font-weight: 700; color: var(--warm-dark); }
+    .next-steps {
+      background: #F8FBFA; border-radius: 14px;
+      padding: 20px 24px; margin-bottom: 22px; text-align: left;
+    }
+    .next-steps h3 {
+      font-size: 11px; font-weight: 700; color: var(--mint-dark);
+      text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px;
+    }
+    .ns-step { display: flex; gap: 13px; margin-bottom: 14px; }
+    .ns-step:last-child { margin-bottom: 0; }
+    .ns-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--mint); color: #fff;
+      font-size: 11px; font-weight: 900; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .ns-text { font-size: 13px; color: var(--warm-mid); line-height: 1.65; }
+    .ns-text strong { color: var(--warm-dark); display: block; margin-bottom: 1px; }
+    .response-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #FEF4E5; border-radius: 8px;
+      padding: 8px 18px; font-size: 13px;
+      color: #7A4A00; font-weight: 600; margin-bottom: 28px;
+    }
+    .success-back-btn {
       display: inline-block;
-      margin-top: 28px;
-      color: var(--mint-dark);
-      font-size: 14px;
-      font-weight: 700;
+      background: linear-gradient(135deg, #3DBFAF, #2A9485);
+      color: #fff; font-weight: 700; font-size: 14px;
+      padding: 13px 36px; border-radius: 40px;
       text-decoration: none;
+      box-shadow: 0 4px 18px rgba(61,191,175,.3);
+      transition: opacity .2s, transform .2s;
     }
-    .success-back:hover { text-decoration: underline; }
+    .success-back-btn:hover { opacity: .9; transform: translateY(-1px); }
 
     /* ── Responsive ── */
     @media (max-width: 560px) {
@@ -550,21 +617,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($submitted): ?>
     <!-- ── SUCCESS ── -->
     <div class="success-card">
-      <div class="success-icon">🎉</div>
-      <h2>Application Submitted!</h2>
-      <p>
-        Thank you for applying to the Shimane Prefecture × Robo Co-op<br>
-        FY2026 Digital Talent Development Program.
-      </p>
-      <p>
-        We have received your application and our team will review it carefully.<br>
-        We will contact you at <strong><?= htmlspecialchars($email) ?></strong> with next steps.
-      </p>
-      <div class="ref">
-        Expected response: within 5–7 business days
+
+      <!-- Gradient brand header -->
+      <div class="success-header">
+        <div class="success-brand">
+          <div class="s-mark">RC</div>
+          <span class="s-brand-name">Robo Co-op</span>
+        </div>
+        <div class="check-wrap">
+          <div class="check-circle-bg">
+            <svg class="checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+              <circle class="checkmark-circle" cx="26" cy="26" r="23" fill="none"/>
+              <path class="checkmark-check" fill="none" d="M14 27l8 8 16-17"/>
+            </svg>
+          </div>
+        </div>
       </div>
-      <br>
-      <a href="/en" class="success-back">← Return to program information</a>
+
+      <!-- Body -->
+      <div class="success-body">
+        <h2>Application Submitted!</h2>
+        <p class="s-intro">
+          Thank you for applying to the<br>
+          Shimane Prefecture × Robo Co-op FY2026<br>
+          Digital Talent Development Program.<br>
+          Our team will review your application carefully.
+        </p>
+
+        <div class="email-confirm">
+          <div class="ec-label">Confirmation sent to</div>
+          <div class="ec-val"><?= htmlspecialchars($email) ?></div>
+        </div>
+
+        <div class="next-steps">
+          <h3>What happens next</h3>
+          <div class="ns-step">
+            <div class="ns-num">1</div>
+            <div class="ns-text"><strong>Application Review</strong>Our team will carefully review your application.</div>
+          </div>
+          <div class="ns-step">
+            <div class="ns-num">2</div>
+            <div class="ns-text"><strong>Interview Invitation</strong>We will contact you within 5–7 business days via email.</div>
+          </div>
+          <div class="ns-step">
+            <div class="ns-num">3</div>
+            <div class="ns-text"><strong>Online Interview</strong>Full details will be shared in your invitation email.</div>
+          </div>
+        </div>
+
+        <div class="response-badge">
+          ⏱&nbsp; Expected response: within 5–7 business days
+        </div>
+
+        <br>
+        <a href="/en" class="success-back-btn">← Return to program information</a>
+      </div>
+
     </div>
 
     <?php else: ?>
