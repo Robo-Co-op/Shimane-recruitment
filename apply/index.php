@@ -3,6 +3,19 @@ $lang = 'en';
 $submitted = false;
 $errors = [];
 $resume_draft = null;
+$done_email = '';
+$done_name  = '';
+
+// Show success card after PRG redirect
+if (isset($_GET['done'])) {
+    session_start();
+    if (!empty($_SESSION['apply_done_en'])) {
+        $done_email = $_SESSION['apply_done_en']['email'] ?? '';
+        $done_name  = $_SESSION['apply_done_en']['name']  ?? '';
+        unset($_SESSION['apply_done_en']);
+        $submitted = true;
+    }
+}
 
 require_once __DIR__ . '/../admin/includes/db.php';
 
@@ -74,48 +87,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($confirm_submit !== 'yes') $errors[] = 'Please confirm your submission by selecting "Yes".';
 
     if (empty($errors)) {
-        // Find draft_id if we have a token
-        $draft_id = null;
-        if ($draft_token) {
-            $dst = $db->prepare("SELECT id FROM form_drafts WHERE token=?");
-            $dst->execute([$draft_token]);
-            $draft_id = $dst->fetchColumn() ?: null;
-        }
+        try {
+            $draft_id = null;
+            if ($draft_token) {
+                $dst = $db->prepare("SELECT id FROM form_drafts WHERE token=?");
+                $dst->execute([$draft_token]);
+                $draft_id = $dst->fetchColumn() ?: null;
+            }
 
-        // Save to SQLite
-        $db->prepare("INSERT INTO form_submissions
-            (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
-             interview_day,interview_day_other,interview_time,interview_time_other,support_program,
-             support_situation,other_questions,confirm_submit,lang,ip_address)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'en',?)")
-           ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
-                      $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
-                      $interview_time_other,$support_program,$support_situation,$other_questions,
-                      $confirm_submit,$_SERVER['REMOTE_ADDR']??'']);
+            $db->prepare("INSERT INTO form_submissions
+                (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
+                 interview_day,interview_day_other,interview_time,interview_time_other,support_program,
+                 support_situation,other_questions,confirm_submit,lang,ip_address)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'en',?)")
+               ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
+                          $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
+                          $interview_time_other,$support_program,$support_situation,$other_questions,
+                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'']);
 
-        // Mark draft completed
-        if ($draft_id) {
-            $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
-               ->execute([$draft_id]);
-        }
+            if ($draft_id) {
+                $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
+                   ->execute([$draft_id]);
+            }
 
-        // Also keep CSV for backward compat
-        $dir = dirname(__DIR__) . '/submissions';
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $file = $dir . '/applications.csv';
-        $fp   = fopen($file, 'a');
-        if (!file_exists($file) || filesize($file) === 0) {
-            fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other','resume_url',
-                          'pc_skill','ai_experience','reason','interview_day','interview_day_other',
-                          'interview_time','interview_time_other','support_program',
-                          'support_situation','other_questions','confirm_submit']);
+            $dir = dirname(__DIR__) . '/submissions';
+            if (!is_dir($dir)) mkdir($dir, 0755, true);
+            $file = $dir . '/applications.csv';
+            $fp   = fopen($file, 'a');
+            if (!file_exists($file) || filesize($file) === 0) {
+                fputcsv($fp, ['timestamp','name','email','phone','how_heard','how_heard_other','resume_url',
+                              'pc_skill','ai_experience','reason','interview_day','interview_day_other',
+                              'interview_time','interview_time_other','support_program',
+                              'support_situation','other_questions','confirm_submit']);
+            }
+            fputcsv($fp, [date('Y-m-d H:i:s'),$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,
+                          $pc_skill,$ai_experience,$reason,$interview_day,$interview_day_other,
+                          $interview_time,$interview_time_other,$support_program,
+                          $support_situation,$other_questions,$confirm_submit]);
+            fclose($fp);
+
+            session_start();
+            $_SESSION['apply_done_en'] = ['email' => $email, 'name' => $name];
+            header('Location: /apply?done=1');
+            exit;
+        } catch (\Throwable $e) {
+            $errors[] = 'A system error occurred. Please try again later. (' . htmlspecialchars($e->getMessage()) . ')';
+            error_log('apply/en submit error: ' . $e->getMessage());
         }
-        fputcsv($fp, [date('Y-m-d H:i:s'),$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,
-                      $pc_skill,$ai_experience,$reason,$interview_day,$interview_day_other,
-                      $interview_time,$interview_time_other,$support_program,
-                      $support_situation,$other_questions,$confirm_submit]);
-        fclose($fp);
-        $submitted = true;
     }
 }
 ?>
@@ -643,7 +661,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="email-confirm">
           <div class="ec-label">Confirmation sent to</div>
-          <div class="ec-val"><?= htmlspecialchars($email) ?></div>
+          <div class="ec-val"><?= htmlspecialchars($done_email) ?></div>
         </div>
 
         <div class="next-steps">
