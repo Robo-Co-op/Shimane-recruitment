@@ -35,7 +35,8 @@
       top: 0;
       z-index: 100;
     }
-    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+    .logo { display: flex; align-items: center; text-decoration: none; color: inherit; }
+    .logo-img { height: 40px; width: auto; display: block; }
     .logo-mark {
       width: 38px; height: 38px;
       background: linear-gradient(135deg, var(--mint), var(--sage));
