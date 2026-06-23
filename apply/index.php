@@ -6,17 +6,6 @@ $resume_draft = null;
 $done_email = '';
 $done_name  = '';
 
-// Show success card after PRG redirect
-if (isset($_GET['done'])) {
-    session_start();
-    if (!empty($_SESSION['apply_done_en'])) {
-        $done_email = $_SESSION['apply_done_en']['email'] ?? '';
-        $done_name  = $_SESSION['apply_done_en']['name']  ?? '';
-        unset($_SESSION['apply_done_en']);
-        $submitted = true;
-    }
-}
-
 require_once __DIR__ . '/../admin/includes/db.php';
 
 // Load questions from file cache — no DB connection needed for a plain GET visit
@@ -126,10 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                           $support_situation,$other_questions,$confirm_submit]);
             fclose($fp);
 
-            session_start();
-            $_SESSION['apply_done_en'] = ['email' => $email, 'name' => $name];
-            header('Location: /apply?done=1');
-            exit;
+            $done_email = $email;
+            $done_name  = $name;
+            $submitted  = true;
         } catch (\Throwable $e) {
             $errors[] = 'A system error occurred. Please try again later. (' . htmlspecialchars($e->getMessage()) . ')';
             error_log('apply/en submit error: ' . $e->getMessage());
