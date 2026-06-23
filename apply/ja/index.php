@@ -666,7 +666,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
           <div class="ns-step">
             <div class="ns-num">2</div>
-            <div class="ns-text"><strong>面談日程のご連絡</strong>5〜7営業日以内にメールにてご連絡いたします。</div>
+            <div class="ns-text"><strong>面談日程のご連絡</strong>3営業日以内にメールにてご連絡いたします。</div>
           </div>
           <div class="ns-step">
             <div class="ns-num">3</div>
@@ -675,7 +675,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="response-badge">
-          ⏱&nbsp; 返信の目安：5〜7営業日以内
+          ⏱&nbsp; 返信の目安：3営業日以内
         </div>
 
         <br>

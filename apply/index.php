@@ -665,7 +665,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
           <div class="ns-step">
             <div class="ns-num">2</div>
-            <div class="ns-text"><strong>Interview Invitation</strong>We will contact you within 5–7 business days via email.</div>
+            <div class="ns-text"><strong>Interview Invitation</strong>We will contact you within 3 business days via email.</div>
           </div>
           <div class="ns-step">
             <div class="ns-num">3</div>
@@ -674,7 +674,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="response-badge">
-          ⏱&nbsp; Expected response: within 5–7 business days
+          ⏱&nbsp; Expected response: within 3 business days
         </div>
 
         <br>
