@@ -722,7 +722,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <div class="form-card">
-      <form method="POST" action="/apply/ja" id="app-form" novalidate>
+      <form method="POST" action="/apply/ja/" id="app-form" novalidate>
         <input type="hidden" name="_draft_token" id="draft_token" value="<?= htmlspecialchars($_POST['_draft_token'] ?? '') ?>">
 
         <!-- ══════════════════════════════════════
