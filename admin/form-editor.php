@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    $qid, $form_id
                ]);
         }
+        bust_form_questions_cache($form['slug']);
         $msg = 'Questions saved successfully.';
     }
 
@@ -77,12 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       $_POST['field_type']??'text',
                       trim($_POST['label']??'New Question'),
                       '', '', 0, '[]']);
+        bust_form_questions_cache($form['slug']);
         $msg = 'Question added.';
     }
 
     if ($action === 'delete_question') {
         $qid = (int)($_POST['qid'] ?? 0);
         $db->prepare("DELETE FROM form_questions WHERE id=? AND form_id=?")->execute([$qid,$form_id]);
+        bust_form_questions_cache($form['slug']);
         $msg = 'Question deleted.';
     }
 }
