@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/includes/db.php';
 
 $db    = get_db();
@@ -16,6 +17,7 @@ if (!$token || !$user) {
 } elseif ($user['reset_expires_at'] && strtotime($user['reset_expires_at']) < time()) {
     $error = 'This reset link has expired. Please request a new one.';
 }
+$lang = admin_lang();
 
 if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass    = $_POST['password'] ?? '';
@@ -32,14 +34,14 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $lang ?>">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reset Password — Shimane Admin</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(155deg,#E5F6F4,#F8F2EE);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.box{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(61,191,175,.15);padding:40px 36px;width:100%;max-width:420px}
+.box{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(61,191,175,.15);padding:40px 36px;width:100%;max-width:420px;position:relative}
 .logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
 .mark{width:40px;height:40px;background:linear-gradient(135deg,#3DBFAF,#2A9485);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px}
 .lname{font-size:16px;font-weight:700;color:#1E2D2B}
@@ -55,10 +57,18 @@ p.sub{font-size:13px;color:#5A706B;margin-bottom:24px}
 .err{background:#FEE8E8;color:#D94F4F;border:1px solid #F9C0C0;border-radius:8px;padding:10px 13px;font-size:13px;margin-bottom:14px}
 .ok{background:#E6FAF5;color:#1A6B56;border:1px solid #A8E6D5;border-radius:8px;padding:14px 16px;font-size:14px;margin-bottom:14px}
 .note{font-size:12px;color:#A8C4BF;text-align:center;margin-top:14px}
+.lang-tog{position:absolute;top:18px;right:20px;display:flex;gap:3px}
+.lt-btn{font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;color:#A8C4BF;text-decoration:none;transition:all .15s;background:transparent;border:1.5px solid transparent}
+.lt-btn.on{border-color:#3DBFAF;color:#2A9485;background:#E5F6F4}
+.lt-btn:hover:not(.on){color:#5A706B}
 </style>
 </head>
 <body>
 <div class="box">
+  <div class="lang-tog">
+    <a href="/admin/reset-password?token=<?= urlencode($token) ?>&amp;setlang=en" class="lt-btn <?= $lang==='en'?'on':'' ?>">EN</a>
+    <a href="/admin/reset-password?token=<?= urlencode($token) ?>&amp;setlang=ja" class="lt-btn <?= $lang==='ja'?'on':'' ?>">日本語</a>
+  </div>
   <div class="logo">
     <div class="mark">RC</div>
     <div><div class="lname">Robo Co-op</div><div class="lsub">Shimane Admin</div></div>

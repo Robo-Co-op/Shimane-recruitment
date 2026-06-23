@@ -1,17 +1,21 @@
 <?php
+require_once __DIR__ . '/lang.php';
+
 function admin_start(string $title, string $active = '', string $actions = ''): void {
     $user = current_user();
     $init = strtoupper(substr($user['name'] ?? 'A', 0, 1));
+    $lang = admin_lang();
     $nav  = [
-        ['href'=>'/admin',             'icon'=>'📊', 'label'=>'Dashboard',   'key'=>'dashboard'],
-        ['href'=>'/admin/analytics',   'icon'=>'📈', 'label'=>'Analytics',   'key'=>'analytics'],
-        ['href'=>'/admin/submissions', 'icon'=>'📋', 'label'=>'Submissions', 'key'=>'submissions'],
-        ['href'=>'/admin/forms',       'icon'=>'📝', 'label'=>'Forms',       'key'=>'forms'],
-        ['href'=>'/admin/content',     'icon'=>'✏️',  'label'=>'Content',     'key'=>'content'],
-        ['href'=>'/admin/team',        'icon'=>'👥', 'label'=>'Team',        'key'=>'team'],
+        ['href'=>'/admin',             'icon'=>'📊', 'label'=>t('nav_dashboard'),   'key'=>'dashboard'],
+        ['href'=>'/admin/analytics',   'icon'=>'📈', 'label'=>t('nav_analytics'),   'key'=>'analytics'],
+        ['href'=>'/admin/submissions', 'icon'=>'📋', 'label'=>t('nav_submissions'), 'key'=>'submissions'],
+        ['href'=>'/admin/forms',       'icon'=>'📝', 'label'=>t('nav_forms'),       'key'=>'forms'],
+        ['href'=>'/admin/content',     'icon'=>'✏️',  'label'=>t('nav_content'),     'key'=>'content'],
+        ['href'=>'/admin/team',        'icon'=>'👥', 'label'=>t('nav_team'),        'key'=>'team'],
     ];
+    $cur_path = strtok($_SERVER['REQUEST_URI'], '?');
 ?><!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $lang ?>">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($title) ?> — Admin</title>
@@ -40,6 +44,11 @@ function admin_start(string $title, string $active = '', string $actions = ''): 
 .sb-ur{font-size:10px;color:var(--sb-t);text-transform:capitalize}
 .sb-lo{font-size:11px;color:rgba(255,255,255,.32);margin-top:7px;display:block;transition:color .15s}
 .sb-lo:hover{color:var(--red)}
+/* Language switcher */
+.lang-sw{display:flex;gap:4px;margin-top:10px}
+.ls-btn{font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;color:rgba(255,255,255,.38);transition:all .15s;letter-spacing:.03em}
+.ls-btn.on{background:rgba(61,191,175,.22);color:var(--mint)}
+.ls-btn:hover:not(.on){color:rgba(255,255,255,.7)}
 /* Main */
 .mc{margin-left:var(--sb-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
 .tb{background:#fff;height:58px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:50;gap:12px}
@@ -124,16 +133,16 @@ canvas{display:block;width:100%!important}
       <div class="sb-sub">Shimane Admin</div>
     </div>
     <div class="sb-nav">
-      <div class="nav-sec">Navigation</div>
+      <div class="nav-sec"><?= t('nav_section') ?></div>
       <?php foreach ($nav as $n): ?>
       <a href="<?= $n['href'] ?>" class="ni <?= $active === $n['key'] ? 'active' : '' ?>">
         <span class="ni-ic"><?= $n['icon'] ?></span><?= $n['label'] ?>
       </a>
       <?php endforeach; ?>
-      <div class="nav-sec">Live Site</div>
-      <a href="/" target="_blank" class="ni"><span class="ni-ic">🗾</span>JP Landing Page</a>
-      <a href="/en" target="_blank" class="ni"><span class="ni-ic">🌐</span>EN Landing Page</a>
-      <a href="/apply" target="_blank" class="ni"><span class="ni-ic">📝</span>Application Form</a>
+      <div class="nav-sec"><?= t('nav_live') ?></div>
+      <a href="/" target="_blank" class="ni"><span class="ni-ic">🗾</span><?= t('nav_jp_page') ?></a>
+      <a href="/en" target="_blank" class="ni"><span class="ni-ic">🌐</span><?= t('nav_en_page') ?></a>
+      <a href="/apply" target="_blank" class="ni"><span class="ni-ic">📝</span><?= t('nav_apply') ?></a>
     </div>
     <div class="sb-foot">
       <div class="sb-usr">
@@ -143,8 +152,12 @@ canvas{display:block;width:100%!important}
           <div class="sb-ur"><?= htmlspecialchars($user['role'] ?? '') ?></div>
         </div>
       </div>
-      <a href="/admin/settings" class="sb-lo" style="color:rgba(255,255,255,.45)">⚙ Settings</a>
-      <a href="/admin/logout" class="sb-lo">Sign out →</a>
+      <a href="/admin/settings" class="sb-lo" style="color:rgba(255,255,255,.45)"><?= t('nav_settings') ?></a>
+      <a href="/admin/logout" class="sb-lo"><?= t('sign_out') ?> →</a>
+      <div class="lang-sw">
+        <a href="<?= htmlspecialchars($cur_path) ?>?setlang=en" class="ls-btn <?= $lang==='en'?'on':'' ?>"><?= t('lang_en') ?></a>
+        <a href="<?= htmlspecialchars($cur_path) ?>?setlang=ja" class="ls-btn <?= $lang==='ja'?'on':'' ?>"><?= t('lang_ja') ?> 日本語</a>
+      </div>
     </div>
   </nav>
   <div class="mc">
