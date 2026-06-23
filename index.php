@@ -12,11 +12,7 @@
 <!-- ========== HEADER ========== -->
 <header>
   <div class="logo">
-    <div class="logo-mark">RC</div>
-    <div>
-      <div class="logo-text">Robo Co-op</div>
-      <div class="logo-sub">一般社団法人</div>
-    </div>
+    <img src="/images/logo.png" alt="Robo Co-op" style="height: 40px;">
   </div>
   <div class="header-right">
     <a href="/en" class="lang-switch">EN</a>
