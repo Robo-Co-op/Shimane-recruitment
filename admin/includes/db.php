@@ -36,15 +36,24 @@ function get_db(): PDO {
         [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_PERSISTENT         => true,
         ]
     );
 
-    $pdo->exec("CREATE SCHEMA IF NOT EXISTS {$schema}");
+    // Always set search_path (needed even on a reused persistent connection)
     $pdo->exec("SET search_path TO {$schema}");
-    _init_schema($pdo);
-    _ensure_admin_seeded($pdo);
-    _ensure_forms_seeded($pdo);
-    _migrate_form_questions($pdo);
+
+    // Run migrations only once — skip on every subsequent request via flag file
+    $flag = dirname(__DIR__, 2) . '/db/.schema_v3';
+    if (!file_exists($flag)) {
+        $pdo->exec("CREATE SCHEMA IF NOT EXISTS {$schema}");
+        _init_schema($pdo);
+        _ensure_admin_seeded($pdo);
+        _ensure_forms_seeded($pdo);
+        _migrate_form_questions($pdo);
+        @file_put_contents($flag, date('c'));
+    }
+
     return $pdo;
 }
 
