@@ -6,17 +6,6 @@ $resume_draft = null;
 $done_email = '';
 $done_name  = '';
 
-// Show success card after PRG redirect
-if (isset($_GET['done'])) {
-    session_start();
-    if (!empty($_SESSION['apply_done_ja'])) {
-        $done_email = $_SESSION['apply_done_ja']['email'] ?? '';
-        $done_name  = $_SESSION['apply_done_ja']['name']  ?? '';
-        unset($_SESSION['apply_done_ja']);
-        $submitted = true;
-    }
-}
-
 require_once __DIR__ . '/../../admin/includes/db.php';
 
 // Load questions from file cache — no DB connection needed for a plain GET visit
@@ -128,11 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                           $support_program, $support_situation, $other_questions, $confirm_submit, 'ja']);
             fclose($fp);
 
-            // PRG: redirect to success page to prevent re-submission on refresh
-            session_start();
-            $_SESSION['apply_done_ja'] = ['email' => $email, 'name' => $name];
-            header('Location: /apply/ja?done=1');
-            exit;
+            $done_email = $email;
+            $done_name  = $name;
+            $submitted  = true;
         } catch (\Throwable $e) {
             $errors[] = 'システムエラーが発生しました。時間をおいて再度お試しください。（' . htmlspecialchars($e->getMessage()) . '）';
             error_log('apply/ja submit error: ' . $e->getMessage());
