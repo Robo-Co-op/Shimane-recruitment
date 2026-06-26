@@ -13,6 +13,7 @@
 <header>
   <a class="logo" href="/">
     <img src="/logo.png" alt="Robo Co-op" class="logo-img">
+    <span class="logo-text">Robo Co-op</span>
   </a>
   <div class="header-right">
     <a href="/en" class="lang-switch">EN</a>

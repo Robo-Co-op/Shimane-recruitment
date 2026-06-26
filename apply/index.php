@@ -618,6 +618,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <header>
   <a class="logo" href="/en">
     <img src="/logo.png" alt="Robo Co-op" class="logo-img">
+    <span class="logo-text">Robo Co-op</span>
   </a>
   <div class="header-right">
     <a href="/en" class="lang-switch">← Back to site</a>
