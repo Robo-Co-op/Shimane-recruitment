@@ -1129,6 +1129,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             応募を送信する →
           </button>
         </div>
+        <div style="text-align:center; padding: 0 32px 20px;">
+          <button type="button" id="btn-save" onclick="saveAndShowLink()" style="background:none;border:none;color:var(--mint-dark);font-size:13px;cursor:pointer;text-decoration:underline;padding:4px 0">💾 入力内容を保存して後で続きを入力する</button>
+          <div id="save-msg" style="display:none;margin-top:8px;padding:10px 14px;background:#F0FAF8;border:1px solid var(--mint);border-radius:8px;font-size:13px;text-align:left">
+            ✅ 保存しました！このリンクをブックマークするか、コピーして保存してください：<br>
+            <a id="save-link" href="#" style="word-break:break-all;color:var(--mint-dark);font-size:12px"></a>
+          </div>
+        </div>
 
       </form>
     </div><!-- /form-card -->
@@ -1212,7 +1219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById(id).classList.toggle('visible', show);
       };
 
-      const nameOk = name.value.trim().length > 0;
+      const nameOk = [...name.value.trim()].length >= 2;
       showErr('err-name', !nameOk);
       name.classList.toggle('error', !nameOk);
       if (!nameOk) ok = false;
@@ -1228,7 +1235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       conf.classList.toggle('error', !confOk);
       if (!confOk) ok = false;
 
-      const phoneOk = phone.value.trim().length > 0;
+      const phoneOk = phone.value.replace(/\D/g, '').length >= 10;
       showErr('err-phone', !phoneOk);
       phone.classList.toggle('error', !phoneOk);
       if (!phoneOk) ok = false;
@@ -1290,6 +1297,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (dir === 1) saveDraft(nextStep);
     currentStep = nextStep;
     updateUI();
+  }
+
+  async function saveAndShowLink() {
+    const email = document.getElementById('email')?.value?.trim();
+    if (!email) { alert('先にメールアドレスを入力してください。'); return; }
+    await saveDraft(currentStep);
+    if (!draftToken) { alert('保存できませんでした。もう一度お試しください。'); return; }
+    const link = window.location.href;
+    document.getElementById('save-link').href = link;
+    document.getElementById('save-link').textContent = link;
+    document.getElementById('save-msg').style.display = '';
+    document.getElementById('btn-save').textContent = '✅ 保存しました！';
   }
 
   function toggleSituation(radio) {

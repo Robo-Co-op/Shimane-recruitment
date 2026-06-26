@@ -57,6 +57,13 @@ function get_db(): PDO {
         @file_put_contents($flag, date('c'));
     }
 
+    // Incremental migrations — each guarded by its own flag so they run once after deploy
+    $flag4 = dirname(__DIR__, 2) . '/db/.schema_v4';
+    if (!file_exists($flag4)) {
+        $pdo->exec("ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS is_duplicate BOOLEAN DEFAULT FALSE");
+        @file_put_contents($flag4, date('c'));
+    }
+
     return $pdo;
 }
 
