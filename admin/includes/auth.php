@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../includes/base.php';
 function require_auth(string $min_role = 'viewer'): array {
     if (session_status() === PHP_SESSION_NONE) session_start();
     if (empty($_SESSION['admin'])) {

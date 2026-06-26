@@ -35,10 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($sent) {
                     $msg = "Invitation sent to {$email}. They will receive an email to set their password.";
                 } else {
-                    $base = (isset($_SERVER['HTTP_HOST'])
-                        ? ((!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')?'https':'http').'://'.$_SERVER['HTTP_HOST']
-                        : 'https://shimane-ib.roboco-op.org');
-                    $invite_link = $base . '/admin/accept-invite?token=' . $token;
+                    $invite_link = _admin_base_url() . '/admin/accept-invite?token=' . $token;
                     $msg = "Account created for {$name}. Email could not be sent — share the invite link below manually.";
                 }
             } catch (\PDOException $e) {
@@ -62,10 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($sent) {
                 $msg = "Invite resent to {$member['email']}.";
             } else {
-                $base = (isset($_SERVER['HTTP_HOST'])
-                    ? ((!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')?'https':'http').'://'.$_SERVER['HTTP_HOST']
-                    : 'https://shimane-ib.roboco-op.org');
-                $invite_link = $base . '/admin/accept-invite?token=' . $token;
+                $invite_link = _admin_base_url() . '/admin/accept-invite?token=' . $token;
                 $msg = "Email could not be sent — share the invite link below manually.";
             }
         }

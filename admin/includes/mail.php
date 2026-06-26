@@ -2,9 +2,10 @@
 function _admin_base_url(): string {
     if (isset($_SERVER['HTTP_HOST'])) {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        return $scheme . '://' . $_SERVER['HTTP_HOST'];
+        $path   = defined('BASE_URL') ? BASE_URL : '';
+        return $scheme . '://' . $_SERVER['HTTP_HOST'] . $path;
     }
-    return 'https://shimaai.robouni.ac';
+    return 'https://robocoop.org/robouni/shimane-ai';
 }
 
 function _admin_mail_html(string $to, string $subject, string $html_body): bool {

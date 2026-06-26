@@ -20,10 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            ->execute([$token, $expires, $user['id']]);
         $sent = send_password_reset($email, $user['name'], $token);
         if (!$sent) {
-            $base = (isset($_SERVER['HTTP_HOST'])
-                ? ((!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')?'https':'http').'://'.$_SERVER['HTTP_HOST']
-                : 'https://shimaai.robouni.ac');
-            $_SESSION['_reset_link'] = $base . '/admin/reset-password?token=' . $token;
+            $_SESSION['_reset_link'] = _admin_base_url() . '/admin/reset-password?token=' . $token;
         }
     }
     $msg = t('forgot_sent');

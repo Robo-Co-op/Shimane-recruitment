@@ -2,6 +2,7 @@
 session_start();
 require_once dirname(__DIR__) . '/includes/db.php';
 require_once dirname(__DIR__) . '/includes/auth.php';
+require_once dirname(__DIR__) . '/includes/mail.php';
 require_auth('editor');
 
 $db = get_db();
@@ -28,9 +29,10 @@ foreach ($drafts as $d) {
     $name     = $d['name'] ?: ($lang === 'ja' ? '応募者' : 'Applicant');
     $email    = $d['email'];
     $token    = $d['token'];
+    $site = _admin_base_url();
     $resume_url = ($lang === 'ja')
-        ? "https://shimane-ib.roboco-op.org/apply/ja?token={$token}"
-        : "https://shimane-ib.roboco-op.org/apply?token={$token}";
+        ? "{$site}/apply/ja?token={$token}"
+        : "{$site}/apply?token={$token}";
 
     if ($lang === 'ja') {
         $subject = '【島根IB】応募フォームのご記入をお願いします';
