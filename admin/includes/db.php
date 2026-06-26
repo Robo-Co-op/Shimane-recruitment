@@ -227,7 +227,7 @@ function _ensure_forms_seeded(PDO $db): void {
     ],null);
 
     _iq($db,$en,2,60,'resume_url','url','6. Resume / CV — URL',
-        'Share the URL of the file where you uploaded your resume (Google Drive, Dropbox, etc.). Leave blank if you do not have one ready.',
+        'Share the URL of the file where you uploaded your resume (Google Drive, Dropbox, etc.).',
         'https://drive.google.com/...',0,[],null);
     _iq($db,$en,2,70,'pc_skill','radio','7. PC skill',
         'Select the option that best describes your computer skills.','',0,[
@@ -299,7 +299,7 @@ function _ensure_forms_seeded(PDO $db): void {
         ['value'=>'other','label'=>'その他','sub'=>''],
     ],null);
     _iq($db,$ja,2,60,'resume_url','url','6. 履歴書・職務経歴書 URL',
-        'Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。お持ちでない場合は空欄で構いません。',
+        'Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。',
         'https://drive.google.com/...',0,[],null);
     _iq($db,$ja,2,70,'pc_skill','radio','7. PC スキル',
         'ご自身のパソコンスキルに最も近いものを選択してください。','',0,[

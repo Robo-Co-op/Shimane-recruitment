@@ -154,7 +154,7 @@
           <li>Build a real track record on actual client work</li>
           <li>Senior mentors think alongside you every step</li>
           <li>Experience the full cycle: analysis, build, review</li>
-          <li>Build a portfolio of concrete work achievements</li>
+          <li>Build a portfolio of work achievements</li>
           <li>Grow connections with companies in and beyond Shimane</li>
         </ul>
       </div>
@@ -166,7 +166,6 @@
           <li>Connect to jobs and freelance contracts nationwide</li>
           <li>Remain part of the graduate community after completion</li>
           <li>Eventually become a trainer for the next cohort</li>
-          <li>Deferred-payment plan: pay back a little as your income grows</li>
           <li>Alumni mentors give you a gentle push forward</li>
         </ul>
       </div>
