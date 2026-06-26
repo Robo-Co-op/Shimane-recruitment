@@ -13,7 +13,7 @@ $sub = $db->prepare("SELECT * FROM form_submissions WHERE id=?")->execute([$id])
 $st = $db->prepare("SELECT * FROM form_submissions WHERE id=?");
 $st->execute([$id]);
 $sub = $st->fetch();
-if (!$sub) { header('Location: /admin/submissions'); exit; }
+if (!$sub) { header('Location: ' . base_url('/admin/submissions')); exit; }
 
 // Handle update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && can('editor')) {

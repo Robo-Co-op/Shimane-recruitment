@@ -5,13 +5,13 @@ require_once __DIR__ . '/includes/db.php';
 
 // Already logged in
 if (!empty($_SESSION['admin'])) {
-    header('Location: /admin'); exit;
+    header('Location: ' . base_url('/admin')); exit;
 }
 
 $db     = get_db();
 $error  = '';
 $setup  = ($db->query("SELECT COUNT(*) FROM admin_users")->fetchColumn() == 0);
-$next   = '/admin';
+$next   = base_url('/admin');
 
 // ── First-time setup: create initial admin ──────────────────────────────────
 if ($setup && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['setup'])) {

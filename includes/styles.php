@@ -1,3 +1,5 @@
+<?php require_once __DIR__ . '/base.php'; ?>
+<link rel="icon" type="image/png" href="/logo.png">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -419,12 +421,13 @@
   </style>
   <script>
   (function(){
+    var _base='<?= BASE_URL ?>';
     var sid=sessionStorage.getItem('_rc_sid');
     if(!sid){sid=Math.random().toString(36).substr(2,9)+Date.now().toString(36);sessionStorage.setItem('_rc_sid',sid);}
     function track(type,extra){
       var p=Object.assign({type:type,sid:sid,page:location.pathname,lang:document.documentElement.lang||'en',ref:document.referrer},extra||{});
-      if(navigator.sendBeacon){navigator.sendBeacon('/admin/api/track',JSON.stringify(p));}
-      else{fetch('/admin/api/track',{method:'POST',body:JSON.stringify(p),keepalive:true}).catch(function(){});}
+      if(navigator.sendBeacon){navigator.sendBeacon(_base+'/admin/api/track',JSON.stringify(p));}
+      else{fetch(_base+'/admin/api/track',{method:'POST',body:JSON.stringify(p),keepalive:true}).catch(function(){});}
     }
     track('pageview');
     document.addEventListener('click',function(e){

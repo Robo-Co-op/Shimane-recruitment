@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_form'])) {
             $db->prepare("INSERT INTO forms (slug,lang,title,description) VALUES (?,?,?,?)")
                ->execute([$slug, $lang, $title, trim($_POST['description'] ?? '')]);
             $new_id = $db->lastInsertId();
-            header("Location: /admin/form-editor?id={$new_id}");
+            header("Location: " . base_url("/admin/form-editor?id={$new_id}"));
             exit;
         } catch (\Throwable $e) {
             $msg = 'Slug already exists — choose a different one.';

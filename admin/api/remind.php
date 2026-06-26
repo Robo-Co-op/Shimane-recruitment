@@ -87,4 +87,4 @@ Shimane IB Program
 
 // Redirect back with result message
 $msg = urlencode("Reminders sent: {$sent}" . ($failed ? ", failed: {$failed}" : ".") . " ({$sent} of " . count($drafts) . " eligible drafts.)");
-header("Location: /admin/submissions?tab=drafts&msg={$msg}");
+header("Location: " . base_url("/admin/submissions?tab=drafts&msg={$msg}"));

@@ -6,6 +6,7 @@ $resume_draft = null;
 $done_email = '';
 $done_name  = '';
 
+require_once __DIR__ . '/../includes/base.php';
 require_once __DIR__ . '/../admin/includes/db.php';
 
 // Load questions from file cache — no DB connection needed for a plain GET visit
@@ -1255,14 +1256,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const payload = Object.assign(collectFormData(), {
         token: draftToken, step: nextStep, lang: 'en'
       });
-      const res  = await fetch('/admin/api/save-draft', { method:'POST', body: JSON.stringify(payload) });
+      const res  = await fetch('<?= BASE_URL ?>/admin/api/save-draft', { method:'POST', body: JSON.stringify(payload) });
       const json = await res.json();
       if (json.token) {
         draftToken = json.token;
         document.getElementById('draft_token').value = json.token;
         // Update URL without reload so resume link works
         if (history.replaceState) {
-          history.replaceState(null, '', '/apply?token=' + json.token);
+          history.replaceState(null, '', '<?= BASE_URL ?>/apply?token=' + json.token);
         }
       }
     } catch(e) {}

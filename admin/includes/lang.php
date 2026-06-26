@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../includes/base.php';
 // Set language via GET param (e.g. ?setlang=ja) and redirect back preserving other params
 if (isset($_GET['setlang'])) {
     $l = in_array($_GET['setlang'], ['en','ja']) ? $_GET['setlang'] : 'en';

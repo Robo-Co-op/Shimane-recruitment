@@ -16,7 +16,7 @@ if ($form_id) {
     $form = $st->fetch();
 }
 if (!$form) {
-    header("Location: /admin/forms");
+    header("Location: " . base_url('/admin/forms'));
     exit;
 }
 

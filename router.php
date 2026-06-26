@@ -3,7 +3,12 @@
  * Router for PHP built-in development server.
  * Usage: php -S localhost:8000 router.php
  */
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+$uri  = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+if ($base !== '' && $base !== '/' && strpos($uri, $base) === 0) {
+    $uri = substr($uri, strlen($base));
+}
+if ($uri === '' || $uri === null) $uri = '/';
 
 // Serve static files directly
 $file = __DIR__ . $uri;
