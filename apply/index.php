@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
                           $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
                           $interview_time_other,$support_program,$support_situation,$other_questions,
-                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'',$is_duplicate]);
+                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'',(int)$is_duplicate]);
 
             if ($draft_id) {
                 $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
