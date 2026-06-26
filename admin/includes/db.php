@@ -392,7 +392,9 @@ function _migrate_form_questions(PDO $db): void {
 
 function get_form_questions(string $slug): array {
     // File cache — avoids a Supabase round-trip on every apply-page view
-    $cache = dirname(__DIR__, 2) . '/db/.fq_' . preg_replace('/[^a-z0-9_-]/', '', $slug) . '.json';
+    // Bump CACHE_VER to bust stale caches after question content changes
+    define('CACHE_VER', '2');
+    $cache = dirname(__DIR__, 2) . '/db/.fq_' . preg_replace('/[^a-z0-9_-]/', '', $slug) . '_v' . CACHE_VER . '.json';
     if (file_exists($cache) && (time() - filemtime($cache)) < 3600) {
         return json_decode(file_get_contents($cache), true) ?: [];
     }
@@ -413,7 +415,7 @@ function get_form_questions(string $slug): array {
 }
 
 function bust_form_questions_cache(string $slug): void {
-    $cache = dirname(__DIR__, 2) . '/db/.fq_' . preg_replace('/[^a-z0-9_-]/', '', $slug) . '.json';
+    $cache = dirname(__DIR__, 2) . '/db/.fq_' . preg_replace('/[^a-z0-9_-]/', '', $slug) . '_v' . CACHE_VER . '.json';
     @unlink($cache);
 }
 
