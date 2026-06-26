@@ -43,8 +43,11 @@ function get_db(): PDO {
     // Always set search_path (needed even on a reused persistent connection)
     $pdo->exec("SET search_path TO {$schema}");
 
-    // Run migrations only once — skip on every subsequent request via flag file
-    $flag = dirname(__DIR__, 2) . '/db/.schema_v3';
+    // Run migrations only once — skip on every subsequent request via flag file.
+    // Ensure the db/ directory exists (it is excluded from FTP deploy).
+    $flag    = dirname(__DIR__, 2) . '/db/.schema_v3';
+    $flag_dir = dirname($flag);
+    if (!is_dir($flag_dir)) @mkdir($flag_dir, 0755, true);
     if (!file_exists($flag)) {
         $pdo->exec("CREATE SCHEMA IF NOT EXISTS {$schema}");
         _init_schema($pdo);
@@ -410,6 +413,8 @@ function get_form_questions(string $slug): array {
     foreach ($rows as &$row) {
         $row['options'] = json_decode($row['options_json'] ?? '[]', true) ?: [];
     }
+    $cache_dir = dirname($cache);
+    if (!is_dir($cache_dir)) @mkdir($cache_dir, 0755, true);
     @file_put_contents($cache, json_encode($rows, JSON_UNESCAPED_UNICODE));
     return $rows;
 }
