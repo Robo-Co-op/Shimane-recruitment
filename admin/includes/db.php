@@ -130,6 +130,7 @@ function _init_schema(PDO $db): void {
         "ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS support_situation TEXT",
         "ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS other_questions    TEXT",
         "ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS confirm_submit     TEXT",
+        "ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS is_duplicate       BOOLEAN DEFAULT FALSE",
     ] as $sql) { $db->exec($sql); }
 
     $db->exec("CREATE TABLE IF NOT EXISTS analytics_events (

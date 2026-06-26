@@ -49,6 +49,11 @@ if ($resume_token) {
 
 // ── Handle final POST submission ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!empty(trim($_POST['_website'] ?? ''))) {
+        $submitted  = true;
+        $done_email = trim($_POST['email'] ?? '');
+        $done_name  = trim($_POST['name']  ?? '');
+    } else {
     try {
     $db = get_db();
     $name               = trim($_POST['name'] ?? '');
@@ -71,16 +76,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_submit     = trim($_POST['confirm_submit'] ?? '');
     $draft_token        = trim($_POST['_draft_token'] ?? '');
 
-    if (empty($name))   $errors[] = '氏名を入力してください。';
-    if (empty($email))  $errors[] = 'メールアドレスを入力してください。';
+    if (empty($name))               $errors[] = '氏名を入力してください。';
+    elseif (mb_strlen($name) < 2)   $errors[] = '氏名は2文字以上で入力してください。';
+    if (empty($email))              $errors[] = 'メールアドレスを入力してください。';
     elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = '有効なメールアドレスを入力してください。';
-    if ($email !== $email_confirm) $errors[] = 'メールアドレスが一致しません。';
-    if (empty($phone))  $errors[] = '電話番号を入力してください。';
-    if (empty($reason)) $errors[] = '応募動機を入力してください。';
-    if (empty($support_program)) $errors[] = 'サポートプログラムへの意向を選択してください。';
+    if ($email !== $email_confirm)  $errors[] = 'メールアドレスが一致しません。';
+    if (empty($phone))              $errors[] = '電話番号を入力してください。';
+    else { $pd = preg_replace('/\D/', '', $phone); if (strlen($pd) < 10) $errors[] = '有効な電話番号を入力してください（10桁以上）。'; }
+    if (empty($reason))             $errors[] = '応募動機を入力してください。';
+    if (empty($support_program))    $errors[] = 'サポートプログラムへの意向を選択してください。';
     if (in_array($support_program, ['yes','undecided']) && empty($support_situation)) $errors[] = '現在のご状況とサポート枠を希望する理由をご記入ください。';
-    if ($confirm_submit !== 'yes') $errors[] = '送信前に「はい」を選択して確認してください。';
+    if ($confirm_submit !== 'yes')  $errors[] = '送信前に「はい」を選択して確認してください。';
 
+    $is_duplicate = false;
+    if (empty($errors)) {
+        $ip_addr = $_SERVER['REMOTE_ADDR'] ?? '';
+        if ($ip_addr) {
+            $rl = $db->prepare("SELECT COUNT(*) FROM form_submissions WHERE ip_address=? AND submitted_at > NOW() - INTERVAL '1 hour'");
+            $rl->execute([$ip_addr]);
+            if ((int)$rl->fetchColumn() >= 3) $errors[] = '送信回数が多すぎます。しばらくしてからもう一度お試しください。';
+        }
+        if (empty($errors)) {
+            $dc = $db->prepare("SELECT id FROM form_submissions WHERE email=? LIMIT 1");
+            $dc->execute([$email]);
+            $is_duplicate = (bool)$dc->fetchColumn();
+        }
+    }
     if (empty($errors)) {
         try {
             $draft_id = null;
@@ -93,12 +114,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare("INSERT INTO form_submissions
                 (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
                  interview_day,interview_day_other,interview_time,interview_time_other,support_program,
-                 support_situation,other_questions,confirm_submit,lang,ip_address)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?)")
+                 support_situation,other_questions,confirm_submit,lang,ip_address,is_duplicate)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?,?)")
                ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
                           $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
                           $interview_time_other,$support_program,$support_situation,$other_questions,
-                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'']);
+                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'',$is_duplicate]);
 
             if ($draft_id) {
                 $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
@@ -135,6 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'DB接続エラー：' . htmlspecialchars($e->getMessage());
         error_log('apply/ja db error: ' . $e->getMessage());
     }
+    } // end !honeypot
 }
 ?>
 <!DOCTYPE html>
@@ -730,6 +752,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-card">
       <form method="POST" action="/apply/ja/" id="app-form" novalidate>
         <input type="hidden" name="_draft_token" id="draft_token" value="<?= htmlspecialchars($_POST['_draft_token'] ?? '') ?>">
+        <div style="display:none" aria-hidden="true"><input type="text" name="_website" value="" tabindex="-1" autocomplete="off"></div>
 
         <!-- ══════════════════════════════════════
              STEP 1 — 基本情報

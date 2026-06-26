@@ -49,6 +49,11 @@ if ($resume_token) {
 
 // ── Handle final POST submission ─────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!empty(trim($_POST['_website'] ?? ''))) {
+        $submitted  = true;
+        $done_email = trim($_POST['email'] ?? '');
+        $done_name  = trim($_POST['name']  ?? '');
+    } else {
     try {
     $db = get_db();
     $name               = trim($_POST['name'] ?? '');
@@ -71,16 +76,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_submit     = trim($_POST['confirm_submit'] ?? '');
     $draft_token        = trim($_POST['_draft_token'] ?? '');
 
-    if (empty($name))   $errors[] = 'Name is required.';
-    if (empty($email))  $errors[] = 'Email address is required.';
+    if (empty($name))               $errors[] = 'Name is required.';
+    elseif (mb_strlen($name) < 2)   $errors[] = 'Please enter your full name.';
+    if (empty($email))              $errors[] = 'Email address is required.';
     elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Please enter a valid email address.';
-    if ($email !== $email_confirm) $errors[] = 'Email addresses do not match.';
-    if (empty($phone))  $errors[] = 'Phone number is required.';
-    if (empty($reason)) $errors[] = 'Reason for applying is required.';
-    if (empty($support_program)) $errors[] = 'Please indicate your interest in the support program.';
+    if ($email !== $email_confirm)  $errors[] = 'Email addresses do not match.';
+    if (empty($phone))              $errors[] = 'Phone number is required.';
+    else { $pd = preg_replace('/\D/', '', $phone); if (strlen($pd) < 10) $errors[] = 'Please enter a valid phone number (at least 10 digits).'; }
+    if (empty($reason))             $errors[] = 'Reason for applying is required.';
+    if (empty($support_program))    $errors[] = 'Please indicate your interest in the support program.';
     if (in_array($support_program, ['yes','undecided']) && empty($support_situation)) $errors[] = 'Please describe your current situation and reason for requesting support.';
-    if ($confirm_submit !== 'yes') $errors[] = 'Please confirm your submission by selecting "Yes".';
+    if ($confirm_submit !== 'yes')  $errors[] = 'Please confirm your submission by selecting "Yes".';
 
+    $is_duplicate = false;
+    if (empty($errors)) {
+        $ip_addr = $_SERVER['REMOTE_ADDR'] ?? '';
+        if ($ip_addr) {
+            $rl = $db->prepare("SELECT COUNT(*) FROM form_submissions WHERE ip_address=? AND submitted_at > NOW() - INTERVAL '1 hour'");
+            $rl->execute([$ip_addr]);
+            if ((int)$rl->fetchColumn() >= 3) $errors[] = 'Too many submissions. Please try again later.';
+        }
+        if (empty($errors)) {
+            $dc = $db->prepare("SELECT id FROM form_submissions WHERE email=? LIMIT 1");
+            $dc->execute([$email]);
+            $is_duplicate = (bool)$dc->fetchColumn();
+        }
+    }
     if (empty($errors)) {
         try {
             $draft_id = null;
@@ -93,12 +114,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare("INSERT INTO form_submissions
                 (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
                  interview_day,interview_day_other,interview_time,interview_time_other,support_program,
-                 support_situation,other_questions,confirm_submit,lang,ip_address)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'en',?)")
+                 support_situation,other_questions,confirm_submit,lang,ip_address,is_duplicate)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'en',?,?)")
                ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
                           $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
                           $interview_time_other,$support_program,$support_situation,$other_questions,
-                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'']);
+                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'',$is_duplicate]);
 
             if ($draft_id) {
                 $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
@@ -133,6 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'DB connection error: ' . htmlspecialchars($e->getMessage());
         error_log('apply/en db error: ' . $e->getMessage());
     }
+    } // end !honeypot
 }
 ?>
 <!DOCTYPE html>
@@ -729,6 +751,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-card">
       <form method="POST" action="/apply/" id="app-form" novalidate>
         <input type="hidden" name="_draft_token" id="draft_token" value="<?= htmlspecialchars($_POST['_draft_token'] ?? '') ?>">
+        <div style="display:none" aria-hidden="true"><input type="text" name="_website" value="" tabindex="-1" autocomplete="off"></div>
 
         <!-- ══════════════════════════════════════
              STEP 1 — Basic Information

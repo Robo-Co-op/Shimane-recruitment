@@ -79,7 +79,7 @@ admin_start('Submissions', 'submissions', $export_actions);
       <tbody>
       <?php foreach ($subs as $s): ?>
       <tr <?= (isset($_GET['highlight']) && $_GET['highlight']==$s['id']) ? 'style="background:#FEF4E5"' : '' ?>>
-        <td class="fw7"><?= htmlspecialchars($s['name'] ?: '—') ?></td>
+        <td class="fw7"><?= htmlspecialchars($s['name'] ?: '—') ?><?php if (!empty($s['is_duplicate'])): ?> <span class="badge" style="background:#FEF3C7;color:#92400E;font-size:10px">⚠ Duplicate email</span><?php endif; ?></td>
         <td class="tm"><?= htmlspecialchars($s['email'] ?: '—') ?></td>
         <td class="tm"><?= htmlspecialchars($s['phone'] ?: '—') ?></td>
         <td><span class="badge b-b"><?= strtoupper($s['lang']) ?></span></td>
