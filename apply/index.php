@@ -11,6 +11,10 @@ require_once __DIR__ . '/../admin/includes/db.php';
 // Load questions from file cache — no DB connection needed for a plain GET visit
 $_raw_qs = get_form_questions('en-application');
 $_qmap   = array_column($_raw_qs, null, 'field_name');
+// Override Q6 hint: remove the optional-field note regardless of what DB contains
+if (isset($_qmap['resume_url'])) {
+    $_qmap['resume_url']['hint'] = 'Share the URL of the file where you uploaded your resume (Google Drive, Dropbox, etc.).';
+}
 
 function q_label(string $name, string $default): string {
     global $_qmap;

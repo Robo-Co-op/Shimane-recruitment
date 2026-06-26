@@ -11,6 +11,10 @@ require_once __DIR__ . '/../../admin/includes/db.php';
 // Load questions from file cache — no DB connection needed for a plain GET visit
 $_raw_qs_ja = get_form_questions('ja-application');
 $_qmap_ja   = array_column($_raw_qs_ja, null, 'field_name');
+// Override Q6 hint: remove the optional-field note regardless of what DB contains
+if (isset($_qmap_ja['resume_url'])) {
+    $_qmap_ja['resume_url']['hint'] = 'Google Drive、Dropbox などにアップロードしたファイルの URL をご記入ください。';
+}
 
 function qj_label(string $name, string $default): string {
     global $_qmap_ja;
