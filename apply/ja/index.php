@@ -147,6 +147,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $done_email = $email;
             $done_name  = $name;
             $submitted  = true;
+            try {
+                require_once dirname(__DIR__, 2) . '/admin/includes/mail.php';
+                send_application_confirmation_ja($done_email, $done_name);
+            } catch (\Throwable $me) {
+                error_log('apply/ja mail error: ' . $me->getMessage());
+            }
         } catch (\Throwable $e) {
             $errors[] = 'システムエラーが発生しました。時間をおいて再度お試しください。（' . htmlspecialchars($e->getMessage()) . '）';
             error_log('apply/ja submit error: ' . $e->getMessage());
@@ -680,11 +686,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           令和8年度 デジタル人材育成研修へのご応募ありがとうございます。<br>
           担当者が内容を確認のうえ、ご連絡いたします。
         </p>
-
-        <div class="email-confirm">
-          <div class="ec-label">確認メール送信先</div>
-          <div class="ec-val"><?= htmlspecialchars($done_email) ?></div>
-        </div>
 
         <div class="next-steps">
           <h3>次のステップ</h3>

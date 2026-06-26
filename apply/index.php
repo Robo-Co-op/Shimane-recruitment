@@ -145,6 +145,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $done_email = $email;
             $done_name  = $name;
             $submitted  = true;
+            try {
+                require_once __DIR__ . '/../admin/includes/mail.php';
+                send_application_confirmation_en($done_email, $done_name);
+            } catch (\Throwable $me) {
+                error_log('apply/en mail error: ' . $me->getMessage());
+            }
         } catch (\Throwable $e) {
             $errors[] = 'A system error occurred. Please try again later. (' . htmlspecialchars($e->getMessage()) . ')';
             error_log('apply/en submit error: ' . $e->getMessage());
@@ -679,11 +685,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           Digital Talent Development Program.<br>
           Our team will review your application carefully.
         </p>
-
-        <div class="email-confirm">
-          <div class="ec-label">Confirmation sent to</div>
-          <div class="ec-val"><?= htmlspecialchars($done_email) ?></div>
-        </div>
 
         <div class="next-steps">
           <h3>What happens next</h3>

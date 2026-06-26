@@ -103,6 +103,61 @@ function send_admin_invite(string $to_email, string $to_name, string $token): bo
     return _admin_mail_html($to_email, 'You have been invited to Shimane IB Admin', $html);
 }
 
+function send_application_confirmation_en(string $to_email, string $to_name): bool {
+    $first   = htmlspecialchars(explode(' ', trim($to_name))[0] ?: $to_name);
+    $content = '
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1E2D2B;">Application Received ✓</h1>
+      <p style="margin:0 0 20px;font-size:15px;color:#4A6560;line-height:1.6;">Hi ' . $first . ',</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#4A6560;line-height:1.6;">
+        Thank you for applying to the <strong>Shimane Prefecture × Robo Co-op FY2026 Digital Talent Development Program</strong>.
+        We have received your application and our team will review it carefully.
+      </p>
+      <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#1E2D2B;">What happens next:</p>
+      <ol style="margin:0 0 16px;padding-left:20px;font-size:14px;color:#4A6560;line-height:2.2;">
+        <li>Our team reviews your application</li>
+        <li>We will contact you within <strong>3 business days</strong> via email</li>
+        <li>Online interview — full details will be in your invitation email</li>
+      </ol>
+      <p style="margin:0;font-size:14px;color:#4A6560;line-height:1.6;">
+        If you have any questions, please contact us at
+        <a href="mailto:info@roboco-op.org" style="color:#3DBFAF;">info@roboco-op.org</a>.
+      </p>';
+    $html = _email_template(
+        'Application Received — Shimane IB',
+        $content,
+        'Contact Us',
+        'mailto:info@roboco-op.org'
+    );
+    return _admin_mail_html($to_email, 'Application Received — Shimane IB / Robo Co-op', $html);
+}
+
+function send_application_confirmation_ja(string $to_email, string $to_name): bool {
+    $name    = htmlspecialchars($to_name);
+    $content = '
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1E2D2B;">応募を受け付けました ✓</h1>
+      <p style="margin:0 0 20px;font-size:15px;color:#4A6560;line-height:1.6;">' . $name . ' 様</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#4A6560;line-height:1.6;">
+        <strong>島根県 × Robo Co-op 令和8年度 デジタル人材育成研修</strong> へのご応募ありがとうございます。
+        応募内容を受け付けました。担当者が内容を確認いたします。
+      </p>
+      <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#1E2D2B;">今後の流れ：</p>
+      <ol style="margin:0 0 16px;padding-left:20px;font-size:14px;color:#4A6560;line-height:2.2;">
+        <li>担当者が応募内容を確認します</li>
+        <li><strong>3営業日以内</strong>にメールにてご連絡します</li>
+        <li>オンライン面接（詳細はご連絡メールに記載します）</li>
+      </ol>
+      <p style="margin:0;font-size:14px;color:#4A6560;line-height:1.6;">
+        ご不明な点は <a href="mailto:info@roboco-op.org" style="color:#3DBFAF;">info@roboco-op.org</a> までお問い合わせください。
+      </p>';
+    $html = _email_template(
+        '応募受付完了 — 島根IB',
+        $content,
+        'お問い合わせ',
+        'mailto:info@roboco-op.org'
+    );
+    return _admin_mail_html($to_email, '応募受付完了のお知らせ — 島根IB / Robo Co-op', $html);
+}
+
 function send_password_reset(string $to_email, string $to_name, string $token): bool {
     $link    = _admin_base_url() . '/admin/reset-password?token=' . urlencode($token);
     $first   = htmlspecialchars(explode(' ', trim($to_name))[0]);
