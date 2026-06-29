@@ -1,6 +1,14 @@
 <?php
 // Apply-prompt popup — included just before </body> on both homepages.
 // Shows after 7 s to users who haven't applied and haven't dismissed recently.
+
+// ── Application deadline ─────────────────────────────────────────────────────
+// Update this date when the recruitment period ends.
+// The popup is completely hidden (no HTML output) after this date.
+define('POPUP_DEADLINE', '2026-07-31');
+if (date('Y-m-d') > POPUP_DEADLINE) return;
+// ─────────────────────────────────────────────────────────────────────────────
+
 $_is_ja = ($lang ?? 'ja') === 'ja';
 $_apply_url  = $_is_ja ? '/apply/ja' : '/apply';
 ?>
