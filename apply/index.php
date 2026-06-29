@@ -735,6 +735,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     </div>
     <script>
+      localStorage.setItem('shimane_applied', '1');
       (function(){
         var n = 30;
         var el = document.getElementById('redirect-countdown');

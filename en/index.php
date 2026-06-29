@@ -455,5 +455,6 @@
   <p style="margin-top:16px; font-size:11px;">© 2026 Robo Co-op. All rights reserved.</p>
 </footer>
 
+<?php include __DIR__ . '/../includes/popup.php'; ?>
 </body>
 </html>
