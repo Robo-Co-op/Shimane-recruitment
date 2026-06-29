@@ -174,7 +174,10 @@ admin_start('View & Edit Submission #' . $id, 'submissions',
 
     <?php if (can('editor')): ?>
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
-      <a href="mailto:<?= htmlspecialchars($sub['email']) ?>?subject=<?= rawurlencode('島根IB ー 令和8年度デジタル人材育成研修 へのお申込みありがとうございます。') ?>" class="btn btn-g btn-sm" style="width:100%;justify-content:center">✉️ 応募者にメールを送信</a>
+      <a href="mailto:<?= htmlspecialchars($sub['email']) ?>?subject=<?= rawurlencode('島根IB ー 令和8年度デジタル人材育成研修 へのお申込みありがとうございます。') ?>" class="btn btn-g btn-sm" style="width:100%;justify-content:center;flex-direction:column;gap:2px;padding:10px 16px">
+        <span style="font-size:13px;font-weight:700">✉️ Email Applicant</span>
+        <span style="font-size:11px;color:#5A706B;font-weight:400">応募者にメールを送信</span>
+      </a>
     </div>
     <?php endif; ?>
   </div>
