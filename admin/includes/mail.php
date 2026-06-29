@@ -1,4 +1,13 @@
 <?php
+// Load config.php explicitly so SMTP_PASS is always available,
+// even when db.php skips it because DB credentials come from env vars.
+(function () {
+    if (!defined('SMTP_PASS')) {
+        $cfg = dirname(__DIR__, 2) . '/config.php';
+        if (file_exists($cfg)) require_once $cfg;
+    }
+})();
+
 function _admin_base_url(): string {
     if (isset($_SERVER['HTTP_HOST'])) {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
