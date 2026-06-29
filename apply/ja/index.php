@@ -1,5 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
 $lang = 'ja';
 $submitted = false;
 $errors = [];
@@ -7,23 +6,29 @@ $resume_draft = null;
 $done_email = '';
 $done_name  = '';
 
-// Post-Redirect-Get: pick up success data stored before redirect
-if (isset($_SESSION['apply_success_ja'])) {
-    $submitted  = true;
-    $done_email = $_SESSION['apply_success_ja']['email'];
-    $done_name  = $_SESSION['apply_success_ja']['name'];
-    unset($_SESSION['apply_success_ja']);
-}
-
 require_once __DIR__ . '/../../includes/base.php';
-
-// If ?done=1 but session already consumed (reload), go home
-if (!$submitted && isset($_GET['done'])) {
-    header('Location: ' . BASE_URL . '/');
-    exit;
-}
-
 require_once __DIR__ . '/../../admin/includes/db.php';
+
+// Post-Redirect-Get: ?done={submission_id} shows success without re-sending emails
+if (isset($_GET['done'])) {
+    $sid = (int)($_GET['done']);
+    if ($sid > 0) {
+        try {
+            $st = get_db()->prepare("SELECT name, email FROM form_submissions WHERE id=? LIMIT 1");
+            $st->execute([$sid]);
+            $row = $st->fetch();
+            if ($row) {
+                $submitted  = true;
+                $done_name  = $row['name'];
+                $done_email = $row['email'];
+            }
+        } catch (\Throwable $e) { /* show form if DB fails */ }
+    }
+    if (!$submitted) {
+        header('Location: ' . BASE_URL . '/');
+        exit;
+    }
+}
 
 // Load questions from file cache — no DB connection needed for a plain GET visit
 $_raw_qs_ja = get_form_questions('ja-application');
@@ -127,15 +132,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $draft_id = $dst->fetchColumn() ?: null;
             }
 
-            $db->prepare("INSERT INTO form_submissions
+            $ins = $db->prepare("INSERT INTO form_submissions
                 (draft_id,name,email,phone,how_heard,how_heard_other,resume_url,pc_skill,ai_experience,reason,
                  interview_day,interview_day_other,interview_time,interview_time_other,support_program,
                  support_situation,other_questions,confirm_submit,lang,ip_address,is_duplicate)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?,?)")
-               ->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
-                          $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
-                          $interview_time_other,$support_program,$support_situation,$other_questions,
-                          $confirm_submit,$_SERVER['REMOTE_ADDR']??'',(int)$is_duplicate]);
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'ja',?,?) RETURNING id");
+            $ins->execute([$draft_id,$name,$email,$phone,$how_heard,$how_heard_other,$resume_url,$pc_skill,
+                           $ai_experience,$reason,$interview_day,$interview_day_other,$interview_time,
+                           $interview_time_other,$support_program,$support_situation,$other_questions,
+                           $confirm_submit,$_SERVER['REMOTE_ADDR']??'',(int)$is_duplicate]);
+            $submission_id = (int)($ins->fetchColumn() ?: 0);
 
             if ($draft_id) {
                 $db->prepare("UPDATE form_drafts SET completed=1, updated_at=CURRENT_TIMESTAMP WHERE id=?")
@@ -167,8 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (\Throwable $me) {
                 error_log('apply/ja mail error: ' . $me->getMessage());
             }
-            $_SESSION['apply_success_ja'] = ['email' => $email, 'name' => $name];
-            header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?done=1');
+            header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?done=' . $submission_id);
             exit;
         } catch (\Throwable $e) {
             $errors[] = 'システムエラーが発生しました。時間をおいて再度お試しください。（' . htmlspecialchars($e->getMessage()) . '）';
