@@ -52,6 +52,15 @@ if (preg_match('#^/admin(/.*)?$#', $uri, $m)) {
     return true;
 }
 
+// ── /apply/closed ─────────────────────────────────────────────────────────────
+if ($uri === '/apply/closed' || $uri === '/apply/closed/') {
+    chdir(__DIR__);
+    $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/apply/closed.php';
+    $_SERVER['PHP_SELF'] = '/apply/closed.php';
+    require __DIR__ . '/apply/closed.php';
+    return true;
+}
+
 // ── /apply/ja ────────────────────────────────────────────────────────────────
 if ($uri === '/apply/ja' || $uri === '/apply/ja/') {
     chdir(__DIR__);

@@ -7,6 +7,14 @@ $done_email = '';
 $done_name  = '';
 
 require_once __DIR__ . '/../../includes/base.php';
+require_once __DIR__ . '/../../includes/app_settings.php';
+
+// Redirect to closed page when the application period is over.
+if (!isset($_GET['done']) && !is_application_open()) {
+    header('Location: ' . BASE_URL . '/apply/closed?lang=ja');
+    exit;
+}
+
 require_once __DIR__ . '/../../admin/includes/db.php';
 
 // Post-Redirect-Get: ?done={submission_id} shows success without re-sending emails

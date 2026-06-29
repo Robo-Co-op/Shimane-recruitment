@@ -1,16 +1,17 @@
 <?php
-// Apply-prompt popup — included just before </body> on both homepages.
-// Shows after 7 s to users who haven't applied and haven't dismissed recently.
+// Apply-prompt popup + persistent countdown bar.
+// Included just before </body> on both homepages.
+require_once __DIR__ . '/app_settings.php';
 
-// ── Application deadline ─────────────────────────────────────────────────────
-// Update this date when the recruitment period ends.
-// The popup is completely hidden (no HTML output) after this date.
-define('POPUP_DEADLINE', '2026-07-31');
-if (date('Y-m-d') > POPUP_DEADLINE) return;
-// ─────────────────────────────────────────────────────────────────────────────
+// Nothing output if the application period is over
+if (!is_application_open()) return;
 
-$_is_ja = ($lang ?? 'ja') === 'ja';
-$_apply_url  = $_is_ja ? '/apply/ja' : '/apply';
+$_deadline     = get_app_deadline();
+$_is_ja        = ($lang ?? 'ja') === 'ja';
+$_apply_url    = $_is_ja ? '/apply/ja' : '/apply';
+$_deadline_fmt = $_is_ja
+    ? date('Y年n月j日', strtotime($_deadline))
+    : date('j F Y',    strtotime($_deadline));
 ?>
 <!-- ── Apply Popup ──────────────────────────────────────────────────────────── -->
 <div id="apply-popup" role="dialog" aria-modal="true" aria-labelledby="popup-title"
@@ -72,8 +73,35 @@ $_apply_url  = $_is_ja ? '/apply/ja' : '/apply';
           <?= $_is_ja ? 'あとで確認する' : 'Maybe later' ?>
         </button>
       </div>
+
+      <!-- Deadline line -->
+      <div style="text-align:center;font-size:11px;color:#C0D8D4;margin-top:10px">
+        <?= $_is_ja ? '📅 締め切り：' . $_deadline_fmt : '📅 Deadline: ' . $_deadline_fmt ?>
+      </div>
     </div>
   </div>
+</div>
+
+<!-- ── Countdown bar ─────────────────────────────────────────────────────────── -->
+<div id="apply-cbar"
+     style="display:none;position:fixed;bottom:0;left:0;right:0;
+            background:linear-gradient(90deg,#2A9485,#3DBFAF);z-index:998;
+            align-items:center;justify-content:center;gap:14px;padding:10px 20px;
+            box-shadow:0 -2px 14px rgba(0,0,0,0.12);flex-wrap:wrap">
+  <span id="cbar-txt"
+        style="color:rgba(255,255,255,.95);font-size:13px;font-weight:600;white-space:nowrap"></span>
+  <a href="<?= $_apply_url ?>"
+     style="background:#fff;color:#2A9485;font-weight:800;font-size:12px;
+            padding:6px 16px;border-radius:20px;text-decoration:none;white-space:nowrap;
+            box-shadow:0 2px 8px rgba(0,0,0,.12)">
+    <?= $_is_ja ? '応募する →' : 'Apply Now →' ?>
+  </a>
+  <button onclick="closeCbar()" aria-label="Close"
+          style="background:rgba(255,255,255,.2);border:none;width:26px;height:26px;
+                 border-radius:50%;color:#fff;cursor:pointer;font-size:15px;
+                 display:flex;align-items:center;justify-content:center;flex-shrink:0">
+    &times;
+  </button>
 </div>
 
 <style>
@@ -85,13 +113,58 @@ $_apply_url  = $_is_ja ? '/apply/ja' : '/apply';
 
 <script>
 (function () {
-  if (localStorage.getItem('shimane_applied')) return;
-  var dismissed = localStorage.getItem('shimane_popup_dismissed');
-  if (dismissed && Date.now() - parseInt(dismissed) < 3 * 86400000) return;
-  setTimeout(function () {
-    var el = document.getElementById('apply-popup');
-    if (el) el.style.display = 'flex';
-  }, 7000);
+  var DEADLINE  = new Date('<?= $_deadline ?>T23:59:59');
+  var IS_JA     = <?= json_encode($_is_ja) ?>;
+  var APPLY_URL = '<?= $_apply_url ?>';
+
+  // ── Popup ──────────────────────────────────────────────────────────────────
+  if (!localStorage.getItem('shimane_applied')) {
+    var dismissed = localStorage.getItem('shimane_popup_dismissed');
+    if (!dismissed || Date.now() - parseInt(dismissed) >= 3 * 86400000) {
+      setTimeout(function () {
+        var el = document.getElementById('apply-popup');
+        if (el) el.style.display = 'flex';
+      }, 7000);
+    }
+  }
+
+  document.getElementById('apply-popup').addEventListener('click', function(e) {
+    if (e.target === this) closeApplyPopup(true);
+  });
+
+  // ── Countdown bar ──────────────────────────────────────────────────────────
+  function updateCbar() {
+    if (localStorage.getItem('shimane_applied')) return;
+    if (sessionStorage.getItem('cbar_closed')) return;
+
+    var now  = new Date();
+    var diff = DEADLINE - now;
+    if (diff <= 0) return;
+
+    var d = Math.floor(diff / 86400000);
+    var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000)  / 60000);
+    var txt = document.getElementById('cbar-txt');
+    if (!txt) return;
+
+    if (d > 0) {
+      txt.textContent = IS_JA
+        ? ('締め切りまで ' + d + ' 日 ' + h + ' 時間')
+        : ('Applications close in ' + d + (d === 1 ? ' day, ' : ' days, ') + h + 'h');
+    } else if (h > 0) {
+      txt.textContent = IS_JA
+        ? ('締め切りまで ' + h + ' 時間 ' + m + ' 分')
+        : (h + (h === 1 ? ' hour, ' : ' hours, ') + m + 'm left');
+    } else {
+      txt.textContent = IS_JA ? '今日が締め切りです！' : 'Last day to apply!';
+    }
+
+    var bar = document.getElementById('apply-cbar');
+    if (bar) bar.style.display = 'flex';
+  }
+
+  updateCbar();
+  setInterval(updateCbar, 60000);
 })();
 
 function closeApplyPopup(remember) {
@@ -100,8 +173,9 @@ function closeApplyPopup(remember) {
   if (remember) localStorage.setItem('shimane_popup_dismissed', Date.now().toString());
 }
 
-// Close on backdrop click
-document.getElementById('apply-popup').addEventListener('click', function(e) {
-  if (e.target === this) closeApplyPopup(true);
-});
+function closeCbar() {
+  var bar = document.getElementById('apply-cbar');
+  if (bar) bar.style.display = 'none';
+  sessionStorage.setItem('cbar_closed', '1');
+}
 </script>
