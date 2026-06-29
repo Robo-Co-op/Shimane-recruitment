@@ -1,10 +1,19 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) session_start();
 $lang = 'en';
 $submitted = false;
 $errors = [];
 $resume_draft = null;
 $done_email = '';
 $done_name  = '';
+
+// Post-Redirect-Get: pick up success data stored before redirect
+if (isset($_SESSION['apply_success_en'])) {
+    $submitted  = true;
+    $done_email = $_SESSION['apply_success_en']['email'];
+    $done_name  = $_SESSION['apply_success_en']['name'];
+    unset($_SESSION['apply_success_en']);
+}
 
 require_once __DIR__ . '/../includes/base.php';
 require_once __DIR__ . '/../admin/includes/db.php';
@@ -142,16 +151,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                           $support_situation,$other_questions,$confirm_submit]);
             fclose($fp);
 
-            $done_email = $email;
-            $done_name  = $name;
-            $submitted  = true;
             try {
                 require_once __DIR__ . '/../admin/includes/mail.php';
-                send_application_confirmation_en($done_email, $done_name);
-                send_staff_notification($done_name, $done_email, 'en');
+                send_application_confirmation_en($email, $name);
+                send_staff_notification($name, $email, 'en');
             } catch (\Throwable $me) {
                 error_log('apply/en mail error: ' . $me->getMessage());
             }
+            $_SESSION['apply_success_en'] = ['email' => $email, 'name' => $name];
+            header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?done=1');
+            exit;
         } catch (\Throwable $e) {
             $errors[] = 'A system error occurred. Please try again later. (' . htmlspecialchars($e->getMessage()) . ')';
             error_log('apply/en submit error: ' . $e->getMessage());
@@ -707,9 +716,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <br>
         <a href="/en" class="success-back-btn">← Return to program information</a>
+        <p style="font-size:12px;color:#A8C4BF;margin-top:14px">
+          Returning to program page in <span id="redirect-countdown">30</span> seconds…
+        </p>
       </div>
 
     </div>
+    <script>
+      (function(){
+        var n = 30;
+        var el = document.getElementById('redirect-countdown');
+        var t = setInterval(function(){
+          n--;
+          if (el) el.textContent = n;
+          if (n <= 0) { clearInterval(t); window.location.href = '<?= BASE_URL ?>/en'; }
+        }, 1000);
+      })();
+    </script>
 
     <?php else: ?>
     <!-- ── FORM ── -->

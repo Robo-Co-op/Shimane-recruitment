@@ -1,10 +1,19 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) session_start();
 $lang = 'ja';
 $submitted = false;
 $errors = [];
 $resume_draft = null;
 $done_email = '';
 $done_name  = '';
+
+// Post-Redirect-Get: pick up success data stored before redirect
+if (isset($_SESSION['apply_success_ja'])) {
+    $submitted  = true;
+    $done_email = $_SESSION['apply_success_ja']['email'];
+    $done_name  = $_SESSION['apply_success_ja']['name'];
+    unset($_SESSION['apply_success_ja']);
+}
 
 require_once __DIR__ . '/../../includes/base.php';
 require_once __DIR__ . '/../../admin/includes/db.php';
@@ -144,16 +153,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                           $support_program, $support_situation, $other_questions, $confirm_submit, 'ja']);
             fclose($fp);
 
-            $done_email = $email;
-            $done_name  = $name;
-            $submitted  = true;
             try {
                 require_once dirname(__DIR__, 2) . '/admin/includes/mail.php';
-                send_application_confirmation_ja($done_email, $done_name);
-                send_staff_notification($done_name, $done_email, 'ja');
+                send_application_confirmation_ja($email, $name);
+                send_staff_notification($name, $email, 'ja');
             } catch (\Throwable $me) {
                 error_log('apply/ja mail error: ' . $me->getMessage());
             }
+            $_SESSION['apply_success_ja'] = ['email' => $email, 'name' => $name];
+            header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?done=1');
+            exit;
         } catch (\Throwable $e) {
             $errors[] = 'システムエラーが発生しました。時間をおいて再度お試しください。（' . htmlspecialchars($e->getMessage()) . '）';
             error_log('apply/ja submit error: ' . $e->getMessage());
@@ -708,9 +717,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <br>
         <a href="/" class="success-back-btn">← 研修情報に戻る</a>
+        <p style="font-size:12px;color:#A8C4BF;margin-top:14px">
+          <span id="redirect-countdown">30</span> 秒後に研修情報ページへ戻ります…
+        </p>
       </div>
 
     </div>
+    <script>
+      (function(){
+        var n = 30;
+        var el = document.getElementById('redirect-countdown');
+        var t = setInterval(function(){
+          n--;
+          if (el) el.textContent = n;
+          if (n <= 0) { clearInterval(t); window.location.href = '<?= BASE_URL ?>/'; }
+        }, 1000);
+      })();
+    </script>
 
     <?php else: ?>
     <!-- ── FORM ── -->
