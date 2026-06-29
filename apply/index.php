@@ -541,15 +541,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       display: flex; align-items: center;
       gap: 10px; justify-content: center;
     }
-    .s-mark {
-      width: 36px; height: 36px;
-      background: rgba(255,255,255,.22);
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 900; color: #fff; font-size: 13px;
+    .s-brand-name {
+      color: rgba(255,255,255,.95);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .01em;
+      line-height: 1.5;
     }
-    .s-brand-name { color: rgba(255,255,255,.9); font-weight: 700; font-size: 15px; }
-    .s-logo { height: 48px; width: auto; filter: brightness(0) invert(1); }
     .check-wrap {
       position: absolute; bottom: -40px;
       left: 50%; transform: translateX(-50%);
@@ -664,7 +662,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <!-- Gradient brand header -->
       <div class="success-header">
         <div class="success-brand">
-          <img src="/logo.png" alt="Robo Co-op" class="s-logo">
+          <span class="s-brand-name">Shimane Prefecture × Robo Co-op&nbsp;&nbsp;|&nbsp;&nbsp;FY2026 Digital Talent Development Program</span>
         </div>
         <div class="check-wrap">
           <div class="check-circle-bg">
