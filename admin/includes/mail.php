@@ -9,10 +9,7 @@ function _admin_base_url(): string {
 }
 
 function _admin_mail_html(string $to, string $subject, string $html_body): bool {
-    $host    = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'robouni.ac';
-    $domain  = preg_replace('/^www\./', '', strtolower($host));
-    $from    = 'noreply@' . $domain;
-    $headers  = "From: Robo Co-op <{$from}>\r\n";
+    $headers  = "From: Robo Co-op <noreply@roboco-op.org>\r\n";
     $headers .= "Reply-To: info@roboco-op.org\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
