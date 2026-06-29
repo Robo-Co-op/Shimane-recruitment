@@ -35,6 +35,7 @@ if (preg_match('#^/admin(/.*)?$#', $uri, $m)) {
         '/accept-invite'    => 'admin/accept-invite.php',
         '/forgot-password'  => 'admin/forgot-password.php',
         '/reset-password'   => 'admin/reset-password.php',
+        '/mail-test'        => 'admin/mail-test.php',
         '/api/track'        => 'admin/api/track.php',
         '/api/save-draft'   => 'admin/api/save-draft.php',
         '/api/remind'       => 'admin/api/remind.php',
