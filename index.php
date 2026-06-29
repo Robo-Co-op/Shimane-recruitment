@@ -322,17 +322,48 @@
         </a>
       </div>
     </div>
-    <div style="margin-top: 40px; background: var(--mint-pale); border-radius: 20px; padding: 28px 32px;">
-      <h3 style="font-size: 17px; font-weight: 900; color: var(--warm-dark); margin-bottom: 10px;">🎥 もっとくわしく知りたい方へ：説明会のご案内</h3>
-      <p style="font-size: 14px; color: var(--warm-mid); margin-bottom: 16px;">
-        「応募する前にもう少し話を聞きたい」という方のために、オンライン説明会を開催します。<br>
-        説明会は録画を予定しておりますので、録画アーカイブも終了後こちらへ掲載予定です。
-      </p>
-      <div style="background: white; border-radius: 12px; padding: 16px 20px; display: inline-block;">
-        <p style="font-size: 14px; color: var(--warm-mid);">
-          📅 <strong style="color: var(--warm-dark);">説明会：2026年7月1日（水）20:00〜21:00</strong>（オンライン開催）<br>
-          📹 <strong style="color: var(--warm-dark);">録画アーカイブ：終了後に掲載予定</strong>
-        </p>
+    <div style="margin-top: 40px;">
+      <div class="info-card">
+        <div class="info-card-header">
+          <span class="ic-icon">🎥</span>
+          <h3>もっとくわしく知りたい方へ：説明会のご案内</h3>
+        </div>
+        <div class="info-card-body">
+          <p class="ic-lead">
+            「応募する前にもう少し話を聞きたい」という方のために、オンライン説明会を開催します。<br>
+            説明会は録画を予定しておりますので、録画アーカイブも終了後こちらへ掲載予定です。
+          </p>
+          <div class="event-meta">
+            <div class="meta-chip">
+              <span class="chip-icon">📅</span>
+              <div>
+                <div class="chip-label">開催日時</div>
+                <div class="chip-value">2026年7月1日（水）<br>20:00〜21:00</div>
+                <div class="chip-sub">オンライン開催</div>
+              </div>
+            </div>
+            <div class="meta-chip">
+              <span class="chip-icon">📹</span>
+              <div>
+                <div class="chip-label">録画アーカイブ</div>
+                <div class="chip-value">終了後に掲載予定</div>
+                <div class="chip-sub">当日参加できない方もご安心ください</div>
+              </div>
+            </div>
+          </div>
+          <div class="zoom-block">
+            <span class="zoom-badge">Zoom</span>
+            <div class="zoom-info">
+              <div class="zoom-id-row">ミーティングID：<strong>812 9534 1689</strong></div>
+              <div class="zoom-id-row">パスコード：<strong>420635</strong></div>
+            </div>
+            <a class="zoom-link" href="https://us06web.zoom.us/j/81295341689?pwd=MV8maYQdHwYRIcXifPu2jHs9V2wURd.1" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7H12M8 3l4 4-4 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Zoomで参加する
+            </a>
+          </div>
+          <p class="zoom-free-note">当日リンクから自由にご参加いただけます。事前登録は不要です。</p>
+        </div>
       </div>
     </div>
   </div>
