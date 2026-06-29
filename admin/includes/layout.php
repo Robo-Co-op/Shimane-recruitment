@@ -19,7 +19,7 @@ function admin_start(string $title, string $active = '', string $actions = ''): 
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($title) ?> — Admin</title>
-<link rel="icon" type="image/png" href="/logo.png?v=3">
+<link rel="icon" type="image/png" href="/logo.png?v=4">
 <style>
 :root{--sb:#1B2E2B;--sb-t:rgba(255,255,255,.70);--sb-w:240px;--mint:#3DBFAF;--mint-d:#2A9485;--peach:#F5A87A;--bg:#EFF4F3;--card:#fff;--dark:#1E2D2B;--mid:#5A706B;--lite:#A8C4BF;--bdr:#E0EEEC;--red:#D94F4F;--green:#27AE7A;--amber:#D98A1A}
 *{margin:0;padding:0;box-sizing:border-box} body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--dark);font-size:14px;line-height:1.5} a{color:inherit;text-decoration:none}
