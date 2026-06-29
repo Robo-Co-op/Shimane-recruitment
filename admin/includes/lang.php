@@ -92,6 +92,7 @@ function _admin_strings(): array { return [
     'dash_no_apps_sub'  => 'Applications will appear here once people start submitting the form.',
     'dash_week_chart'   => '📊 Page Views — Last 7 Days',
     'dash_quick'        => '⚡ Quick Actions',
+    'dash_unknown'      => 'Unknown',
 
     // Submissions
     'sub_title'         => 'Submissions',
@@ -233,6 +234,7 @@ function _admin_strings(): array { return [
     'dash_no_apps_sub'  => 'フォームが送信されると、ここに表示されます。',
     'dash_week_chart'   => '📊 過去7日間のページ閲覧数',
     'dash_quick'        => '⚡ クイックアクション',
+    'dash_unknown'      => '不明',
 
     // Submissions
     'sub_title'         => '応募一覧',

@@ -150,6 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 require_once dirname(__DIR__, 2) . '/admin/includes/mail.php';
                 send_application_confirmation_ja($done_email, $done_name);
+                send_staff_notification($done_name, $done_email, 'ja');
             } catch (\Throwable $me) {
                 error_log('apply/ja mail error: ' . $me->getMessage());
             }

@@ -174,7 +174,7 @@ admin_start('View & Edit Submission #' . $id, 'submissions',
 
     <?php if (can('editor')): ?>
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
-      <a href="mailto:<?= htmlspecialchars($sub['email']) ?>?subject=Shimane IB Application Update" class="btn btn-g btn-sm" style="width:100%;justify-content:center">✉️ Email Applicant</a>
+      <a href="mailto:<?= htmlspecialchars($sub['email']) ?>?subject=<?= rawurlencode('島根IB ー 令和8年度デジタル人材育成研修 へのお申込みありがとうございます。') ?>" class="btn btn-g btn-sm" style="width:100%;justify-content:center">✉️ 応募者にメールを送信</a>
     </div>
     <?php endif; ?>
   </div>

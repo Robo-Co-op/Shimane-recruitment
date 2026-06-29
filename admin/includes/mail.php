@@ -9,7 +9,6 @@ function _admin_base_url(): string {
 }
 
 function _admin_mail_html(string $to, string $subject, string $html_body): bool {
-    $boundary = md5(uniqid());
     $headers  = "From: Robo Co-op <no-reply@roboco-op.org>\r\n";
     $headers .= "Reply-To: info@roboco-op.org\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
@@ -156,6 +155,35 @@ function send_application_confirmation_ja(string $to_email, string $to_name): bo
         'mailto:info@roboco-op.org'
     );
     return _admin_mail_html($to_email, '応募受付完了のお知らせ — 島根IB / Robo Co-op', $html);
+}
+
+function send_staff_notification(string $applicant_name, string $applicant_email, string $lang): void {
+    $staff   = ['midori.urashima@roboco-op.org', 'kazumi.hanaoka@roboco-op.org', 'eliyahe@roboco-op.org'];
+    $name    = htmlspecialchars($applicant_name);
+    $email   = htmlspecialchars($applicant_email);
+    $langlab = strtolower($lang) === 'ja' ? '日本語' : 'English';
+    $url     = _admin_base_url() . '/admin/submissions';
+    $content = '
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1E2D2B;">新しい応募が届きました 📋</h1>
+      <p style="margin:0 0 20px;font-size:15px;color:#4A6560;line-height:1.6;">島根IB / Robo Co-op への応募が1件届きました。</p>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14px;">
+        <tr>
+          <td style="padding:10px 14px;background:#F0F7F6;font-weight:700;color:#1E2D2B;width:28%;border-radius:6px 0 0 0;">氏名</td>
+          <td style="padding:10px 14px;color:#1E2D2B;font-weight:600;">' . $name . '</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 14px;font-weight:700;color:#1E2D2B;">メール</td>
+          <td style="padding:10px 14px;color:#3DBFAF;">' . $email . '</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 14px;background:#F0F7F6;font-weight:700;color:#1E2D2B;">言語</td>
+          <td style="padding:10px 14px;background:#F0F7F6;color:#4A6560;">' . $langlab . '</td>
+        </tr>
+      </table>';
+    $html = _email_template('新規応募通知 — 島根IB', $content, '応募内容を確認する →', $url);
+    foreach ($staff as $addr) {
+        _admin_mail_html($addr, '【新規応募】' . $applicant_name . ' さんより応募がありました', $html);
+    }
 }
 
 function send_password_reset(string $to_email, string $to_name, string $token): bool {

@@ -148,6 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 require_once __DIR__ . '/../admin/includes/mail.php';
                 send_application_confirmation_en($done_email, $done_name);
+                send_staff_notification($done_name, $done_email, 'en');
             } catch (\Throwable $me) {
                 error_log('apply/en mail error: ' . $me->getMessage());
             }

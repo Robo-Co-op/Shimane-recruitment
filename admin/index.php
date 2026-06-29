@@ -40,17 +40,17 @@ admin_start('Dashboard', 'dashboard',
 
 <!-- Stat cards -->
 <div class="sg">
-  <div class="sc"><div class="sc-ic">📋</div><div class="sc-v"><?= $total_subs ?></div><div class="sc-l">Total Applications</div></div>
-  <div class="sc"><div class="sc-ic">⏳</div><div class="sc-v"><?= $total_drafts ?></div><div class="sc-l">Incomplete Drafts</div></div>
-  <div class="sc"><div class="sc-ic">📈</div><div class="sc-v"><?= $today_views ?></div><div class="sc-l">Page Views Today</div></div>
-  <div class="sc"><div class="sc-ic">🖱️</div><div class="sc-v"><?= $apply_clicks ?></div><div class="sc-l">Apply Button Clicks</div></div>
-  <div class="sc"><div class="sc-ic">✅</div><div class="sc-v"><?= $complete_rate ?>%</div><div class="sc-l">Completion Rate</div></div>
+  <div class="sc"><div class="sc-ic">📋</div><div class="sc-v"><?= $total_subs ?></div><div class="sc-l"><?= t('dash_total_apps') ?></div></div>
+  <div class="sc"><div class="sc-ic">⏳</div><div class="sc-v"><?= $total_drafts ?></div><div class="sc-l"><?= t('dash_drafts') ?></div></div>
+  <div class="sc"><div class="sc-ic">📈</div><div class="sc-v"><?= $today_views ?></div><div class="sc-l"><?= t('dash_views_today') ?></div></div>
+  <div class="sc"><div class="sc-ic">🖱️</div><div class="sc-v"><?= $apply_clicks ?></div><div class="sc-l"><?= t('dash_apply_clicks') ?></div></div>
+  <div class="sc"><div class="sc-ic">✅</div><div class="sc-v"><?= $complete_rate ?>%</div><div class="sc-l"><?= t('dash_complete_rate') ?></div></div>
 </div>
 
 <div class="g2" style="gap:16px">
   <!-- Weekly views chart -->
   <div class="card">
-    <div class="ch"><span class="ct">📊 Page Views — Last 7 Days</span></div>
+    <div class="ch"><span class="ct"><?= t('dash_week_chart') ?></span></div>
     <div class="cb" style="padding-bottom:24px">
       <div class="chart-wrap" style="height:160px"><canvas id="weekChart"></canvas></div>
     </div>
@@ -58,13 +58,13 @@ admin_start('Dashboard', 'dashboard',
 
   <!-- Quick links -->
   <div class="card">
-    <div class="ch"><span class="ct">⚡ Quick Actions</span></div>
+    <div class="ch"><span class="ct"><?= t('dash_quick') ?></span></div>
     <div class="cb" style="display:flex;flex-direction:column;gap:10px">
-      <a href="/admin/submissions" class="btn btn-g" style="justify-content:flex-start">📋 Review Submissions</a>
-      <a href="/admin/submissions?tab=drafts" class="btn btn-g" style="justify-content:flex-start">⏳ View Incomplete Drafts</a>
-      <a href="/admin/analytics" class="btn btn-g" style="justify-content:flex-start">📈 Full Analytics</a>
-      <a href="/admin/team" class="btn btn-g" style="justify-content:flex-start">👥 Manage Team</a>
-      <a href="/admin/content" class="btn btn-g" style="justify-content:flex-start">✏️ Edit Content</a>
+      <a href="/admin/submissions" class="btn btn-g" style="justify-content:flex-start">📋 <?= t('nav_submissions') ?></a>
+      <a href="/admin/submissions?tab=drafts" class="btn btn-g" style="justify-content:flex-start">⏳ <?= t('dash_drafts') ?></a>
+      <a href="/admin/analytics" class="btn btn-g" style="justify-content:flex-start">📈 <?= t('nav_analytics') ?></a>
+      <a href="/admin/team" class="btn btn-g" style="justify-content:flex-start">👥 <?= t('nav_team') ?></a>
+      <a href="/admin/content" class="btn btn-g" style="justify-content:flex-start">✏️ <?= t('nav_content') ?></a>
     </div>
   </div>
 </div>
@@ -72,13 +72,13 @@ admin_start('Dashboard', 'dashboard',
 <!-- Recent submissions -->
 <div class="card">
   <div class="ch">
-    <span class="ct">🆕 Recent Applications</span>
-    <a href="/admin/submissions" class="btn btn-g btn-sm">View all</a>
+    <span class="ct"><?= t('dash_recent_apps') ?></span>
+    <a href="/admin/submissions" class="btn btn-g btn-sm"><?= t('dash_view_all') ?></a>
   </div>
   <div class="tw">
     <?php if ($recent): ?>
     <table>
-      <thead><tr><th>Name</th><th>Email</th><th>Language</th><th>Status</th><th>Date</th><th></th></tr></thead>
+      <thead><tr><th><?= t('sub_name') ?></th><th><?= t('sub_email') ?></th><th><?= t('sub_lang') ?></th><th><?= t('sub_status') ?></th><th><?= t('sub_date') ?></th><th></th></tr></thead>
       <tbody>
       <?php foreach ($recent as $r): ?>
       <tr>
@@ -91,13 +91,13 @@ admin_start('Dashboard', 'dashboard',
           echo '<span class="badge '.$cls.'">'.htmlspecialchars($s).'</span>';
         ?></td>
         <td class="tm fs12"><?= date('M j, Y', strtotime($r['submitted_at'])) ?></td>
-        <td><a href="/admin/submission-edit?id=<?= $r['id'] ?>" class="btn btn-g btn-xs">View</a></td>
+        <td><a href="/admin/submission-edit?id=<?= $r['id'] ?>" class="btn btn-g btn-xs"><?= t('view') ?></a></td>
       </tr>
       <?php endforeach; ?>
       </tbody>
     </table>
     <?php else: ?>
-    <div class="empty"><div class="empty-ic">📭</div><div class="empty-t">No applications yet</div><p>Applications will appear here once people start submitting the form.</p></div>
+    <div class="empty"><div class="empty-ic">📭</div><div class="empty-t"><?= t('dash_no_apps') ?></div><p><?= t('dash_no_apps_sub') ?></p></div>
     <?php endif; ?>
   </div>
 </div>
@@ -106,23 +106,23 @@ admin_start('Dashboard', 'dashboard',
 <?php if ($pending): ?>
 <div class="card">
   <div class="ch">
-    <span class="ct">⏳ Incomplete Forms</span>
-    <a href="/admin/submissions?tab=drafts" class="btn btn-g btn-sm">View all</a>
+    <span class="ct"><?= t('dash_incomplete') ?></span>
+    <a href="/admin/submissions?tab=drafts" class="btn btn-g btn-sm"><?= t('dash_view_all') ?></a>
   </div>
   <div class="tw">
     <table>
-      <thead><tr><th>Name / Email</th><th>Language</th><th>Step Reached</th><th>Started</th><th></th></tr></thead>
+      <thead><tr><th><?= t('sub_name') ?> / <?= t('sub_email') ?></th><th><?= t('sub_lang') ?></th><th><?= t('sub_step') ?></th><th><?= t('sub_started') ?></th><th></th></tr></thead>
       <tbody>
       <?php foreach ($pending as $d): ?>
       <tr>
         <td>
-          <div class="fw7"><?= htmlspecialchars($d['name'] ?: 'Unknown') ?></div>
+          <div class="fw7"><?= htmlspecialchars($d['name'] ?: t('dash_unknown')) ?></div>
           <div class="tm fs12"><?= htmlspecialchars($d['email'] ?: '—') ?></div>
         </td>
         <td><span class="badge b-b"><?= strtoupper($d['lang']) ?></span></td>
-        <td><span class="badge b-a">Step <?= $d['step_reached'] ?> of 3</span></td>
+        <td><span class="badge b-a"><?= t('sub_step') ?> <?= $d['step_reached'] ?> / 3</span></td>
         <td class="tm fs12"><?= date('M j', strtotime($d['created_at'])) ?></td>
-        <td><a href="/admin/submissions?tab=drafts&highlight=<?= $d['id'] ?>" class="btn btn-g btn-xs">View</a></td>
+        <td><a href="/admin/submissions?tab=drafts&highlight=<?= $d['id'] ?>" class="btn btn-g btn-xs"><?= t('view') ?></a></td>
       </tr>
       <?php endforeach; ?>
       </tbody>
