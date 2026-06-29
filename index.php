@@ -326,13 +326,12 @@
       <h3 style="font-size: 17px; font-weight: 900; color: var(--warm-dark); margin-bottom: 10px;">🎥 もっとくわしく知りたい方へ：説明会のご案内</h3>
       <p style="font-size: 14px; color: var(--warm-mid); margin-bottom: 16px;">
         「応募する前にもう少し話を聞きたい」という方のために、オンライン説明会を開催します。<br>
-        <strong style="color: var(--warm-dark);">日程は現在調整中です。</strong>決まり次第、こちらページでお知らせします。<br>
-        説明会は録画を予定しておりますので、録画アーカイブも準備が整い次第こちらへ掲載予定です。
+        説明会は録画を予定しておりますので、録画アーカイブも終了後こちらへ掲載予定です。
       </p>
       <div style="background: white; border-radius: 12px; padding: 16px 20px; display: inline-block;">
         <p style="font-size: 14px; color: var(--warm-mid);">
-          📅 <strong style="color: var(--warm-dark);">説明会：日程調整中</strong>（決まり次第このページを更新します）<br>
-          📹 <strong style="color: var(--warm-dark);">録画アーカイブ：準備中</strong>（公開までしばらくお待ちください）
+          📅 <strong style="color: var(--warm-dark);">説明会：2026年7月1日（水）20:00〜21:00</strong>（オンライン開催）<br>
+          📹 <strong style="color: var(--warm-dark);">録画アーカイブ：終了後に掲載予定</strong>
         </p>
       </div>
     </div>
@@ -410,7 +409,7 @@
       <a href="#apply" class="btn-sub">🎥 説明会の情報を見る</a>
     </div>
     <div class="cta-note">
-      📅 説明会：日程調整中（決まり次第このページでお知らせします）<br>
+      📅 説明会：2026年7月1日（水）20:00〜21:00<br>
       研修開始：2026年8月予定　／　定員：10名
     </div>
   </div>

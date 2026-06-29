@@ -326,13 +326,12 @@
       <h3 style="font-size: 17px; font-weight: 900; color: var(--warm-dark); margin-bottom: 10px;">🎥 Want to know more first? — Info Session Guide</h3>
       <p style="font-size: 14px; color: var(--warm-mid); margin-bottom: 16px;">
         For those who'd like to hear a little more before applying, we'll be holding online information sessions.<br>
-        <strong style="color: var(--warm-dark);">Dates are currently being arranged.</strong> We'll update this page as soon as they're confirmed.<br>
-        Sessions will be recorded — the recording archive will also be posted here once it's ready.
+        Sessions will be recorded — the recording archive will be posted here after the session.
       </p>
       <div style="background: white; border-radius: 12px; padding: 16px 20px; display: inline-block;">
         <p style="font-size: 14px; color: var(--warm-mid);">
-          📅 <strong style="color: var(--warm-dark);">Info Session: Dates TBA</strong> (this page will be updated when confirmed)<br>
-          📹 <strong style="color: var(--warm-dark);">Recording Archive: In Preparation</strong> (coming soon)
+          📅 <strong style="color: var(--warm-dark);">Info Session: Wednesday, 1 July 2026, 20:00–21:00 JST</strong> (online)<br>
+          📹 <strong style="color: var(--warm-dark);">Recording Archive: Posted after the session</strong>
         </p>
       </div>
     </div>
@@ -410,7 +409,7 @@
       <a href="#apply" class="btn-sub">🎥 Info Session Details</a>
     </div>
     <div class="cta-note">
-      📅 Info Session: Dates TBA (this page will be updated when confirmed)<br>
+      📅 Info Session: Wednesday, 1 July 2026, 20:00–21:00 JST<br>
       Program Start: August 2026 &nbsp;/&nbsp; Capacity: 10 people
     </div>
   </div>
