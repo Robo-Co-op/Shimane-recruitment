@@ -16,6 +16,13 @@ if (isset($_SESSION['apply_success_en'])) {
 }
 
 require_once __DIR__ . '/../includes/base.php';
+
+// If ?done=1 but session already consumed (reload), go home
+if (!$submitted && isset($_GET['done'])) {
+    header('Location: ' . BASE_URL . '/en');
+    exit;
+}
+
 require_once __DIR__ . '/../admin/includes/db.php';
 
 // Load questions from file cache — no DB connection needed for a plain GET visit
