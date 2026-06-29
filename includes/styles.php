@@ -1,5 +1,5 @@
 <?php require_once __DIR__ . '/base.php'; ?>
-<link rel="icon" type="image/png" href="/logo.png">
+<link rel="icon" type="image/png" href="/logo.png?v=3">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
