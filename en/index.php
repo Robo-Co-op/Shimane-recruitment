@@ -323,17 +323,48 @@
       </div>
     </div>
 
-    <div style="margin-top: 40px; background: var(--mint-pale); border-radius: 20px; padding: 28px 32px;">
-      <h3 style="font-size: 17px; font-weight: 900; color: var(--warm-dark); margin-bottom: 10px;">🎥 Want to know more first? — Info Session Guide</h3>
-      <p style="font-size: 14px; color: var(--warm-mid); margin-bottom: 16px;">
-        For those who'd like to hear a little more before applying, we'll be holding online information sessions.<br>
-        Sessions will be recorded — the recording archive will be posted here after the session.
-      </p>
-      <div style="background: white; border-radius: 12px; padding: 16px 20px; display: inline-block;">
-        <p style="font-size: 14px; color: var(--warm-mid);">
-          📅 <strong style="color: var(--warm-dark);">Info Session: Wednesday, 1 July 2026, 20:00–21:00 JST</strong> (online)<br>
-          📹 <strong style="color: var(--warm-dark);">Recording Archive: Posted after the session</strong>
-        </p>
+    <div style="margin-top: 40px;">
+      <div class="info-card">
+        <div class="info-card-header">
+          <span class="ic-icon">🎥</span>
+          <h3>Want to know more first? — Info Session Guide</h3>
+        </div>
+        <div class="info-card-body">
+          <p class="ic-lead">
+            For those who'd like to hear a little more before applying, we'll be holding an online information session.<br>
+            The session will be recorded — the archive will be posted here after it ends.
+          </p>
+          <div class="event-meta">
+            <div class="meta-chip">
+              <span class="chip-icon">📅</span>
+              <div>
+                <div class="chip-label">Date &amp; Time</div>
+                <div class="chip-value">Wednesday, 1 July 2026<br>20:00–21:00 JST</div>
+                <div class="chip-sub">Online (Zoom)</div>
+              </div>
+            </div>
+            <div class="meta-chip">
+              <span class="chip-icon">📹</span>
+              <div>
+                <div class="chip-label">Recording Archive</div>
+                <div class="chip-value">Posted after the session</div>
+                <div class="chip-sub">Can't make it live? Catch the recording.</div>
+              </div>
+            </div>
+          </div>
+          <div class="zoom-block">
+            <span class="zoom-badge">Zoom</span>
+            <div class="zoom-info">
+              <div class="zoom-id-row">Meeting ID: <strong>812 9534 1689</strong></div>
+              <div class="zoom-id-row">Passcode: <strong>420635</strong></div>
+            </div>
+            <a class="zoom-link" href="https://us06web.zoom.us/j/81295341689?pwd=MV8maYQdHwYRIcXifPu2jHs9V2wURd.1" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7H12M8 3l4 4-4 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Join on Zoom
+            </a>
+          </div>
+          <p class="zoom-free-note">Drop in on the day — no registration required.</p>
+        </div>
       </div>
     </div>
   </div>
