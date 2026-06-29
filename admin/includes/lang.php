@@ -163,6 +163,40 @@ function _admin_strings(): array { return [
     'set_confirm_pw'    => 'Confirm New Password',
     'set_change_pw_btn' => '🔑 Change Password',
     'set_pw_min'        => 'Minimum 8 characters.',
+
+    // Settings — error / success messages
+    'set_err_name'      => 'Name is required.',
+    'set_err_email_inv' => 'Please enter a valid email address.',
+    'set_err_email_use' => 'That email address is already used by another account.',
+    'set_err_email_lst' => 'That email is already in the list.',
+    'set_err_cur_pw'    => 'Current password is incorrect.',
+    'set_err_pw_short'  => 'New password must be at least 8 characters.',
+    'set_err_pw_match'  => 'New passwords do not match.',
+    'set_err_date'      => 'Please enter a valid date.',
+    'set_msg_profile'   => 'Profile updated successfully.',
+    'set_msg_pw'        => 'Password changed successfully.',
+    'set_msg_rcpt_add'  => 'Recipient added.',
+    'set_msg_rcpt_del'  => 'Recipient removed.',
+
+    // Settings — Application Period card
+    'set_app_period'    => '⏰ Application Period',
+    'set_app_open'      => 'Applications Open',
+    'set_app_closed_st' => 'Applications Closed',
+    'set_app_calc'      => 'Calculating…',
+    'set_app_passed'    => 'Deadline has passed',
+    'set_app_dl_lbl'    => 'Deadline:',
+    'set_app_dl_desc'   => 'After this date the form auto-closes, the popup stops, and visitors see the "Applications Closed" page.',
+    'set_app_save_dl'   => '💾 Save Deadline',
+    'set_app_warning'   => '⚠ Changing the deadline immediately affects the public site, the popup, and the countdown timer.',
+    'set_app_remaining' => 'remaining',
+
+    // Settings — Notification Recipients card
+    'set_notify_title'  => '📧 Submission Notification Recipients',
+    'set_notify_desc'   => 'These email addresses receive a notification whenever a new application is submitted.',
+    'set_notify_none'   => 'No recipients configured — notifications will not be sent.',
+    'set_notify_ph'     => 'Add email address…',
+    'set_notify_add'    => '+ Add',
+    'set_notify_rm_q'   => 'Remove this recipient from notifications?',
 ],
 'ja' => [
     // General
@@ -305,5 +339,39 @@ function _admin_strings(): array { return [
     'set_confirm_pw'    => '新しいパスワード（確認）',
     'set_change_pw_btn' => '🔑 パスワードを変更',
     'set_pw_min'        => '8文字以上で入力してください。',
+
+    // Settings — error / success messages
+    'set_err_name'      => '氏名を入力してください。',
+    'set_err_email_inv' => '有効なメールアドレスを入力してください。',
+    'set_err_email_use' => 'そのメールアドレスはすでに別のアカウントで使用されています。',
+    'set_err_email_lst' => 'そのメールアドレスはすでにリストに追加されています。',
+    'set_err_cur_pw'    => '現在のパスワードが正しくありません。',
+    'set_err_pw_short'  => '新しいパスワードは8文字以上で入力してください。',
+    'set_err_pw_match'  => '新しいパスワードが一致しません。',
+    'set_err_date'      => '有効な日付を入力してください。',
+    'set_msg_profile'   => 'プロフィールを更新しました。',
+    'set_msg_pw'        => 'パスワードを変更しました。',
+    'set_msg_rcpt_add'  => '宛先を追加しました。',
+    'set_msg_rcpt_del'  => '宛先を削除しました。',
+
+    // Settings — Application Period card
+    'set_app_period'    => '⏰ 応募受付期間',
+    'set_app_open'      => '受付中',
+    'set_app_closed_st' => '受付終了',
+    'set_app_calc'      => '計算中…',
+    'set_app_passed'    => '締め切りを過ぎました',
+    'set_app_dl_lbl'    => '締め切り：',
+    'set_app_dl_desc'   => 'この日付以降、応募フォームは自動的に閉鎖され、ポップアップは非表示になり、訪問者には「応募受付終了」ページが表示されます。',
+    'set_app_save_dl'   => '💾 締め切りを保存',
+    'set_app_warning'   => '⚠ 締め切りを変更すると、公開サイト・ポップアップ・カウントダウンタイマーに即座に反映されます。',
+    'set_app_remaining' => '残り',
+
+    // Settings — Notification Recipients card
+    'set_notify_title'  => '📧 応募通知の宛先',
+    'set_notify_desc'   => '新しい応募が送信されるたびに、以下のメールアドレスに通知が届きます。',
+    'set_notify_none'   => '宛先が設定されていません。通知は送信されません。',
+    'set_notify_ph'     => 'メールアドレスを追加…',
+    'set_notify_add'    => '+ 追加',
+    'set_notify_rm_q'   => 'この宛先を通知リストから削除しますか？',
 ],
 ]; }
