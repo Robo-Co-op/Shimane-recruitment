@@ -14,6 +14,10 @@ function admin_start(string $title, string $active = '', string $actions = ''): 
         ['href'=>'/admin/team',        'icon'=>'👥', 'label'=>t('nav_team'),        'key'=>'team'],
     ];
     $cur_path = strtok($_SERVER['REQUEST_URI'], '?');
+    $base = defined('BASE_URL') && BASE_URL !== '' ? BASE_URL : '';
+    if ($base !== '' && strpos($cur_path, $base) === 0) {
+        $cur_path = substr($cur_path, strlen($base)) ?: '/';
+    }
 ?><!DOCTYPE html>
 <html lang="<?= $lang ?>">
 <head>
