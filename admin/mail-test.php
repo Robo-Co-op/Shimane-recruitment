@@ -13,34 +13,34 @@ $pass_ok = defined('SMTP_PASS') && SMTP_PASS !== '';
 $diag[] = ['SMTP_PASS in config.php', $pass_ok, $pass_ok ? 'Defined ✓' : 'NOT defined — secret missing or config.php not deployed'];
 
 // 2. Port 587 reachable?
-$sock587 = @stream_socket_client('tcp://smtp.office365.com:587', $en, $es, 8);
+$sock587 = @stream_socket_client('tcp://smtp.hostinger.com:587', $en, $es, 8);
 $p587_ok = $sock587 !== false;
 if ($sock587) { $greeting587 = trim(fgets($sock587, 256)); fclose($sock587); } else { $greeting587 = $es; }
-$diag[] = ['Port 587 reachable (smtp.office365.com)', $p587_ok, $p587_ok ? 'Open — ' . $greeting587 : 'BLOCKED — ' . $es];
+$diag[] = ['Port 587 reachable (smtp.hostinger.com)', $p587_ok, $p587_ok ? 'Open — ' . $greeting587 : 'BLOCKED — ' . $es];
 
 // 3. Port 465 reachable?
-$sock465 = @stream_socket_client('tcp://smtp.office365.com:465', $en2, $es2, 8);
+$sock465 = @stream_socket_client('tcp://smtp.hostinger.com:465', $en2, $es2, 8);
 $p465_ok = $sock465 !== false;
 if ($sock465) fclose($sock465);
-$diag[] = ['Port 465 reachable (smtp.office365.com)', $p465_ok, $p465_ok ? 'Open ✓' : 'BLOCKED'];
+$diag[] = ['Port 465 reachable (smtp.hostinger.com)', $p465_ok, $p465_ok ? 'Open ✓' : 'BLOCKED'];
 
 // 4. Full SMTP AUTH test (only if 587 is open and pass is set)
 $smtp_auth_ok = false;
 $smtp_auth_msg = 'Skipped (requires port 587 open + SMTP_PASS set)';
 if ($p587_ok && $pass_ok) {
-    $s = @stream_socket_client('tcp://smtp.office365.com:587', $en3, $es3, 10);
+    $s = @stream_socket_client('tcp://smtp.hostinger.com:587', $en3, $es3, 10);
     if ($s) {
         stream_set_timeout($s, 10);
         $rd = function() use (&$s): string {
             $o = ''; while (!feof($s)) { $l = fgets($s, 512); if ($l === false) break; $o .= $l; if (strlen($l) >= 4 && $l[3] === ' ') break; } return trim($o);
         };
         $rd();
-        fwrite($s, "EHLO test\r\n");     $rd();
-        fwrite($s, "STARTTLS\r\n");      $rd();
+        fwrite($s, "EHLO robocoop.org\r\n"); $rd();
+        fwrite($s, "STARTTLS\r\n");          $rd();
         stream_socket_enable_crypto($s, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-        fwrite($s, "EHLO test\r\n");     $rd();
-        fwrite($s, "AUTH LOGIN\r\n");    $rd();
-        fwrite($s, base64_encode('noreply@roboco-op.org') . "\r\n"); $rd();
+        fwrite($s, "EHLO robocoop.org\r\n"); $rd();
+        fwrite($s, "AUTH LOGIN\r\n");        $rd();
+        fwrite($s, base64_encode('noreply@robocoop.org') . "\r\n"); $rd();
         fwrite($s, base64_encode(SMTP_PASS) . "\r\n");
         $auth_r = $rd();
         fwrite($s, "QUIT\r\n"); fclose($s);
@@ -56,7 +56,7 @@ $diag[] = ['SMTP AUTH LOGIN test', $smtp_auth_ok, $smtp_auth_msg];
 $send_ok = false;
 $send_msg = 'Skipped';
 if ($smtp_auth_ok) {
-    $send_ok = _smtp_send('eliyahe@roboco-op.org', 'Mail Test ✓ — Shimane IB', '<p>SMTP is working. This test email was sent from the Shimane IB admin panel via smtp.office365.com.</p>');
+    $send_ok = _smtp_send('eliyahe@roboco-op.org', 'Mail Test ✓ — Shimane IB', '<p>SMTP is working. This test email was sent from the Shimane IB admin panel via smtp.hostinger.com.</p>');
     $send_msg = $send_ok ? 'Email sent to eliyahe@roboco-op.org ✓' : 'SMTP send returned false';
 }
 $diag[] = ['Send real email to eliyahe@roboco-op.org', $send_ok, $send_msg];

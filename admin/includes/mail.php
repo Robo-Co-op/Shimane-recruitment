@@ -20,9 +20,9 @@ function _admin_base_url(): string {
 function _smtp_send(string $to, string $subject, string $html_body): bool {
     if (!defined('SMTP_PASS') || SMTP_PASS === '') return false;
 
-    $host = 'smtp.office365.com';
+    $host = 'smtp.hostinger.com';
     $port = 587;
-    $user = 'noreply@roboco-op.org';
+    $user = 'noreply@robocoop.org';
     $pass = SMTP_PASS;
 
     $sock = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 15);
@@ -68,7 +68,7 @@ function _smtp_send(string $to, string $subject, string $html_body): bool {
     $write('DATA'); $read();
 
     $enc_subj = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-    $msg  = "From: Robo Co-op <{$user}>\r\n";
+    $msg  = "From: Robo Co-op <noreply@robocoop.org>\r\n";
     $msg .= "To: {$to}\r\n";
     $msg .= "Subject: {$enc_subj}\r\n";
     $msg .= "MIME-Version: 1.0\r\n";
