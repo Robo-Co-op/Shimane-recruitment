@@ -228,8 +228,17 @@ function send_application_confirmation_ja(string $to_email, string $to_name): bo
     return _admin_mail_html($to_email, '応募受付完了のお知らせ — 島根IB / Robo Co-op', $html);
 }
 
+function _load_notify_recipients(): array {
+    $file = dirname(__DIR__, 2) . '/db/notification_recipients.json';
+    if (file_exists($file)) {
+        $data = json_decode(file_get_contents($file), true);
+        if (is_array($data) && !empty($data)) return $data;
+    }
+    return ['midori.urashima@roboco-op.org', 'kazumi.hanaoka@roboco-op.org', 'eliyahe@roboco-op.org'];
+}
+
 function send_staff_notification(string $applicant_name, string $applicant_email, string $lang): void {
-    $staff   = ['midori.urashima@roboco-op.org', 'kazumi.hanaoka@roboco-op.org', 'eliyahe@roboco-op.org'];
+    $staff   = _load_notify_recipients();
     $name    = htmlspecialchars($applicant_name);
     $email   = htmlspecialchars($applicant_email);
     $langlab = strtolower($lang) === 'ja' ? '日本語' : 'English';

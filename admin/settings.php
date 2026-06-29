@@ -10,8 +10,49 @@ $uid  = $user['id'];
 $msg  = '';
 $err  = '';
 
+// ── Notification recipients helpers ──────────────────────────────────────────
+function _notify_file(): string {
+    return dirname(__DIR__) . '/db/notification_recipients.json';
+}
+function _load_recipients(): array {
+    $f = _notify_file();
+    if (file_exists($f)) {
+        $d = json_decode(file_get_contents($f), true);
+        if (is_array($d) && !empty($d)) return $d;
+    }
+    return ['midori.urashima@roboco-op.org', 'kazumi.hanaoka@roboco-op.org', 'eliyahe@roboco-op.org'];
+}
+function _save_recipients(array $r): void {
+    $dir = dirname(__DIR__) . '/db';
+    if (!is_dir($dir)) mkdir($dir, 0755, true);
+    file_put_contents($dir . '/notification_recipients.json', json_encode(array_values($r)));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
+
+    if ($action === 'add_notify' && can('admin')) {
+        $new_email = strtolower(trim($_POST['notify_email'] ?? ''));
+        if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+            $err = 'Please enter a valid email address.';
+        } else {
+            $list = _load_recipients();
+            if (in_array($new_email, $list)) {
+                $err = 'That email is already in the list.';
+            } else {
+                $list[] = $new_email;
+                _save_recipients($list);
+                $msg = 'Recipient added.';
+            }
+        }
+    }
+
+    if ($action === 'remove_notify' && can('admin')) {
+        $rem = $_POST['notify_email'] ?? '';
+        $list = array_values(array_filter(_load_recipients(), fn($e) => $e !== $rem));
+        _save_recipients($list);
+        $msg = 'Recipient removed.';
+    }
 
     if ($action === 'update_profile') {
         $name  = trim($_POST['name'] ?? '');
@@ -149,5 +190,50 @@ admin_start('My Settings', '', '');
   </div>
 
 </div>
+
+<?php if (can('admin')): ?>
+<?php $recipients = _load_recipients(); ?>
+<div class="card" style="margin-top:24px">
+  <div class="ch"><span class="ct">📧 Submission Notification Recipients</span></div>
+  <div class="cb">
+    <p class="tm fs13" style="margin-bottom:16px">
+      These email addresses receive a notification whenever a new application is submitted.
+    </p>
+
+    <?php if ($recipients): ?>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+      <?php foreach ($recipients as $email): ?>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:10px 14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;flex-shrink:0">
+            <?= strtoupper(substr($email, 0, 1)) ?>
+          </div>
+          <span style="font-size:14px;font-weight:600;color:var(--warm-dark)"><?= htmlspecialchars($email) ?></span>
+        </div>
+        <form method="POST" style="display:inline" onsubmit="return confirm('Remove <?= htmlspecialchars($email) ?> from notifications?')">
+          <input type="hidden" name="action" value="remove_notify">
+          <input type="hidden" name="notify_email" value="<?= htmlspecialchars($email) ?>">
+          <button type="submit" class="btn btn-d btn-xs">Remove</button>
+        </form>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <div class="alert" style="background:#FEF4E5;border-color:#F5A87A;color:#7A4400;margin-bottom:16px">
+      No recipients configured — notifications will not be sent.
+    </div>
+    <?php endif; ?>
+
+    <form method="POST" class="flex ic g8" style="max-width:480px">
+      <input type="hidden" name="action" value="add_notify">
+      <div class="sr" style="flex:1">
+        <span class="sic">✉️</span>
+        <input class="si" type="email" name="notify_email" placeholder="Add email address…" required>
+      </div>
+      <button type="submit" class="btn btn-p btn-sm">+ Add</button>
+    </form>
+  </div>
+</div>
+<?php endif; ?>
 
 <?php admin_end(); ?>
