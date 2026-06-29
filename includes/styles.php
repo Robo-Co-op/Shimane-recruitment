@@ -418,6 +418,30 @@
     }
     footer .ft-name { color: white; font-weight: 700; font-size: 16px; margin-bottom: 8px; }
     footer a { color: rgba(255,255,255,.55); }
+
+    /* ── Info-session card ── */
+    .info-card { background: var(--mint-pale); border-radius: 20px; overflow: hidden; }
+    .info-card-header { background: var(--mint-dark); padding: 18px 28px; display: flex; align-items: center; gap: 12px; }
+    .info-card-header .ic-icon { font-size: 22px; line-height: 1; }
+    .info-card-header h3 { font-size: 16px; font-weight: 900; color: white; letter-spacing: .02em; }
+    .info-card-body { padding: 24px 28px; }
+    .info-card-body .ic-lead { font-size: 14px; color: var(--warm-mid); line-height: 1.85; margin-bottom: 20px; }
+    .event-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .meta-chip { background: white; border-radius: 12px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 12px; }
+    .meta-chip .chip-icon { font-size: 20px; line-height: 1; margin-top: 2px; flex-shrink: 0; }
+    .chip-label { font-size: 11px; font-weight: 700; color: var(--mint-dark); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
+    .chip-value { font-size: 14px; font-weight: 700; color: var(--warm-dark); line-height: 1.5; }
+    .chip-sub { font-size: 12px; color: var(--warm-mid); margin-top: 2px; }
+    .zoom-block { background: white; border-radius: 14px; padding: 18px 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+    .zoom-badge { background: #2D8CFF; color: white; font-size: 12px; font-weight: 800; letter-spacing: .04em; padding: 4px 12px; border-radius: 6px; flex-shrink: 0; }
+    .zoom-info { flex: 1; min-width: 180px; }
+    .zoom-id-row { font-size: 13px; color: var(--warm-mid); line-height: 1.7; font-variant-numeric: tabular-nums; }
+    .zoom-id-row strong { color: var(--warm-dark); }
+    .zoom-link { display: inline-flex; align-items: center; gap: 6px; background: var(--mint-dark); color: white; font-size: 13px; font-weight: 700; text-decoration: none; padding: 9px 18px; border-radius: 8px; white-space: nowrap; flex-shrink: 0; }
+    .zoom-link:hover { background: var(--mint); }
+    .zoom-free-note { margin-top: 10px; font-size: 12px; color: var(--warm-mid); text-align: center; }
+    @media (max-width: 520px) { .event-meta { grid-template-columns: 1fr; } }
+
   </style>
   <script>
   (function(){
