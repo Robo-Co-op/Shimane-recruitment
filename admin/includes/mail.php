@@ -8,13 +8,74 @@ function _admin_base_url(): string {
     return 'https://robocoop.org/robouni/shimane-ai';
 }
 
+function _smtp_send(string $to, string $subject, string $html_body): bool {
+    if (!defined('SMTP_PASS') || SMTP_PASS === '') return false;
+
+    $host = 'smtp.office365.com';
+    $port = 587;
+    $user = 'noreply@roboco-op.org';
+    $pass = SMTP_PASS;
+
+    $sock = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 15);
+    if (!$sock) return false;
+    stream_set_timeout($sock, 15);
+
+    $read = function () use (&$sock): string {
+        $out = '';
+        while (!feof($sock)) {
+            $line = fgets($sock, 512);
+            if ($line === false) break;
+            $out .= $line;
+            if (strlen($line) >= 4 && $line[3] === ' ') break;
+        }
+        return $out;
+    };
+    $write = function (string $s) use (&$sock): void {
+        fwrite($sock, $s . "\r\n");
+    };
+
+    $read();                              // server greeting
+    $write('EHLO smtp.office365.com');   $read();
+    $write('STARTTLS');                  $read();
+
+    if (!stream_socket_enable_crypto($sock, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+        fclose($sock); return false;
+    }
+
+    $write('EHLO smtp.office365.com');   $read();
+    $write('AUTH LOGIN');                $read();
+    $write(base64_encode($user));        $read();
+    $write(base64_encode($pass));
+    $auth = $read();
+    if (strpos($auth, '235') === false) { $write('QUIT'); fclose($sock); return false; }
+
+    $write("MAIL FROM:<{$user}>");       $read();
+    $write("RCPT TO:<{$to}>");
+    $rcpt = $read();
+    if (strpos($rcpt, '250') === false && strpos($rcpt, '251') === false) {
+        $write('QUIT'); fclose($sock); return false;
+    }
+
+    $write('DATA'); $read();
+
+    $enc_subj = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    $msg  = "From: Robo Co-op <{$user}>\r\n";
+    $msg .= "To: {$to}\r\n";
+    $msg .= "Subject: {$enc_subj}\r\n";
+    $msg .= "MIME-Version: 1.0\r\n";
+    $msg .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $msg .= "\r\n";
+    $msg .= $html_body;
+    $msg .= "\r\n.";
+    $write($msg);
+    $sent = $read();
+
+    $write('QUIT'); fclose($sock);
+    return strpos($sent, '250') !== false;
+}
+
 function _admin_mail_html(string $to, string $subject, string $html_body): bool {
-    $headers  = "From: Robo Co-op <noreply@roboco-op.org>\r\n";
-    $headers .= "Reply-To: info@roboco-op.org\r\n";
-    $headers .= "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-    $headers .= "X-Mailer: PHP/" . PHP_VERSION . "\r\n";
-    return mail($to, $subject, $html_body, $headers);
+    return _smtp_send($to, $subject, $html_body);
 }
 
 function _email_template(string $title, string $content, string $btn_text, string $btn_url): string {

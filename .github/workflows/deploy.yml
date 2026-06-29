@@ -38,6 +38,7 @@ jobs:
           define('DB_USER',     '${{ secrets.DB_USER }}');
           define('DB_PASSWORD', '${{ secrets.DB_PASSWORD }}');
           define('DB_SCHEMA',   '${{ secrets.DB_SCHEMA }}');
+          define('SMTP_PASS',   '${{ secrets.SMTP_PASS }}');
           PHPEOF
 
       - name: Deploy via FTP

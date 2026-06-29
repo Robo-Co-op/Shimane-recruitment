@@ -62,9 +62,9 @@ a.back { display:inline-block; margin-top:18px; font-size:13px; color:#3DBFAF; t
   <p class="sub">Send test emails to diagnose delivery issues.</p>
 
   <div class="info">
-    PHP mail enabled: <code><?= function_exists('mail') ? 'YES' : 'NO' ?></code><br>
-    sendmail_path: <code><?= ini_get('sendmail_path') ?: '(not set)' ?></code><br>
-    SMTP: <code><?= ini_get('SMTP') ?: '(not set)' ?></code>
+    SMTP_PASS configured: <code><?= (defined('SMTP_PASS') && SMTP_PASS !== '') ? 'YES ✓' : 'NO — secret not deployed yet' ?></code><br>
+    SMTP host: <code>smtp.office365.com:587</code><br>
+    From: <code>noreply@roboco-op.org</code>
   </div>
 
   <form method="post">
