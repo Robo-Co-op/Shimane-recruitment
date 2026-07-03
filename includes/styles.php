@@ -441,6 +441,8 @@
     .zoom-link:hover { background: var(--mint); }
     .zoom-free-note { margin-top: 10px; font-size: 12px; color: var(--warm-mid); text-align: center; }
     @media (max-width: 520px) { .event-meta { grid-template-columns: 1fr; } }
+    .archive-video { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; }
+    .archive-video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
   </style>
   <script>
