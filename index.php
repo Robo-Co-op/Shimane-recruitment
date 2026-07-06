@@ -17,7 +17,7 @@
   </a>
   <div class="header-right">
     <a href="/en" class="lang-switch">EN</a>
-    <a href="/apply/ja" class="header-cta">応募フォームへ →</a>
+    <a href="https://forms.cloud.microsoft/r/rUkm6tmQKS" class="header-cta">応募フォームへ →</a>
   </div>
 </header>
 
@@ -316,7 +316,7 @@
           フォームに必要事項をご記入のうえ、送信してください。<br>
           担当者より順次ご連絡いたします。
         </p>
-        <a href="/apply/ja"
+        <a href="https://forms.cloud.microsoft/r/rUkm6tmQKS"
            style="display: inline-block; background: linear-gradient(135deg, var(--peach), #E07840); color: white; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 900; transition: opacity .2s;"
            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
           応募フォームへ進む →
@@ -417,7 +417,7 @@
       一緒に、あなたらしい働き方を見つけましょう。
     </p>
     <div class="cta-btns">
-      <a href="/apply/ja" class="btn-main">📝 応募フォームへ</a>
+      <a href="https://forms.cloud.microsoft/r/rUkm6tmQKS" class="btn-main">📝 応募フォームへ</a>
       <a href="#apply" class="btn-sub">🎥 説明会の情報を見る</a>
     </div>
     <div class="cta-note">
