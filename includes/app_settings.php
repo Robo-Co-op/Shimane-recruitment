@@ -19,7 +19,7 @@ if (!function_exists('get_app_deadline')) {
 
     function get_app_deadline(): string {
         $s = _load_app_settings();
-        return !empty($s['deadline']) ? $s['deadline'] : '2026-07-10';
+        return !empty($s['deadline']) ? $s['deadline'] : '2026-07-13';
     }
 
     function save_app_deadline(string $date): void {
