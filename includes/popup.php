@@ -8,7 +8,7 @@ if (!is_application_open()) return;
 
 $_deadline     = get_app_deadline();
 $_is_ja        = ($lang ?? 'ja') === 'ja';
-$_apply_url    = $_is_ja ? '/apply/ja' : '/apply';
+$_apply_url    = $_is_ja ? 'https://forms.cloud.microsoft/r/rUkm6tmQKS' : 'https://forms.cloud.microsoft/r/nfJN94GbMw';
 $_deadline_fmt = $_is_ja
     ? date('Y年n月j日', strtotime($_deadline))
     : date('j F Y',    strtotime($_deadline));
