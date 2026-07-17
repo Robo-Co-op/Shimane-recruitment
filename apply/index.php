@@ -343,7 +343,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       margin-bottom: 8px;
     }
     .field-label .req {
-      color: #E05555;
+      color: var(--error);
       margin-left: 4px;
       font-size: 12px;
     }
@@ -387,7 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: var(--warm-light);
       margin-top: 4px;
     }
-    .char-counter.warn { color: var(--peach); }
+    .char-counter.warn { color: var(--peach-dark); }
 
     /* ── Radio options ── */
     .radio-group { display: flex; flex-direction: column; gap: 10px; }
@@ -501,7 +501,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       margin-left: auto;
     }
     .btn-submit {
-      background: linear-gradient(135deg, var(--peach), #E07840);
+      background: linear-gradient(135deg, var(--peach-dark), var(--peach-darker));
       box-shadow: 0 4px 18px rgba(245,168,122,.35);
     }
     .btn-next:hover, .btn-submit:hover {
@@ -525,7 +525,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ── Field error text ── */
     .field-error {
       font-size: 12px;
-      color: #E05555;
+      color: var(--error);
       margin-top: 5px;
       display: none;
     }
@@ -564,7 +564,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       text-align: center;
     }
     .success-header {
-      background: linear-gradient(135deg, #3DBFAF, #2A9485);
+      background: linear-gradient(135deg, var(--mint-dark), var(--mint-darker));
       padding: 28px 36px 72px;
       position: relative;
     }
@@ -591,12 +591,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .checkmark { width: 44px; height: 44px; }
     .checkmark-circle {
-      stroke: #3DBFAF; stroke-width: 2.5; fill: none;
+      stroke: var(--mint-dark); stroke-width: 2.5; fill: none;
       stroke-dasharray: 145; stroke-dashoffset: 145;
       animation: draw-circle .55s ease-out .1s forwards;
     }
     .checkmark-check {
-      stroke: #3DBFAF; stroke-width: 3.2; fill: none;
+      stroke: var(--mint-dark); stroke-width: 3.2; fill: none;
       stroke-linecap: round; stroke-linejoin: round;
       stroke-dasharray: 48; stroke-dashoffset: 48;
       animation: draw-check .35s ease-out .6s forwards;
@@ -636,7 +636,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .ns-step:last-child { margin-bottom: 0; }
     .ns-num {
       width: 24px; height: 24px; border-radius: 50%;
-      background: var(--mint); color: #fff;
+      background: var(--mint-dark); color: #fff;
       font-size: 11px; font-weight: 900; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       margin-top: 1px;
@@ -651,7 +651,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .success-back-btn {
       display: inline-block;
-      background: linear-gradient(135deg, #3DBFAF, #2A9485);
+      background: linear-gradient(135deg, var(--mint-dark), var(--mint-darker));
       color: #fff; font-weight: 700; font-size: 14px;
       padding: 13px 36px; border-radius: 40px;
       text-decoration: none;
@@ -737,7 +737,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <br>
         <a href="/en" class="success-back-btn">← Return to program information</a>
-        <p style="font-size:12px;color:#A8C4BF;margin-top:14px">
+        <p style="font-size:12px;color:var(--warm-mid);margin-top:14px">
           Returning to program page in <span id="redirect-countdown">30</span> seconds…
         </p>
       </div>
@@ -804,7 +804,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="form-step active" id="step-1">
           <div class="card-section-head">
             <h2>Basic information</h2>
-            <p>Fields marked <span style="color:#E05555">*</span> are required.</p>
+            <p>Fields marked <span style="color:var(--error)">*</span> are required.</p>
           </div>
           <div class="card-body">
 
