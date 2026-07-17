@@ -197,7 +197,7 @@
     .hc-phase-eyebrow strong { font-size: 16px; font-weight: 900; color: var(--mint-dark); }
     .hc-phase-b .hc-phase-eyebrow strong { color: var(--peach-darker); }
     .hc-phase-title { font-size: 17px; font-weight: 900; color: var(--warm-dark); line-height: 1.4; }
-    .hc-phase-desc  { font-size: 12px; color: var(--warm-mid); line-height: 1.7; }
+    .hc-phase-desc  { font-size: 13px; color: var(--warm-mid); line-height: 1.7; }
     .hero-btn {
       display: inline-block;
       background: linear-gradient(135deg, var(--peach-dark), var(--peach-darker));
@@ -211,7 +211,7 @@
       position: relative; z-index: 1;
     }
     .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(245,168,122,.45); }
-    .hero-note { font-size: 12px; color: var(--warm-mid); margin-top: 14px; }
+    .hero-note { font-size: 13px; color: var(--warm-mid); margin-top: 14px; }
 
     /* ─── SECTION SHARED ─── */
     section { padding: 68px 28px; }
@@ -302,7 +302,7 @@
     .support-card:hover { transform: translateY(-4px); }
     .sup-icon { font-size: 34px; margin-bottom: 10px; }
     .support-card h3 { font-size: 14px; font-weight: 700; color: var(--warm-dark); margin-bottom: 6px; }
-    .support-card p  { font-size: 12px; color: var(--warm-mid); line-height: 1.65; }
+    .support-card p  { font-size: 13px; color: var(--warm-mid); line-height: 1.65; }
     .spt-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
     @media (max-width: 500px) { .spt-items { grid-template-columns: 1fr; } }
     .spt-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--warm-mid); }
@@ -358,7 +358,7 @@
       font-weight: 900; font-size: 17px; margin: 0 auto 10px;
     }
     .step-box h4 { font-size: 14px; font-weight: 700; color: var(--warm-dark); }
-    .step-box p  { font-size: 12px; color: var(--warm-mid); margin-top: 6px; line-height: 1.5; }
+    .step-box p  { font-size: 13px; color: var(--warm-mid); margin-top: 6px; line-height: 1.5; }
     .step-arrow { font-size: 20px; color: var(--warm-light); padding: 0 4px; flex-shrink: 0; }
     @media (max-width:600px) { .step-arrow { display: none; } }
 
