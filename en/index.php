@@ -40,7 +40,7 @@
     </div>
     <div class="hc-stat">
       <div class="num">3<span class="unit"> spots</span></div>
-      <div class="lbl">Living expense support<br><span style="font-size:10px; color:var(--warm-light);">3 of 10 total spots</span></div>
+      <div class="lbl">Living expense support<br><span style="font-size:11px; color:var(--warm-light);">3 of 10 total spots</span></div>
     </div>
     <div class="hc-stat">
       <div class="num" style="font-size:26px;">Free</div>
@@ -213,7 +213,7 @@
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
         <div style="background:var(--mint-pale); color:var(--mint-dark); border-radius:8px; padding:6px 12px; text-align:center; flex-shrink:0;">
           <div style="font-size:18px; font-weight:900; line-height:1;">3</div>
-          <div style="font-size:10px; margin-top:2px;">support spots</div>
+          <div style="font-size:11px; margin-top:2px;">support spots</div>
         </div>
         <div style="font-size:14px; font-weight:700; color:var(--warm-dark);">Living expense support — for those who need it most right now</div>
       </div>
@@ -316,7 +316,7 @@
           Fill in the required fields and submit. We'll be in touch with next steps shortly.
         </p>
         <a href="https://forms.cloud.microsoft/r/nfJN94GbMw"
-           style="display: inline-block; background: linear-gradient(135deg, var(--peach), #E07840); color: white; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 900; transition: opacity .2s;"
+           style="display: inline-block; background: linear-gradient(135deg, var(--peach-dark), var(--peach-darker)); color: white; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 900; transition: opacity .2s;"
            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
           Go to Application Form →
         </a>
