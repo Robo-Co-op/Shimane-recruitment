@@ -70,58 +70,61 @@
 <section class="forwhom">
   <div class="inner">
     <div class="section-label">Who Is This For?</div>
-    <h2>This program was made<br><em>for you.</em></h2>
+    <h2>We're here to support<br><em>your "I want to try".</em></h2>
     <p class="section-desc">
-      We support people facing barriers to employment who want to build skills and work on their own terms.
+      Open to anyone living in Shimane Prefecture — regardless of age or experience.<br>
+      Whether you're just getting started with AI and computers, or want to use them more.<br>
+      A free program where you can learn at your own pace.
     </p>
     <div class="who-grid">
       <div class="who-card">
-        <div class="who-icon">👩‍👦</div>
+        <div class="who-icon">💻</div>
         <div>
-          <h3>Single Parents</h3>
-          <p>Want to build remote-work skills while raising children.</p>
-        </div>
-      </div>
-      <div class="who-card">
-        <div class="who-icon">🌸</div>
-        <div>
-          <h3>People with Foreign Roots / Refugees</h3>
-          <p>We provide support in plain, accessible Japanese. Let's learn together.</p>
+          <h3>Want to get started with AI &amp; computers</h3>
+          <p>Learn practical digital skills from the basics — useful for work and everyday life.</p>
         </div>
       </div>
       <div class="who-card">
         <div class="who-icon">🌱</div>
         <div>
-          <h3>Those with School Avoidance or Hikikomori Experience</h3>
-          <p>Everything is online — participate fully at your own pace.</p>
+          <h3>Ready to try something new</h3>
+          <p>No experience needed. If you have the spirit of "I want to try," you're welcome.</p>
         </div>
       </div>
       <div class="who-card">
-        <div class="who-icon">💻</div>
+        <div class="who-icon">🏠</div>
         <div>
-          <h3>Aspiring AI & Tech Learners</h3>
-          <p>Basic computer skills are enough. No prior tech knowledge required.</p>
+          <h3>Want to learn at your own pace</h3>
+          <p>Mostly online — join comfortably from home, no pressure.</p>
         </div>
       </div>
       <div class="who-card">
-        <div class="who-icon">🔄</div>
+        <div class="who-icon">👶</div>
         <div>
-          <h3>Career Changers &amp; Fresh Starters</h3>
-          <p>Your past career doesn't matter here. It's never too late to begin.</p>
+          <h3>Balancing childcare, work, or caregiving</h3>
+          <p>Recorded sessions available — even busy schedules are no problem.</p>
         </div>
       </div>
       <div class="who-card">
-        <div class="who-icon">⏰</div>
+        <div class="who-icon">🤖</div>
         <div>
-          <h3>Busy People with Little Free Time</h3>
-          <p>All classes are recorded — watch after the kids go to bed or on your lunch break.</p>
+          <h3>Want to use AI in work or daily life</h3>
+          <p>Learn the latest AI tools like ChatGPT and Claude.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-icon">🚀</div>
+        <div>
+          <h3>Looking to open up new possibilities</h3>
+          <p>We support your first step toward new skills and new ways of working.</p>
         </div>
       </div>
     </div>
     <div class="warm-note">
-      🌿 <strong>Residency in Shimane Prefecture is required.</strong> No specialized knowledge needed.<br>
-      Even if you're thinking "Can I really do this?" — just send the application form and see what happens.<br>
-      Want to learn more first? Check the info session details at the bottom of the page.
+      🌿 <strong>Anyone living in Shimane Prefecture is welcome to apply.</strong><br>
+      Age, occupation, and experience are no barrier.<br>
+      "I'm a bit nervous about digital things, but curious" or "I want to try AI" —<br>
+      if that sounds like you, please feel free to apply.
     </div>
   </div>
 </section>

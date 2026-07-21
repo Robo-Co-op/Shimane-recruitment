@@ -71,58 +71,61 @@
 <section class="forwhom">
   <div class="inner">
     <div class="section-label">こんな方へ</div>
-    <h2>このプログラムは<br><em>あなたのためにあります</em></h2>
+    <h2>あなたの「やってみたい」を<br><em>応援します</em></h2>
     <p class="section-desc">
-      就労に困難を抱えながらも、スキルを身につけて自分らしく働きたいと思っている方を応援します。
+      島根県にお住まいであれば、年齢や経験は問いません。<br>
+      AIやパソコンをこれから始めたい方も、もっと活用したい方も。<br>
+      一人ひとりのペースに合わせて学べる無料プログラムです。
     </p>
     <div class="who-grid">
       <div class="who-card">
-        <div class="who-icon">👩‍👦</div>
+        <div class="who-icon">💻</div>
         <div>
-          <h3>ひとり親の方</h3>
-          <p>子育てしながら、在宅で働けるスキルを身につけたい。</p>
-        </div>
-      </div>
-      <div class="who-card">
-        <div class="who-icon">🌸</div>
-        <div>
-          <h3>外国にルーツのある方・難民の方</h3>
-          <p>やさしい日本語でサポートします。一緒に学びましょう。</p>
+          <h3>AIやパソコンを使えるようになりたい</h3>
+          <p>仕事や日常生活で役立つデジタルスキルを基礎から学べます。</p>
         </div>
       </div>
       <div class="who-card">
         <div class="who-icon">🌱</div>
         <div>
-          <h3>不登校・ひきこもりの経験がある方</h3>
-          <p>全てのやりとりはオンラインなので、自分のペースで参加できます。</p>
+          <h3>新しいことに挑戦したい</h3>
+          <p>経験は問いません。「やってみたい」という気持ちがあれば大歓迎です。</p>
         </div>
       </div>
       <div class="who-card">
-        <div class="who-icon">💻</div>
+        <div class="who-icon">🏠</div>
         <div>
-          <h3>AIやパソコンを使えるようになりたい方</h3>
-          <p>パソコンの基礎操作ができれば、専門知識は一切不要です。</p>
+          <h3>自分のペースで学びたい</h3>
+          <p>オンライン中心なので、自宅から無理なく参加できます。</p>
         </div>
       </div>
       <div class="who-card">
-        <div class="who-icon">🔄</div>
+        <div class="who-icon">👶</div>
         <div>
-          <h3>仕事を変えたい・ゼロから始めたい方</h3>
-          <p>これまでの経歴は問いません。今からでも遅くありません。</p>
+          <h3>子育て・仕事・介護と両立したい</h3>
+          <p>録画視聴もできるので、忙しい方でも安心です。</p>
         </div>
       </div>
       <div class="who-card">
-        <div class="who-icon">⏰</div>
+        <div class="who-icon">🤖</div>
         <div>
-          <h3>学ぶ時間がなかなか取れない方</h3>
-          <p>授業は録画してありますので、お子様が寝た後でも大丈夫です。</p>
+          <h3>AIを仕事や生活に活かしたい</h3>
+          <p>ChatGPTやClaudeなど最新のAIツールの使い方も学べます。</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-icon">🚀</div>
+        <div>
+          <h3>将来の選択肢を広げたい</h3>
+          <p>スキルアップや新しい働き方につながる第一歩を応援します。</p>
         </div>
       </div>
     </div>
     <div class="warm-note">
-      🌿 <strong>島根県内に住んでいる方</strong>が参加条件です。専門的な知識は必要ありません。<br>
-      「自分にできるか不安…」という方こそ、まず応募フォームを送ってみてください。<br>
-      詳しい内容が気になる方は、下の説明会の案内もご覧ください。
+      🌿 <strong>島根県にお住まいの方ならどなたでもご参加いただけます。</strong><br>
+      年齢・職業・経験は問いません。<br>
+      「デジタルに少し不安があるけど気になる」「AIを使ってみたい」<br>
+      そんな気持ちがあれば、ぜひお気軽にご応募ください。
     </div>
   </div>
 </section>
