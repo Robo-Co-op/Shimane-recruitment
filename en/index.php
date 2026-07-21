@@ -26,13 +26,14 @@
   <img src="/hero-en.png" alt="Learn AI in Shimane, and create a work style that's you" class="hero-image">
   <div class="hero-label">🏔️ Shimane Prefecture × Robo Co-op &nbsp;|&nbsp; FY2026 Digital Talent Development Program</div>
   <h1>
-    Build your career<br>
+    Take your next step<br>
     <em>with AI skills.</em>
   </h1>
   <p class="hero-lead">
-    Not great with computers? Raising kids? Busy schedule? No problem.<br>
-    Learn AI and IT at your own pace,<br>
-    side by side with a supportive community.
+    Worried it might be too difficult for you?<br>
+    No special skills needed — AI and computers are for everyone.<br>
+    If you live in Shimane Prefecture, age and experience don't matter.<br>
+    A free program where you can learn together, at your own pace.
   </p>
   <div class="hero-card-grid">
     <div class="hc-stat">
