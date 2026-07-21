@@ -82,7 +82,7 @@ $_deadline_fmt = $_is_ja
     .closed-deadline strong { color: var(--warm-dark); }
     .btn-home {
       display: inline-block;
-      background: linear-gradient(135deg, #3DBFAF, #2A9485);
+      background: linear-gradient(135deg, var(--mint-dark), var(--mint-darker));
       color: #fff;
       font-weight: 800;
       font-size: 15px;
@@ -150,10 +150,10 @@ $_deadline_fmt = $_is_ja
     <p class="closed-desc" style="margin-bottom:32px;font-size:13px">
       <?php if ($_is_ja): ?>
         次回の募集に関する情報は、Robo Co-op の公式サイトやSNSでお知らせします。<br>
-        ご不明な点は <a href="mailto:info@roboco-op.org" style="color:var(--mint)">info@roboco-op.org</a> までお問い合わせください。
+        ご不明な点は <a href="mailto:info@roboco-op.org" style="color:var(--mint-dark)">info@roboco-op.org</a> までお問い合わせください。
       <?php else: ?>
         Information about future cohorts will be announced on the Robo Co-op website and social media.<br>
-        For enquiries, contact <a href="mailto:info@roboco-op.org" style="color:var(--mint)">info@roboco-op.org</a>.
+        For enquiries, contact <a href="mailto:info@roboco-op.org" style="color:var(--mint-dark)">info@roboco-op.org</a>.
       <?php endif; ?>
     </p>
 

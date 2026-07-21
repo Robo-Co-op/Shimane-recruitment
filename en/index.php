@@ -17,7 +17,7 @@
   </a>
   <div class="header-right">
     <a href="/" class="lang-switch">日本語</a>
-    <a href="/apply" class="header-cta">Apply Now →</a>
+    <a href="https://forms.cloud.microsoft/r/nfJN94GbMw" class="header-cta">Apply Now →</a>
   </div>
 </header>
 
@@ -41,7 +41,7 @@
     </div>
     <div class="hc-stat">
       <div class="num">3<span class="unit"> spots</span></div>
-      <div class="lbl">Living expense support<br><span style="font-size:10px; color:var(--warm-light);">3 of 10 total spots</span></div>
+      <div class="lbl">Living expense support<br><span style="font-size:11px; color:var(--warm-light);">3 of 10 total spots</span></div>
     </div>
     <div class="hc-stat">
       <div class="num" style="font-size:26px;">Free</div>
@@ -214,7 +214,7 @@
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
         <div style="background:var(--mint-pale); color:var(--mint-dark); border-radius:8px; padding:6px 12px; text-align:center; flex-shrink:0;">
           <div style="font-size:18px; font-weight:900; line-height:1;">3</div>
-          <div style="font-size:10px; margin-top:2px;">support spots</div>
+          <div style="font-size:11px; margin-top:2px;">support spots</div>
         </div>
         <div style="font-size:14px; font-weight:700; color:var(--warm-dark);">Living expense support — for those who need it most right now</div>
       </div>
@@ -316,8 +316,8 @@
         <p style="font-size: 14px; color: var(--warm-mid); margin-bottom: 28px; line-height: 1.8;">
           Fill in the required fields and submit. We'll be in touch with next steps shortly.
         </p>
-        <a href="/apply"
-           style="display: inline-block; background: linear-gradient(135deg, var(--peach), #E07840); color: white; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 900; transition: opacity .2s;"
+        <a href="https://forms.cloud.microsoft/r/nfJN94GbMw"
+           style="display: inline-block; background: linear-gradient(135deg, var(--peach-dark), var(--peach-darker)); color: white; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 900; transition: opacity .2s;"
            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
           Go to Application Form →
         </a>
@@ -328,43 +328,23 @@
       <div class="info-card">
         <div class="info-card-header">
           <span class="ic-icon">🎥</span>
-          <h3>Want to know more first? — Info Session Guide</h3>
+          <h3>Info Session Recording Now Available</h3>
         </div>
         <div class="info-card-body">
           <p class="ic-lead">
-            For those who'd like to hear a little more before applying, we'll be holding an online information session.<br>
-            The session will be recorded — the archive will be posted here after it ends.
+            The recording from our online info session on Wednesday, 1 July 2026 is now available.<br>
+            If you'd like to learn more about the program before applying, feel free to watch.
           </p>
-          <div class="event-meta">
-            <div class="meta-chip">
-              <span class="chip-icon">📅</span>
-              <div>
-                <div class="chip-label">Date &amp; Time</div>
-                <div class="chip-value">Wednesday, 1 July 2026<br>20:00–21:00 JST</div>
-                <div class="chip-sub">Online (Zoom)</div>
-              </div>
-            </div>
-            <div class="meta-chip">
-              <span class="chip-icon">📹</span>
-              <div>
-                <div class="chip-label">Recording Archive</div>
-                <div class="chip-value">Posted after the session</div>
-                <div class="chip-sub">Can't make it live? Catch the recording.</div>
-              </div>
-            </div>
+          <div class="archive-video">
+            <iframe
+              src="https://www.youtube.com/embed/pNAjAfHq7VM"
+              title="Info Session Recording"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy"
+            ></iframe>
           </div>
-          <div class="zoom-block">
-            <span class="zoom-badge">Zoom</span>
-            <div class="zoom-info">
-              <div class="zoom-id-row">Meeting ID: <strong>812 9534 1689</strong></div>
-              <div class="zoom-id-row">Passcode: <strong>420635</strong></div>
-            </div>
-            <a class="zoom-link" href="https://us06web.zoom.us/j/81295341689?pwd=MV8maYQdHwYRIcXifPu2jHs9V2wURd.1" target="_blank" rel="noopener">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7H12M8 3l4 4-4 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Join on Zoom
-            </a>
-          </div>
-          <p class="zoom-free-note">Drop in on the day — no registration required.</p>
         </div>
       </div>
     </div>
@@ -438,7 +418,7 @@
       Let's find a way of working that truly fits you.
     </p>
     <div class="cta-btns">
-      <a href="/apply" class="btn-main">📝 Go to Application Form</a>
+      <a href="https://forms.cloud.microsoft/r/nfJN94GbMw" class="btn-main">📝 Go to Application Form</a>
       <a href="#apply" class="btn-sub">🎥 Info Session Details</a>
     </div>
     <div class="cta-note">

@@ -17,7 +17,7 @@
   </a>
   <div class="header-right">
     <a href="/en" class="lang-switch">EN</a>
-    <a href="/apply/ja" class="header-cta">応募フォームへ →</a>
+    <a href="https://forms.cloud.microsoft/r/rUkm6tmQKS" class="header-cta">応募フォームへ →</a>
   </div>
 </header>
 
@@ -42,7 +42,7 @@
     </div>
     <div class="hc-stat">
       <div class="num">3<span class="unit">名</span></div>
-      <div class="lbl">生活費サポート枠<br><span style="font-size:10px; color:var(--warm-light);">定員10名のうち3名</span></div>
+      <div class="lbl">生活費サポート枠<br><span style="font-size:11px; color:var(--warm-light);">定員10名のうち3名</span></div>
     </div>
     <div class="hc-stat">
       <div class="num" style="font-size:26px;">無料</div>
@@ -215,7 +215,7 @@
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
         <div style="background:var(--mint-pale); color:var(--mint-dark); border-radius:8px; padding:6px 12px; text-align:center; flex-shrink:0;">
           <div style="font-size:18px; font-weight:900; line-height:1;">3名</div>
-          <div style="font-size:10px; margin-top:2px;">サポート枠</div>
+          <div style="font-size:11px; margin-top:2px;">サポート枠</div>
         </div>
         <div style="font-size:14px; font-weight:700; color:var(--warm-dark);">今、余裕がない人こそ使える生活費サポートがあります</div>
       </div>
@@ -317,8 +317,8 @@
           フォームに必要事項をご記入のうえ、送信してください。<br>
           担当者より順次ご連絡いたします。
         </p>
-        <a href="/apply/ja"
-           style="display: inline-block; background: linear-gradient(135deg, var(--peach), #E07840); color: white; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 900; transition: opacity .2s;"
+        <a href="https://forms.cloud.microsoft/r/rUkm6tmQKS"
+           style="display: inline-block; background: linear-gradient(135deg, var(--peach-dark), var(--peach-darker)); color: white; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 900; transition: opacity .2s;"
            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
           応募フォームへ進む →
         </a>
@@ -328,43 +328,23 @@
       <div class="info-card">
         <div class="info-card-header">
           <span class="ic-icon">🎥</span>
-          <h3>もっとくわしく知りたい方へ：説明会のご案内</h3>
+          <h3>説明会アーカイブ動画を公開しました</h3>
         </div>
         <div class="info-card-body">
           <p class="ic-lead">
-            「応募する前にもう少し話を聞きたい」という方のために、オンライン説明会を開催します。<br>
-            説明会は録画を予定しておりますので、録画アーカイブも終了後こちらへ掲載予定です。
+            2026年7月1日（水）に開催したオンライン説明会の録画を公開しています。<br>
+            応募前に内容を確認したい方は、ぜひご覧ください。
           </p>
-          <div class="event-meta">
-            <div class="meta-chip">
-              <span class="chip-icon">📅</span>
-              <div>
-                <div class="chip-label">開催日時</div>
-                <div class="chip-value">2026年7月1日（水）<br>20:00〜21:00</div>
-                <div class="chip-sub">オンライン開催</div>
-              </div>
-            </div>
-            <div class="meta-chip">
-              <span class="chip-icon">📹</span>
-              <div>
-                <div class="chip-label">録画アーカイブ</div>
-                <div class="chip-value">終了後に掲載予定</div>
-                <div class="chip-sub">当日参加できない方もご安心ください</div>
-              </div>
-            </div>
+          <div class="archive-video">
+            <iframe
+              src="https://www.youtube.com/embed/pNAjAfHq7VM"
+              title="説明会アーカイブ動画"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy"
+            ></iframe>
           </div>
-          <div class="zoom-block">
-            <span class="zoom-badge">Zoom</span>
-            <div class="zoom-info">
-              <div class="zoom-id-row">ミーティングID：<strong>812 9534 1689</strong></div>
-              <div class="zoom-id-row">パスコード：<strong>420635</strong></div>
-            </div>
-            <a class="zoom-link" href="https://us06web.zoom.us/j/81295341689?pwd=MV8maYQdHwYRIcXifPu2jHs9V2wURd.1" target="_blank" rel="noopener">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7H12M8 3l4 4-4 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Zoomで参加する
-            </a>
-          </div>
-          <p class="zoom-free-note">当日リンクから自由にご参加いただけます。事前登録は不要です。</p>
         </div>
       </div>
     </div>
@@ -438,7 +418,7 @@
       一緒に、あなたらしい働き方を見つけましょう。
     </p>
     <div class="cta-btns">
-      <a href="/apply/ja" class="btn-main">📝 応募フォームへ</a>
+      <a href="https://forms.cloud.microsoft/r/rUkm6tmQKS" class="btn-main">📝 応募フォームへ</a>
       <a href="#apply" class="btn-sub">🎥 説明会の情報を見る</a>
     </div>
     <div class="cta-note">

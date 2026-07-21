@@ -4,16 +4,21 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --mint:      #3DBFAF;
-      --mint-dark: #2A9485;
-      --mint-pale: #E8F8F6;
-      --peach:     #F5A87A;
-      --peach-pale:#FFF3EC;
-      --sage:      #7DB89A;
-      --cream:     #FDFAF6;
-      --warm-dark: #2E3D3B;
-      --warm-mid:  #5A706B;
-      --warm-light:#A8C4BF;
+      --mint:        #3DBFAF;
+      --mint-dark:   #1B6E63;
+      --mint-darker: #12403A;
+      --mint-pale:   #E8F8F6;
+      --peach:       #F5A87A;
+      --peach-dark:  #B85618;
+      --peach-darker:#9C4415;
+      --peach-pale:  #FFF3EC;
+      --sage:        #7DB89A;
+      --sage-dark:   #3F7354;
+      --cream:       #FDFAF6;
+      --warm-dark:   #2E3D3B;
+      --warm-mid:    #455C57;
+      --warm-light:  #557069;
+      --error:       #C92F2F;
     }
 
     body {
@@ -61,7 +66,7 @@
     }
     .lang-switch:hover { border-color: var(--mint); color: var(--mint-dark); background: var(--mint-pale); }
     .header-cta {
-      background: var(--peach);
+      background: var(--peach-dark);
       color: white;
       border: none;
       padding: 10px 22px;
@@ -198,12 +203,12 @@
       color: var(--warm-mid);
     }
     .hc-phase-eyebrow strong { font-size: 16px; font-weight: 900; color: var(--mint-dark); }
-    .hc-phase-b .hc-phase-eyebrow strong { color: #B84F18; }
+    .hc-phase-b .hc-phase-eyebrow strong { color: var(--peach-darker); }
     .hc-phase-title { font-size: 17px; font-weight: 900; color: var(--warm-dark); line-height: 1.4; }
     .hc-phase-desc  { font-size: 12px; color: var(--warm-mid); line-height: 1.7; }
     .hero-btn {
       display: inline-block;
-      background: linear-gradient(135deg, var(--peach), #E8834A);
+      background: linear-gradient(135deg, var(--peach-dark), var(--peach-darker));
       color: white;
       padding: 18px 52px;
       border-radius: 40px;
@@ -339,7 +344,7 @@
     .tl-title { font-size: 16px; font-weight: 700; color: var(--warm-dark); }
     .tl-desc  { font-size: 13px; color: var(--warm-mid); margin-top: 4px; }
     .now-badge {
-      display: inline-block; background: var(--peach); color: white;
+      display: inline-block; background: var(--peach-dark); color: white;
       font-size: 11px; font-weight: 700; padding: 2px 10px;
       border-radius: 8px; margin-left: 10px; vertical-align: middle;
     }
@@ -355,7 +360,7 @@
     }
     .step-num {
       width: 40px; height: 40px;
-      background: linear-gradient(135deg, var(--mint), var(--sage));
+      background: linear-gradient(135deg, var(--mint-dark), var(--sage-dark));
       color: white; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-weight: 900; font-size: 17px; margin: 0 auto 10px;
@@ -376,7 +381,7 @@
     .faq-q::before {
       content: 'Q'; position: absolute; left: 0; top: 0;
       width: 24px; height: 24px;
-      background: linear-gradient(135deg, var(--mint), var(--sage));
+      background: linear-gradient(135deg, var(--mint-dark), var(--sage-dark));
       color: white; border-radius: 6px; font-size: 13px; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
       line-height: 1; text-align: center;
@@ -404,7 +409,7 @@
     .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
     .btn-main {
       display: inline-block;
-      background: linear-gradient(135deg, var(--peach), #E07840);
+      background: linear-gradient(135deg, var(--peach-dark), var(--peach-darker));
       color: white; padding: 18px 48px; border-radius: 40px;
       font-size: 17px; font-weight: 900; text-decoration: none;
       box-shadow: 0 6px 24px rgba(245,168,122,.35);
@@ -449,6 +454,8 @@
     .zoom-link:hover { background: var(--mint); }
     .zoom-free-note { margin-top: 10px; font-size: 12px; color: var(--warm-mid); text-align: center; }
     @media (max-width: 520px) { .event-meta { grid-template-columns: 1fr; } }
+    .archive-video { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; }
+    .archive-video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
   </style>
   <script>

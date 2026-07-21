@@ -8,7 +8,7 @@ if (!is_application_open()) return;
 
 $_deadline     = get_app_deadline();
 $_is_ja        = ($lang ?? 'ja') === 'ja';
-$_apply_url    = $_is_ja ? '/apply/ja' : '/apply';
+$_apply_url    = $_is_ja ? 'https://forms.cloud.microsoft/r/rUkm6tmQKS' : 'https://forms.cloud.microsoft/r/nfJN94GbMw';
 $_deadline_fmt = $_is_ja
     ? date('Y年n月j日', strtotime($_deadline))
     : date('j F Y',    strtotime($_deadline));
@@ -24,13 +24,13 @@ $_deadline_fmt = $_is_ja
               animation:popup-in .35s cubic-bezier(.22,.68,0,1.2) both">
 
     <!-- Header -->
-    <div style="background:linear-gradient(135deg,#3DBFAF,#2A9485);padding:22px 26px 20px;position:relative">
+    <div style="background:linear-gradient(135deg,var(--mint-dark),var(--mint-darker));padding:22px 26px 20px;position:relative">
       <button onclick="closeApplyPopup(false)" aria-label="Close"
               style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,.18);
                      border:none;width:30px;height:30px;border-radius:50%;color:#fff;
                      font-size:18px;line-height:1;cursor:pointer;display:flex;
                      align-items:center;justify-content:center">&times;</button>
-      <div style="color:rgba(255,255,255,.8);font-size:11px;font-weight:700;
+      <div style="color:rgba(255,255,255,.92);font-size:11px;font-weight:700;
                   letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">
         <?= $_is_ja ? '島根県 × Robo Co-op' : 'Shimane Prefecture × Robo Co-op' ?>
       </div>
@@ -58,7 +58,7 @@ $_deadline_fmt = $_is_ja
 
       <div style="display:flex;gap:8px;flex-direction:column">
         <a href="<?= $_apply_url ?>"
-           style="display:block;text-align:center;background:linear-gradient(135deg,#3DBFAF,#2A9485);
+           style="display:block;text-align:center;background:linear-gradient(135deg,var(--mint-dark),var(--mint-darker));
                   color:#fff;font-weight:800;font-size:15px;padding:14px 20px;
                   border-radius:40px;text-decoration:none;
                   box-shadow:0 4px 18px rgba(61,191,175,.35);
@@ -68,14 +68,14 @@ $_deadline_fmt = $_is_ja
           <?= $_is_ja ? '📝 今すぐ応募する →' : '📝 Apply Now →' ?>
         </a>
         <button onclick="closeApplyPopup(true)"
-                style="background:none;border:none;color:#A8C4BF;font-size:12px;
+                style="background:none;border:none;color:var(--warm-mid);font-size:12px;
                        cursor:pointer;padding:4px;text-align:center">
           <?= $_is_ja ? 'あとで確認する' : 'Maybe later' ?>
         </button>
       </div>
 
       <!-- Deadline line -->
-      <div style="text-align:center;font-size:11px;color:#C0D8D4;margin-top:10px">
+      <div style="text-align:center;font-size:11px;color:var(--warm-mid);margin-top:10px">
         <?= $_is_ja ? '📅 締め切り：' . $_deadline_fmt : '📅 Deadline: ' . $_deadline_fmt ?>
       </div>
     </div>
@@ -85,13 +85,13 @@ $_deadline_fmt = $_is_ja
 <!-- ── Countdown bar ─────────────────────────────────────────────────────────── -->
 <div id="apply-cbar"
      style="display:none;position:fixed;bottom:0;left:0;right:0;
-            background:linear-gradient(90deg,#2A9485,#3DBFAF);z-index:998;
+            background:linear-gradient(90deg,var(--mint-darker),var(--mint-dark));z-index:998;
             align-items:center;justify-content:center;gap:14px;padding:10px 20px;
             box-shadow:0 -2px 14px rgba(0,0,0,0.12);flex-wrap:wrap">
   <span id="cbar-txt"
         style="color:rgba(255,255,255,.95);font-size:13px;font-weight:600;white-space:nowrap"></span>
   <a href="<?= $_apply_url ?>"
-     style="background:#fff;color:#2A9485;font-weight:800;font-size:12px;
+     style="background:#fff;color:var(--mint-dark);font-weight:800;font-size:12px;
             padding:6px 16px;border-radius:20px;text-decoration:none;white-space:nowrap;
             box-shadow:0 2px 8px rgba(0,0,0,.12)">
     <?= $_is_ja ? '応募する →' : 'Apply Now →' ?>
