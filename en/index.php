@@ -361,7 +361,7 @@
     <ul class="faq-list">
       <li class="faq-item">
         <div class="faq-q">Who can apply?</div>
-        <div class="faq-a">This program is for people facing employment barriers and those who have never worked with IT or AI before. Single parents, people with foreign roots, those with school avoidance or hikikomori experience, and people from many different backgrounds have participated. If you're thinking "Is it really okay for me to apply?" — that's exactly who we made this for. Submit the form or come to an info session.</div>
+        <div class="faq-a">Anyone living in Shimane Prefecture is welcome to apply — regardless of age, occupation, or experience. Whether you want to get better at AI and computers, try something new, or learn at your own pace, any motivation is fine. If you're thinking "Is it really okay for me to apply?" — that's exactly who we'd love to hear from. Please feel free to apply.</div>
       </li>
       <li class="faq-item">
         <div class="faq-q">Is there any cost?</div>
