@@ -369,7 +369,7 @@
       </li>
       <li class="faq-item">
         <div class="faq-q">Is it okay if I'm not good with computers?</div>
-        <div class="faq-a">If you can do basic computer operations, no specialized knowledge is needed at all. "I don't use it every day but I can sort of get around" is perfectly fine. If you've touched Excel or PowerPoint at least a little, you're ready. Everything beyond that we learn together.</div>
+        <div class="faq-a">Not good with computers? No problem at all. If you can turn one on and type, that's enough. In fact, this program was made for people who haven't used computers much. Anything you don't know, we'll figure out together — so please apply with confidence.</div>
       </li>
       <li class="faq-item">
         <div class="faq-q">I'm worried about finding time while raising children.</div>
