@@ -43,7 +43,7 @@
     </div>
     <div class="hc-stat">
       <div class="num">3<span class="unit">名</span></div>
-      <div class="lbl">生活費サポート枠<br><span style="font-size:11px; color:var(--warm-light);">定員10名のうち3名</span></div>
+      <div class="lbl">生活費サポート枠<br><span style="font-size:11px; color:var(--warm-light);">定員10名のうち3名・選考あり</span></div>
     </div>
     <div class="hc-stat">
       <div class="num" style="font-size:26px;">無料</div>
@@ -221,7 +221,7 @@
           <div style="font-size:18px; font-weight:900; line-height:1;">3名</div>
           <div style="font-size:11px; margin-top:2px;">サポート枠</div>
         </div>
-        <div style="font-size:14px; font-weight:700; color:var(--warm-dark);">今、余裕がない人こそ使える生活費サポートがあります</div>
+        <div style="font-size:14px; font-weight:700; color:var(--warm-dark);">今、余裕がない人こそ使える生活費サポートがあります<span style="font-size:11px; font-weight:400; color:var(--warm-mid); margin-left:8px;">※別途選考あり</span></div>
       </div>
       <div class="spt-items">
         <div class="spt-item"><span>🎁</span>受講料は完全に無料</div>

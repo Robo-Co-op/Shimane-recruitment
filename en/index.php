@@ -42,7 +42,7 @@
     </div>
     <div class="hc-stat">
       <div class="num">3<span class="unit"> spots</span></div>
-      <div class="lbl">Living expense support<br><span style="font-size:11px; color:var(--warm-light);">3 of 10 total spots</span></div>
+      <div class="lbl">Living expense support<br><span style="font-size:11px; color:var(--warm-light);">3 of 10 total spots · selection required</span></div>
     </div>
     <div class="hc-stat">
       <div class="num" style="font-size:26px;">Free</div>
@@ -220,7 +220,7 @@
           <div style="font-size:18px; font-weight:900; line-height:1;">3</div>
           <div style="font-size:11px; margin-top:2px;">support spots</div>
         </div>
-        <div style="font-size:14px; font-weight:700; color:var(--warm-dark);">Living expense support — for those who need it most right now</div>
+        <div style="font-size:14px; font-weight:700; color:var(--warm-dark);">Living expense support — for those who need it most right now<span style="font-size:11px; font-weight:400; color:var(--warm-mid); margin-left:8px;">※ separate selection required</span></div>
       </div>
       <div class="spt-items">
         <div class="spt-item"><span>🎁</span>100% free tuition</div>
