@@ -23,6 +23,7 @@
 
 <!-- ========== HERO ========== -->
 <section class="hero">
+  <img src="/hero-en.png" alt="Learn AI in Shimane, and create a work style that's you" class="hero-image">
   <div class="hero-label">🏔️ Shimane Prefecture × Robo Co-op &nbsp;|&nbsp; FY2026 Digital Talent Development Program</div>
   <h1>
     Build your career<br>

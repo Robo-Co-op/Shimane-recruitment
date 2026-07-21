@@ -101,6 +101,14 @@
       bottom: -80px; left: -60px;
       pointer-events: none;
     }
+    .hero-image {
+      width: calc(100% + 56px);
+      max-width: calc(100% + 56px);
+      height: auto;
+      display: block;
+      margin: -72px -28px 28px;
+      position: relative;
+    }
     .hero-label {
       display: inline-block;
       background: white;

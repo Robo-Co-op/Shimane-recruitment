@@ -3,7 +3,13 @@
  * Router for PHP built-in development server.
  * Usage: php -S localhost:8000 router.php
  */
-$base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+// The PHP built-in server auto-resolves directory requests (e.g. /en) to that
+// directory's index.php and rewrites SCRIPT_NAME to match (e.g. /en/index.php).
+// Only trust SCRIPT_NAME's directory as a mount-prefix when it still points at
+// this router script — otherwise the stripping below would eat the real path.
+$base = basename($_SERVER['SCRIPT_NAME']) === 'router.php'
+    ? rtrim(dirname($_SERVER['SCRIPT_NAME']), '/')
+    : '';
 $uri  = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 if ($base !== '' && $base !== '/' && strpos($uri, $base) === 0) {
     $uri = substr($uri, strlen($base));

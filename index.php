@@ -23,6 +23,7 @@
 
 <!-- ========== HERO ========== -->
 <section class="hero">
+  <img src="/hero-ja.jpg" alt="島根でAIを学び、あなたらしい働き方へ" class="hero-image">
   <div class="hero-label">🏔️ 島根県 × Robo Co-op　令和8年度 デジタル人材育成研修</div>
   <h1>
     AIのスキルで、<br>
