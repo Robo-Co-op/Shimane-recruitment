@@ -1,0 +1,55 @@
+# Shimane IB Recruitment — Health Check
+#
+# Polls healthz.php (which tests the live DB connection) on a schedule and
+# emails an alert the moment it starts failing, instead of waiting for
+# someone to notice the admin panel or apply form is down.
+#
+# Reuses the SMTP_PASS secret already configured for the app's own emails
+# (see admin/includes/mail.php — smtp.hostinger.com / noreply@robocoop.org).
+
+name: Health Check
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check site health
+        id: healthcheck
+        run: |
+          set +e
+          code=$(curl -s -o /tmp/body.txt -w "%{http_code}" --max-time 15 "https://robocoop.org/robouni/shimane-ai/healthz.php")
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "HTTP $code"
+          cat /tmp/body.txt
+          if [ "$code" -ge 500 ] || [ "$code" = "000" ]; then
+            exit 1
+          fi
+
+      - name: Send alert email
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.hostinger.com
+          server_port: 587
+          username: noreply@robocoop.org
+          password: ${{ secrets.SMTP_PASS }}
+          subject: "Shimane site health check failed (HTTP ${{ steps.healthcheck.outputs.code }})"
+          to: eliyahe@roboco-op.org
+          from: Robo Co-op Site Monitor <noreply@robocoop.org>
+          body: |
+            The Shimane recruitment site health check failed.
+
+            URL: https://robocoop.org/robouni/shimane-ai/healthz.php
+            HTTP status: ${{ steps.healthcheck.outputs.code }}
+            Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            This usually means the database connection is failing — e.g. the
+            Supabase DB password was rotated, the project got paused, or the
+            pdo_pgsql PHP extension was disabled on Hostinger. Check /admin/
+            and /apply directly, and check the Hostinger PHP error log for
+            the exact exception message.
