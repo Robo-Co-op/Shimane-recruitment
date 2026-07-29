@@ -31,12 +31,11 @@ function get_db(): PDO {
     $schema = $schema ?: 'shimane';
 
     $pdo = new PDO(
-        "pgsql:host={$host};port={$port};dbname={$dbname}",
+        "pgsql:host={$host};port={$port};dbname={$dbname};connect_timeout=5",
         $user, $pass,
         [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_PERSISTENT         => true,
         ]
     );
 
