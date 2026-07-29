@@ -39,7 +39,7 @@ jobs:
           username: noreply@robocoop.org
           password: ${{ secrets.SMTP_PASS }}
           subject: "Shimane site health check failed (HTTP ${{ steps.healthcheck.outputs.code }})"
-          to: eliyahe@roboco-op.org
+          to: eliyahe@roboco-op.org,midori.urashima@roboco-op.org,kazumi.hanaoka@roboco-op.org
           from: Robo Co-op Site Monitor <noreply@robocoop.org>
           body: |
             The Shimane recruitment site health check failed.
